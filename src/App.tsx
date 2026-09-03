@@ -92,6 +92,25 @@ function App() {
       );
     });
 
+    gsap.fromTo(
+      ".projects-section",
+      {
+        borderTopLeftRadius: "44px",
+        borderTopRightRadius: "44px",
+      },
+      {
+        borderTopLeftRadius: "0px",
+        borderTopRightRadius: "0px",
+        ease: "none",
+        scrollTrigger: {
+          trigger: ".projects-section",
+          start: "top 92%",
+          end: "top 16%",
+          scrub: true,
+        },
+      },
+    );
+
     gsap.utils.toArray<HTMLElement>(".scroll-image").forEach((image) => {
       gsap.fromTo(
         image,
@@ -330,7 +349,7 @@ function Projects({
   };
 
   return (
-    <section id="projects" className="bg-chalk px-4 py-20 md:px-8 md:py-24">
+    <section id="projects" className="projects-section overflow-hidden bg-chalk px-4 py-20 md:px-8 md:py-24">
       <div className="mx-auto max-w-7xl">
         <div className="reveal mb-14 flex flex-col justify-between gap-6 md:flex-row md:items-end">
           <h2 className="max-w-4xl text-[clamp(2.3rem,5vw,4rem)] font-semibold leading-[1.08] tracking-[-0.01em]">
