@@ -60,9 +60,8 @@ function App() {
     gsap.utils.toArray<HTMLElement>(".reveal").forEach((element) => {
       gsap.fromTo(
         element,
-        { y: 48, opacity: 0 },
+        { opacity: 0 },
         {
-          y: 0,
           opacity: 1,
           duration: 0.9,
           ease: "power3.out",
@@ -77,10 +76,9 @@ function App() {
     gsap.utils.toArray<HTMLElement>(".project-card").forEach((card, index) => {
       gsap.fromTo(
         card,
-        { opacity: 0, scale: 0.985 },
+        { opacity: 0 },
         {
           opacity: 1,
-          scale: 1,
           duration: 0.7,
           delay: index * 0.035,
           ease: "power2.out",
