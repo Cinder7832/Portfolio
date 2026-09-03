@@ -870,7 +870,7 @@ function ProjectOverlay({
                   rel="noreferrer"
                   className="group inline-flex items-center gap-2 rounded-full bg-ink px-[22px] py-[11px] text-[17px] font-medium text-white transition-all duration-300 hover:bg-black hover:shadow-[0_14px_34px_rgba(29,29,31,0.18)] active:scale-95"
                 >
-                  <Github size={17} className="transition-transform duration-300 group-hover:-translate-y-0.5" />
+                  <Github size={17} />
                   Repository
                 </a>
               )}
