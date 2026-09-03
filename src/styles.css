@@ -7,10 +7,17 @@
 :root {
   color: #1d1d1f;
   background: #ffffff;
+  color-scheme: light;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+:root.dark {
+  color: #f5f5f7;
+  background: #08090b;
+  color-scheme: dark;
 }
 
 * {
@@ -26,6 +33,11 @@ body {
   margin: 0;
   min-width: 320px;
   background: #ffffff;
+  transition: background 500ms ease, color 500ms ease;
+}
+
+:root.dark body {
+  background: #08090b;
 }
 
 html.overlay-open,
@@ -42,6 +54,11 @@ html {
 html.is-pointer-active,
 html.is-scrolling {
   scrollbar-color: rgba(29, 29, 31, 0.38) #f5f5f7;
+}
+
+html.dark.is-pointer-active,
+html.dark.is-scrolling {
+  scrollbar-color: rgba(255, 255, 255, 0.34) #08090b;
 }
 
 ::-webkit-scrollbar {
@@ -65,6 +82,13 @@ html.is-scrolling::-webkit-scrollbar-thumb,
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(29, 29, 31, 0.42);
   border-color: #f5f5f7;
+}
+
+html.dark.is-pointer-active::-webkit-scrollbar-thumb,
+html.dark.is-scrolling::-webkit-scrollbar-thumb,
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.34);
+  border-color: #08090b;
 }
 
 button,

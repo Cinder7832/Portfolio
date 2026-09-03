@@ -11,10 +11,12 @@ import {
   Linkedin,
   Mail,
   Menu,
+  Moon,
   MoveRight,
   FileText,
   SlidersHorizontal,
   Search,
+  Sun,
   X,
 } from "lucide-react";
 import { Project, profile, projects } from "./data";
@@ -35,6 +37,18 @@ const scrollToSection = (targetId: string) => {
 function App() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [showAllProjects, setShowAllProjects] = useState(false);
+  const [darkMode, setDarkMode] = useState(() => {
+    if (typeof window === "undefined") {
+      return false;
+    }
+
+    const savedTheme = window.localStorage.getItem("theme");
+    if (savedTheme) {
+      return savedTheme === "dark";
+    }
+
+    return window.matchMedia("(prefers-color-scheme: dark)").matches;
+  });
   const lastFocusedElement = useRef<HTMLElement | null>(null);
   const overlayOpen = Boolean(selectedProject || showAllProjects);
 
@@ -150,6 +164,11 @@ function App() {
   }, []);
 
   useEffect(() => {
+    document.documentElement.classList.toggle("dark", darkMode);
+    window.localStorage.setItem("theme", darkMode ? "dark" : "light");
+  }, [darkMode]);
+
+  useEffect(() => {
     if (!overlayOpen) {
       document.documentElement.classList.remove("overlay-open");
       document.body.classList.remove("overlay-open");
@@ -217,8 +236,8 @@ function App() {
   }, [selectedProject]);
 
   return (
-    <main className="overflow-x-hidden w-full max-w-full bg-canvas text-ink">
-      <Navigation />
+    <main className="w-full max-w-full overflow-x-hidden bg-canvas text-ink transition-colors duration-500 dark:bg-[#08090b] dark:text-[#f5f5f7]">
+      <Navigation darkMode={darkMode} onToggleTheme={() => setDarkMode((value) => !value)} />
       <Hero />
       <Projects onSelect={setSelectedProject} onViewAll={() => setShowAllProjects(true)} />
       <About />
@@ -233,7 +252,13 @@ function App() {
   );
 }
 
-function Navigation() {
+function Navigation({
+  darkMode,
+  onToggleTheme,
+}: {
+  darkMode: boolean;
+  onToggleTheme: () => void;
+}) {
   const [open, setOpen] = useState(false);
   const links = [
     ["Home", "home"],
@@ -244,13 +269,13 @@ function Navigation() {
 
   return (
     <header className="fixed left-0 right-0 top-0 z-40 px-4 pt-4 md:px-8">
-      <nav className="site-nav mx-auto flex w-fit items-center justify-center rounded-full bg-chalk/86 px-2 py-2 shadow-nav backdrop-blur-xl">
+      <nav className="site-nav mx-auto flex w-fit items-center justify-center gap-1 rounded-full bg-chalk/86 px-2 py-2 shadow-nav backdrop-blur-xl transition-colors duration-500 dark:bg-white/10 dark:shadow-[0_22px_70px_rgba(0,0,0,0.42),0_8px_24px_rgba(0,0,0,0.28)]">
         <div className="hidden items-center gap-1 md:flex">
           {links.map(([label, href]) => (
             <button
               key={label}
               type="button"
-              className="rounded-full px-5 py-2.5 text-sm font-medium text-ink/62 transition-all duration-300 ease-out hover:bg-ink hover:text-white hover:shadow-[0_8px_24px_rgba(29,29,31,0.14)] active:scale-95"
+              className="rounded-full px-5 py-2.5 text-sm font-medium text-ink/62 transition-all duration-300 ease-out hover:bg-ink hover:text-white hover:shadow-[0_8px_24px_rgba(29,29,31,0.14)] active:scale-95 dark:text-white/70 dark:hover:bg-white dark:hover:text-ink dark:hover:shadow-[0_10px_28px_rgba(255,255,255,0.12)]"
               onClick={() => scrollToSection(href)}
             >
               {label}
@@ -259,7 +284,16 @@ function Navigation() {
         </div>
         <button
           type="button"
-          className="rounded-full px-3 py-2 text-ink transition-transform duration-300 hover:scale-105 active:scale-95 md:hidden"
+          className="grid size-[38px] place-items-center rounded-full text-ink/68 transition-all duration-300 hover:bg-ink hover:text-white hover:shadow-[0_8px_24px_rgba(29,29,31,0.14)] active:scale-95 dark:text-white/74 dark:hover:bg-white dark:hover:text-ink"
+          aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
+          aria-pressed={darkMode}
+          onClick={onToggleTheme}
+        >
+          {darkMode ? <Sun size={17} /> : <Moon size={17} />}
+        </button>
+        <button
+          type="button"
+          className="rounded-full px-3 py-2 text-ink transition-transform duration-300 hover:scale-105 active:scale-95 dark:text-white md:hidden"
           aria-label="Open navigation"
           onClick={() => setOpen((value) => !value)}
         >
@@ -267,12 +301,12 @@ function Navigation() {
         </button>
       </nav>
       {open && (
-        <div className="mx-auto mt-2 grid max-w-6xl gap-1 rounded-3xl bg-chalk/95 p-3 shadow-soft backdrop-blur-xl md:hidden">
+        <div className="mx-auto mt-2 grid max-w-6xl gap-1 rounded-3xl bg-chalk/95 p-3 shadow-soft backdrop-blur-xl transition-colors duration-500 dark:bg-[#17181c]/95 md:hidden">
           {links.map(([label, href]) => (
             <button
               key={label}
               type="button"
-              className="rounded-2xl px-4 py-3 text-sm text-ink/75 transition-all duration-300 hover:bg-canvas hover:pl-5"
+              className="rounded-2xl px-4 py-3 text-sm text-ink/75 transition-all duration-300 hover:bg-canvas hover:pl-5 dark:text-white/76 dark:hover:bg-white/10"
               onClick={() => {
                 scrollToSection(href);
                 setOpen(false);
@@ -289,19 +323,19 @@ function Navigation() {
 
 function Hero() {
   return (
-    <section id="home" className="relative min-h-[84vh] overflow-hidden bg-canvas px-4 pb-16 pt-28 md:px-8 md:pb-20 md:pt-32">
+    <section id="home" className="relative min-h-[84vh] overflow-hidden bg-canvas px-4 pb-16 pt-28 transition-colors duration-500 dark:bg-[#08090b] md:px-8 md:pb-20 md:pt-32">
       <div className="relative mx-auto grid min-h-[58vh] max-w-7xl items-center gap-10 lg:grid-cols-[1fr_0.78fr]">
         <div className="hero-copy mx-auto max-w-6xl text-center lg:mx-0 lg:text-left">
           <h1 className="max-w-6xl text-[clamp(3rem,6vw,5.4rem)] font-semibold leading-[1.03] tracking-[-0.01em]">
             Devanand Asai
           </h1>
-          <p className="mx-auto mt-5 max-w-2xl text-[21px] leading-[1.25] text-ink/80 lg:mx-0">
+          <p className="mx-auto mt-5 max-w-2xl text-[21px] leading-[1.25] text-ink/80 transition-colors duration-500 dark:text-white/72 lg:mx-0">
             Portfolio, projects, and ways to get in touch.
           </p>
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row lg:justify-start">
             <button
               type="button"
-              className="group inline-flex items-center justify-center gap-2 rounded-full bg-ink px-[22px] py-[11px] text-[17px] font-medium text-white transition-all duration-300 hover:bg-black hover:shadow-[0_14px_34px_rgba(29,29,31,0.18)] active:scale-95"
+              className="group inline-flex items-center justify-center gap-2 rounded-full bg-ink px-[22px] py-[11px] text-[17px] font-medium text-white transition-all duration-300 hover:bg-black hover:shadow-[0_14px_34px_rgba(29,29,31,0.18)] active:scale-95 dark:bg-white dark:text-ink dark:hover:bg-white/88 dark:hover:shadow-[0_14px_34px_rgba(255,255,255,0.12)]"
               onClick={() => scrollToSection("projects")}
             >
               View projects
@@ -311,7 +345,7 @@ function Hero() {
               href={profile.linkedin}
               target="_blank"
               rel="noreferrer"
-              className="group inline-flex items-center justify-center gap-2 rounded-full bg-canvas px-[22px] py-[11px] text-[17px] font-medium text-ink transition-all duration-300 hover:bg-chalk hover:shadow-[0_12px_30px_rgba(29,29,31,0.10)] active:scale-95"
+              className="group inline-flex items-center justify-center gap-2 rounded-full bg-canvas px-[22px] py-[11px] text-[17px] font-medium text-ink transition-all duration-300 hover:bg-chalk hover:shadow-[0_12px_30px_rgba(29,29,31,0.10)] active:scale-95 dark:bg-white/10 dark:text-white dark:hover:bg-white/16 dark:hover:shadow-[0_12px_30px_rgba(0,0,0,0.28)]"
             >
               LinkedIn
               <ArrowUpRight size={18} className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
@@ -322,7 +356,7 @@ function Hero() {
           <img
             src={profilePicture}
             alt="Devanand Asai profile picture"
-            className="profile-photo aspect-square w-full rounded-full bg-canvas object-cover shadow-[0_16px_45px_rgba(29,29,31,0.12)] transition-all duration-700 ease-out hover:scale-[1.025] hover:shadow-[0_22px_58px_rgba(29,29,31,0.16)]"
+            className="profile-photo aspect-square w-full rounded-full bg-canvas object-cover shadow-[0_16px_45px_rgba(29,29,31,0.12)] transition-all duration-700 ease-out hover:scale-[1.025] hover:shadow-[0_22px_58px_rgba(29,29,31,0.16)] dark:bg-[#111216] dark:shadow-[0_16px_45px_rgba(0,0,0,0.32)] dark:hover:shadow-[0_22px_58px_rgba(0,0,0,0.42)]"
           />
         </div>
       </div>
@@ -347,7 +381,7 @@ function Projects({
   };
 
   return (
-    <section id="projects" className="projects-section overflow-hidden bg-chalk px-4 py-20 md:px-8 md:py-24">
+    <section id="projects" className="projects-section overflow-hidden bg-chalk px-4 py-20 transition-colors duration-500 dark:bg-[#111216] md:px-8 md:py-24">
       <div className="mx-auto max-w-7xl">
         <div className="reveal mb-14 flex flex-col justify-between gap-6 md:flex-row md:items-end">
           <h2 className="max-w-4xl text-[clamp(2.3rem,5vw,4rem)] font-semibold leading-[1.08] tracking-[-0.01em]">
@@ -355,7 +389,7 @@ function Projects({
           </h2>
           <button
             type="button"
-            className="group inline-flex w-fit items-center gap-2 rounded-full bg-ink px-[22px] py-[11px] text-[17px] font-medium text-white transition-all duration-300 hover:bg-black hover:shadow-[0_14px_34px_rgba(29,29,31,0.18)] active:scale-95"
+            className="group inline-flex w-fit items-center gap-2 rounded-full bg-ink px-[22px] py-[11px] text-[17px] font-medium text-white transition-all duration-300 hover:bg-black hover:shadow-[0_14px_34px_rgba(29,29,31,0.18)] active:scale-95 dark:bg-white dark:text-ink dark:hover:bg-white/88 dark:hover:shadow-[0_14px_34px_rgba(255,255,255,0.12)]"
             onClick={onViewAll}
           >
             View all
@@ -365,7 +399,7 @@ function Projects({
         <div className="mb-5 flex justify-end gap-2">
           <button
             type="button"
-            className="group rounded-full bg-[#d2d2d7]/70 p-3 text-ink transition-all duration-300 hover:bg-[#d2d2d7] hover:shadow-[0_10px_26px_rgba(29,29,31,0.12)] active:scale-95"
+            className="group rounded-full bg-[#d2d2d7]/70 p-3 text-ink transition-all duration-300 hover:bg-[#d2d2d7] hover:shadow-[0_10px_26px_rgba(29,29,31,0.12)] active:scale-95 dark:bg-white/12 dark:text-white/82 dark:hover:bg-white/18 dark:hover:shadow-[0_10px_26px_rgba(0,0,0,0.32)]"
             aria-label="Scroll projects left"
             onClick={() => scrollProjects("left")}
           >
@@ -373,7 +407,7 @@ function Projects({
           </button>
           <button
             type="button"
-            className="group rounded-full bg-[#d2d2d7]/70 p-3 text-ink transition-all duration-300 hover:bg-[#d2d2d7] hover:shadow-[0_10px_26px_rgba(29,29,31,0.12)] active:scale-95"
+            className="group rounded-full bg-[#d2d2d7]/70 p-3 text-ink transition-all duration-300 hover:bg-[#d2d2d7] hover:shadow-[0_10px_26px_rgba(29,29,31,0.12)] active:scale-95 dark:bg-white/12 dark:text-white/82 dark:hover:bg-white/18 dark:hover:shadow-[0_10px_26px_rgba(0,0,0,0.32)]"
             aria-label="Scroll projects right"
             onClick={() => scrollProjects("right")}
           >
@@ -389,7 +423,7 @@ function Projects({
               <button
                 key={project.id}
                 type="button"
-                className="project-card group relative h-[24rem] w-[82vw] shrink-0 snap-start overflow-hidden rounded-[18px] bg-canvas text-left shadow-[0_16px_38px_rgba(29,29,31,0.08)] outline-none transition-shadow duration-500 ease-out hover:shadow-[0_22px_52px_rgba(29,29,31,0.14)] focus-visible:ring-4 focus-visible:ring-blueFocus/35 sm:w-[28rem] lg:w-[34rem]"
+                className="project-card group relative h-[24rem] w-[82vw] shrink-0 snap-start overflow-hidden rounded-[18px] bg-canvas text-left shadow-[0_16px_38px_rgba(29,29,31,0.08)] outline-none transition-shadow duration-500 ease-out hover:shadow-[0_22px_52px_rgba(29,29,31,0.14)] focus-visible:ring-4 focus-visible:ring-blueFocus/35 dark:bg-[#181a20] dark:shadow-[0_18px_44px_rgba(0,0,0,0.36)] dark:hover:shadow-[0_24px_60px_rgba(0,0,0,0.48)] sm:w-[28rem] lg:w-[34rem]"
                 onClick={() => onSelect(project)}
               >
                 <img
@@ -513,7 +547,7 @@ function AllProjectsOverlay({
 
   return (
     <div
-      className={`fixed inset-0 z-40 flex items-center justify-center bg-ink/72 px-4 py-6 backdrop-blur-md transition-opacity duration-300 ease-out ${
+      className={`fixed inset-0 z-40 flex items-center justify-center bg-ink/72 px-4 py-6 backdrop-blur-md transition-opacity duration-300 ease-out dark:bg-black/78 ${
         visible ? "opacity-100" : "opacity-0"
       }`}
       role="presentation"
@@ -526,7 +560,7 @@ function AllProjectsOverlay({
       }}
     >
       <section
-        className={`flex h-[88vh] w-full max-w-6xl flex-col overflow-hidden rounded-[18px] bg-chalk transition-all duration-300 ease-out md:h-[46rem] md:max-h-[88vh] ${
+        className={`flex h-[88vh] w-full max-w-6xl flex-col overflow-hidden rounded-[18px] bg-chalk transition-all duration-300 ease-out dark:bg-[#111216] md:h-[46rem] md:max-h-[88vh] ${
           visible ? "scale-100 opacity-100" : "scale-[0.98] opacity-0"
         }`}
         role="dialog"
@@ -539,11 +573,11 @@ function AllProjectsOverlay({
               <h2 id="all-projects-title" className="text-4xl font-semibold leading-[1.08] tracking-[-0.01em] md:text-6xl">
                 All projects
               </h2>
-              <p className="mt-3 text-sm text-muted">{displayedProjects.length} project results</p>
+              <p className="mt-3 text-sm text-muted dark:text-white/48">{displayedProjects.length} project results</p>
             </div>
             <button
               type="button"
-              className="shrink-0 rounded-full bg-[#d2d2d7]/70 p-3 text-ink transition-all duration-300 hover:rotate-90 hover:bg-[#d2d2d7] active:scale-95"
+              className="shrink-0 rounded-full bg-[#d2d2d7]/70 p-3 text-ink transition-all duration-300 hover:rotate-90 hover:bg-[#d2d2d7] active:scale-95 dark:bg-white/12 dark:text-white dark:hover:bg-white/18"
               aria-label="Close all projects"
               onClick={onClose}
             >
@@ -551,13 +585,13 @@ function AllProjectsOverlay({
             </button>
           </div>
           <div className="mt-7 flex flex-col gap-3 md:flex-row">
-            <label className="flex h-11 min-w-0 flex-1 items-center gap-3 rounded-full bg-white/85 px-5 text-ink shadow-[0_14px_34px_rgba(29,29,31,0.07)]">
-              <Search size={19} className="shrink-0 text-ink/45" />
+            <label className="flex h-11 min-w-0 flex-1 items-center gap-3 rounded-full bg-white/85 px-5 text-ink shadow-[0_14px_34px_rgba(29,29,31,0.07)] dark:bg-white/10 dark:text-white dark:shadow-[0_14px_34px_rgba(0,0,0,0.28)]">
+              <Search size={19} className="shrink-0 text-ink/45 dark:text-white/45" />
               <input
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="Search by title, category, or detail"
-                className="w-full min-w-0 bg-transparent text-sm outline-none placeholder:text-ink/38"
+                className="w-full min-w-0 bg-transparent text-sm outline-none placeholder:text-ink/38 dark:placeholder:text-white/36"
                 autoFocus
               />
             </label>
@@ -566,8 +600,8 @@ function AllProjectsOverlay({
                 type="button"
                 className={`flex h-11 w-full items-center justify-center gap-2 rounded-full px-5 text-sm font-medium transition-all duration-300 md:w-auto ${
                   filterOpen || category !== "All"
-                    ? "bg-ink text-white shadow-[0_12px_30px_rgba(29,29,31,0.14)]"
-                    : "bg-canvas text-ink hover:bg-white hover:shadow-[0_12px_30px_rgba(29,29,31,0.10)]"
+                    ? "bg-ink text-white shadow-[0_12px_30px_rgba(29,29,31,0.14)] dark:bg-white dark:text-ink dark:shadow-[0_12px_30px_rgba(255,255,255,0.10)]"
+                    : "bg-canvas text-ink hover:bg-white hover:shadow-[0_12px_30px_rgba(29,29,31,0.10)] dark:bg-white/10 dark:text-white dark:hover:bg-white/16 dark:hover:shadow-[0_12px_30px_rgba(0,0,0,0.28)]"
                 }`}
                 aria-expanded={filterOpen}
                 aria-haspopup="menu"
@@ -579,7 +613,7 @@ function AllProjectsOverlay({
               </button>
               {filterOpen && (
                 <div
-                  className="filter-menu absolute right-0 top-14 z-10 w-56 rounded-[18px] bg-canvas p-2 shadow-[0_18px_48px_rgba(29,29,31,0.16)]"
+                  className="filter-menu absolute right-0 top-14 z-10 w-56 rounded-[18px] bg-canvas p-2 shadow-[0_18px_48px_rgba(29,29,31,0.16)] dark:bg-[#1a1b20] dark:shadow-[0_18px_48px_rgba(0,0,0,0.48)]"
                   role="menu"
                   onMouseDown={(event) => event.stopPropagation()}
                 >
@@ -588,7 +622,7 @@ function AllProjectsOverlay({
                       key={item}
                       type="button"
                       className={`flex w-full items-center justify-between rounded-[14px] px-4 py-3 text-left text-sm font-medium transition-colors duration-200 ${
-                        category === item ? "bg-ink text-white" : "text-ink/70 hover:bg-chalk hover:text-ink"
+                        category === item ? "bg-ink text-white dark:bg-white dark:text-ink" : "text-ink/70 hover:bg-chalk hover:text-ink dark:text-white/62 dark:hover:bg-white/10 dark:hover:text-white"
                       }`}
                       role="menuitemradio"
                       aria-checked={category === item}
@@ -617,7 +651,7 @@ function AllProjectsOverlay({
                 <button
                   key={project.id}
                   type="button"
-                  className="filter-result-card group grid overflow-hidden rounded-[18px] bg-canvas text-left shadow-[0_12px_30px_rgba(29,29,31,0.06)] outline-none transition-shadow duration-500 ease-out hover:shadow-[0_18px_46px_rgba(29,29,31,0.12)] focus-visible:ring-4 focus-visible:ring-blueFocus/35 sm:grid-cols-[11rem_1fr]"
+                  className="filter-result-card group grid overflow-hidden rounded-[18px] bg-canvas text-left shadow-[0_12px_30px_rgba(29,29,31,0.06)] outline-none transition-shadow duration-500 ease-out hover:shadow-[0_18px_46px_rgba(29,29,31,0.12)] focus-visible:ring-4 focus-visible:ring-blueFocus/35 dark:bg-[#181a20] dark:shadow-[0_12px_30px_rgba(0,0,0,0.28)] dark:hover:shadow-[0_18px_46px_rgba(0,0,0,0.42)] sm:grid-cols-[11rem_1fr]"
                   style={{ animationDelay: `${index * 35}ms` }}
                   onClick={() => onSelect(project)}
                 >
@@ -630,19 +664,19 @@ function AllProjectsOverlay({
                   </div>
                   <div className="p-5">
                     <h3 className="text-2xl font-semibold tracking-[-0.01em]">{project.title}</h3>
-                    <p className="mt-3 text-sm leading-6 text-ink/66">{project.summary}</p>
+                    <p className="mt-3 text-sm leading-6 text-ink/66 dark:text-white/58">{project.summary}</p>
                   </div>
                 </button>
               ))}
             </div>
           ) : (
             <div
-              className={`empty-results rounded-[18px] bg-canvas p-10 text-center shadow-[0_12px_30px_rgba(29,29,31,0.06)] transition-all duration-300 ease-out ${
+              className={`empty-results rounded-[18px] bg-canvas p-10 text-center shadow-[0_12px_30px_rgba(29,29,31,0.06)] transition-all duration-300 ease-out dark:bg-[#181a20] dark:shadow-[0_12px_30px_rgba(0,0,0,0.28)] ${
                 resultsAnimating ? "translate-y-1 opacity-0" : "translate-y-0 opacity-100"
               }`}
             >
               <p className="text-lg font-medium">No projects found</p>
-              <p className="mt-2 text-sm text-ink/58">Try a different title, tool, or keyword.</p>
+              <p className="mt-2 text-sm text-ink/58 dark:text-white/50">Try a different title, tool, or keyword.</p>
             </div>
           )}
         </div>
@@ -668,38 +702,38 @@ function About() {
   ];
 
   return (
-    <section id="about" className="bg-canvas px-4 py-20 md:px-8 md:py-24">
+    <section id="about" className="bg-canvas px-4 py-20 transition-colors duration-500 dark:bg-[#08090b] md:px-8 md:py-24">
       <div className="reveal mx-auto max-w-3xl text-center">
         <div>
           <h2 className="text-[clamp(2.4rem,5vw,4.5rem)] font-semibold leading-[1.03] tracking-[-0.01em]">
             About me
           </h2>
-          <div className="mx-auto mt-7 max-w-2xl space-y-5 text-[17px] leading-[1.47] text-ink/72">
+          <div className="mx-auto mt-7 max-w-2xl space-y-5 text-[17px] leading-[1.47] text-ink/72 transition-colors duration-500 dark:text-white/66">
             <p>
               Game Development &amp; Creative Media student at New College Swindon.
             </p>
           </div>
           <div className="mx-auto mt-10 grid max-w-2xl gap-6">
-            <div className="rounded-[18px] bg-chalk p-5">
-              <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-muted">Skills</h3>
+            <div className="rounded-[18px] bg-chalk p-5 transition-colors duration-500 dark:bg-[#111216]">
+              <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-muted dark:text-white/46">Skills</h3>
               <div className="mt-4 flex flex-wrap justify-center gap-2">
                 {skills.map((skill) => (
                   <span
                     key={skill}
-                    className="rounded-full bg-canvas px-4 py-2 text-sm font-medium text-ink"
+                    className="rounded-full bg-canvas px-4 py-2 text-sm font-medium text-ink transition-colors duration-500 dark:bg-white/10 dark:text-white/78"
                   >
                     {skill}
                   </span>
                 ))}
               </div>
             </div>
-            <div className="rounded-[18px] bg-chalk p-5">
-              <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-muted">Tools</h3>
+            <div className="rounded-[18px] bg-chalk p-5 transition-colors duration-500 dark:bg-[#111216]">
+              <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-muted dark:text-white/46">Tools</h3>
               <div className="mt-4 flex flex-wrap justify-center gap-2">
                 {tools.map((tool) => (
                   <span
                     key={tool}
-                    className="rounded-full bg-canvas px-4 py-2 text-sm font-medium text-ink"
+                    className="rounded-full bg-canvas px-4 py-2 text-sm font-medium text-ink transition-colors duration-500 dark:bg-white/10 dark:text-white/78"
                   >
                     {tool}
                   </span>
@@ -711,7 +745,7 @@ function About() {
             href={cvUrl}
             target="_blank"
             rel="noreferrer"
-            className="mt-8 inline-flex items-center justify-center gap-2 rounded-full bg-ink px-[22px] py-[11px] text-[17px] font-medium text-white transition-all duration-300 hover:bg-black hover:shadow-[0_14px_34px_rgba(29,29,31,0.18)] active:scale-95"
+            className="mt-8 inline-flex items-center justify-center gap-2 rounded-full bg-ink px-[22px] py-[11px] text-[17px] font-medium text-white transition-all duration-300 hover:bg-black hover:shadow-[0_14px_34px_rgba(29,29,31,0.18)] active:scale-95 dark:bg-white dark:text-ink dark:hover:bg-white/88 dark:hover:shadow-[0_14px_34px_rgba(255,255,255,0.12)]"
           >
             <FileText size={18} />
             View CV
@@ -724,18 +758,18 @@ function About() {
 
 function Contact() {
   return (
-    <section id="contact" className="bg-canvas px-4 py-20 md:px-8 md:py-24">
+    <section id="contact" className="bg-canvas px-4 py-20 transition-colors duration-500 dark:bg-[#08090b] md:px-8 md:py-24">
       <div className="reveal mx-auto max-w-6xl text-center">
         <h2 className="text-[clamp(2.6rem,6vw,5rem)] font-semibold leading-[1.05] tracking-[-0.01em]">
           Contact
         </h2>
-        <p className="mx-auto mt-5 max-w-2xl text-[21px] leading-[1.25] text-ink/72">
+        <p className="mx-auto mt-5 max-w-2xl text-[21px] leading-[1.25] text-ink/72 transition-colors duration-500 dark:text-white/66">
           Reach out for development work or collaboration.
         </p>
         <div className="mt-10 flex flex-col justify-center gap-3 sm:flex-row">
           <a
             href={`mailto:${profile.email}`}
-            className="group inline-flex items-center justify-center gap-2 rounded-full bg-ink px-[22px] py-[11px] text-[17px] font-medium text-white transition-all duration-300 hover:bg-black hover:shadow-[0_14px_34px_rgba(29,29,31,0.18)] active:scale-95"
+            className="group inline-flex items-center justify-center gap-2 rounded-full bg-ink px-[22px] py-[11px] text-[17px] font-medium text-white transition-all duration-300 hover:bg-black hover:shadow-[0_14px_34px_rgba(29,29,31,0.18)] active:scale-95 dark:bg-white dark:text-ink dark:hover:bg-white/88 dark:hover:shadow-[0_14px_34px_rgba(255,255,255,0.12)]"
           >
             <Mail size={18} />
             Email me
@@ -744,7 +778,7 @@ function Contact() {
             href={profile.github}
             target="_blank"
             rel="noreferrer"
-            className="group inline-flex items-center justify-center gap-2 rounded-full bg-canvas px-[22px] py-[11px] text-[17px] font-medium text-ink transition-all duration-300 hover:bg-chalk hover:shadow-[0_12px_30px_rgba(29,29,31,0.10)] active:scale-95"
+            className="group inline-flex items-center justify-center gap-2 rounded-full bg-canvas px-[22px] py-[11px] text-[17px] font-medium text-ink transition-all duration-300 hover:bg-chalk hover:shadow-[0_12px_30px_rgba(29,29,31,0.10)] active:scale-95 dark:bg-white/10 dark:text-white dark:hover:bg-white/16 dark:hover:shadow-[0_12px_30px_rgba(0,0,0,0.28)]"
           >
             <Github size={18} />
             GitHub
@@ -753,14 +787,14 @@ function Contact() {
             href={profile.linkedin}
             target="_blank"
             rel="noreferrer"
-            className="group inline-flex items-center justify-center gap-2 rounded-full bg-canvas px-[22px] py-[11px] text-[17px] font-medium text-ink transition-all duration-300 hover:bg-chalk hover:shadow-[0_12px_30px_rgba(29,29,31,0.10)] active:scale-95"
+            className="group inline-flex items-center justify-center gap-2 rounded-full bg-canvas px-[22px] py-[11px] text-[17px] font-medium text-ink transition-all duration-300 hover:bg-chalk hover:shadow-[0_12px_30px_rgba(29,29,31,0.10)] active:scale-95 dark:bg-white/10 dark:text-white dark:hover:bg-white/16 dark:hover:shadow-[0_12px_30px_rgba(0,0,0,0.28)]"
           >
             <Linkedin size={18} />
             LinkedIn
           </a>
         </div>
       </div>
-      <footer className="mx-auto mt-20 max-w-6xl border-t border-hairline pt-8 text-center text-xs text-muted">
+      <footer className="mx-auto mt-20 max-w-6xl border-t border-hairline pt-8 text-center text-xs text-muted transition-colors duration-500 dark:border-white/10 dark:text-white/42">
         <p>© 2026 Devanand Asai. All rights reserved.</p>
       </footer>
     </section>
@@ -809,7 +843,7 @@ function ProjectOverlay({
 
   return (
     <div
-      className={`fixed inset-0 z-50 flex items-center justify-center bg-ink/72 px-4 py-6 backdrop-blur-md transition-opacity duration-300 ease-out ${
+      className={`fixed inset-0 z-50 flex items-center justify-center bg-ink/72 px-4 py-6 backdrop-blur-md transition-opacity duration-300 ease-out dark:bg-black/78 ${
         visible ? "opacity-100" : "opacity-0"
       }`}
       role="presentation"
@@ -820,7 +854,7 @@ function ProjectOverlay({
       }}
     >
       <article
-        className={`max-h-[92vh] w-full max-w-5xl overflow-y-auto rounded-[18px] bg-chalk outline-none transition-all duration-300 ease-out ${
+        className={`max-h-[92vh] w-full max-w-5xl overflow-y-auto rounded-[18px] bg-chalk outline-none transition-all duration-300 ease-out dark:bg-[#111216] ${
           visible ? "scale-100 opacity-100" : "scale-[0.98] opacity-0"
         }`}
         role="dialog"
@@ -844,7 +878,7 @@ function ProjectOverlay({
               </h3>
               <button
                 type="button"
-                className="shrink-0 rounded-full bg-[#d2d2d7]/70 p-3 text-ink transition-all duration-300 hover:rotate-90 hover:bg-[#d2d2d7] active:scale-95"
+                className="shrink-0 rounded-full bg-[#d2d2d7]/70 p-3 text-ink transition-all duration-300 hover:rotate-90 hover:bg-[#d2d2d7] active:scale-95 dark:bg-white/12 dark:text-white dark:hover:bg-white/18"
                 aria-label="Close project details"
                 onClick={onClose}
                 autoFocus
@@ -852,10 +886,10 @@ function ProjectOverlay({
                 <X size={20} />
               </button>
             </div>
-            <p className="text-[17px] leading-[1.47] text-ink/72">{displayProject.description}</p>
+            <p className="text-[17px] leading-[1.47] text-ink/72 dark:text-white/66">{displayProject.description}</p>
             <div className="mt-10 grid gap-3">
               {displayProject.highlights.map((highlight) => (
-                <p key={highlight} className="rounded-[18px] bg-white/75 p-4 text-sm leading-6 text-ink/72">
+                <p key={highlight} className="rounded-[18px] bg-white/75 p-4 text-sm leading-6 text-ink/72 dark:bg-white/8 dark:text-white/66">
                   {highlight}
                 </p>
               ))}
@@ -866,7 +900,7 @@ function ProjectOverlay({
                   href={displayProject.githubUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="group inline-flex items-center gap-2 rounded-full bg-ink px-[22px] py-[11px] text-[17px] font-medium text-white transition-all duration-300 hover:bg-black hover:shadow-[0_14px_34px_rgba(29,29,31,0.18)] active:scale-95"
+                  className="group inline-flex items-center gap-2 rounded-full bg-ink px-[22px] py-[11px] text-[17px] font-medium text-white transition-all duration-300 hover:bg-black hover:shadow-[0_14px_34px_rgba(29,29,31,0.18)] active:scale-95 dark:bg-white dark:text-ink dark:hover:bg-white/88 dark:hover:shadow-[0_14px_34px_rgba(255,255,255,0.12)]"
                 >
                   <Github size={17} />
                   Repository
@@ -877,7 +911,7 @@ function ProjectOverlay({
                   href={displayProject.liveUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="group inline-flex items-center gap-2 rounded-full bg-canvas px-[22px] py-[11px] text-[17px] font-medium text-ink transition-all duration-300 hover:bg-chalk hover:shadow-[0_12px_30px_rgba(29,29,31,0.10)] active:scale-95"
+                  className="group inline-flex items-center gap-2 rounded-full bg-canvas px-[22px] py-[11px] text-[17px] font-medium text-ink transition-all duration-300 hover:bg-chalk hover:shadow-[0_12px_30px_rgba(29,29,31,0.10)] active:scale-95 dark:bg-white/10 dark:text-white dark:hover:bg-white/16 dark:hover:shadow-[0_12px_30px_rgba(0,0,0,0.28)]"
                 >
                   Live site
                   <ArrowUpRight size={17} className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
