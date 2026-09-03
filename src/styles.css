@@ -1,0 +1,134 @@
+@import url("https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color: #1d1d1f;
+  background: #ffffff;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scrollbar-gutter: stable;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background: #ffffff;
+}
+
+html.overlay-open,
+body.overlay-open {
+  overflow: hidden;
+}
+
+html {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  transition: scrollbar-color 260ms ease;
+}
+
+html.is-pointer-active,
+html.is-scrolling {
+  scrollbar-color: rgba(29, 29, 31, 0.38) #f5f5f7;
+}
+
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: transparent;
+  border: 3px solid transparent;
+  border-radius: 999px;
+  transition: background 260ms ease;
+}
+
+html.is-pointer-active::-webkit-scrollbar-thumb,
+html.is-scrolling::-webkit-scrollbar-thumb,
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(29, 29, 31, 0.42);
+  border-color: #f5f5f7;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.filter-menu {
+  animation: filter-menu-in 180ms ease-out both;
+  transform-origin: top right;
+}
+
+.filter-check {
+  animation: filter-check-in 180ms ease-out both;
+}
+
+.filter-result-card {
+  animation: filter-result-in 260ms ease-out both;
+}
+
+.empty-results {
+  animation: filter-result-in 260ms ease-out both;
+}
+
+@keyframes filter-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes filter-result-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes filter-check-in {
+  from {
+    opacity: 0;
+    transform: scale(0.82);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
