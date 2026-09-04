@@ -14,6 +14,7 @@ export type Project = {
 export type Artwork = {
   id: string;
   title: string;
+  kind: "2D" | "3D";
   medium: string;
   year: string;
   summary: string;
@@ -21,6 +22,7 @@ export type Artwork = {
   tags: string[];
   imageSeed: string;
   imageUrl?: string;
+  modelUrl?: string;
   aspect: "portrait" | "landscape" | "square" | "tall";
 };
 
@@ -102,6 +104,7 @@ export const artworks: Artwork[] = [
   {
     id: "watchful-eye-study",
     title: "Watchful Eye Study",
+    kind: "2D",
     medium: "Graphite sketch",
     year: "2026",
     summary: "A close study of texture, shadow, and tension in a single framed moment.",
@@ -114,6 +117,7 @@ export const artworks: Artwork[] = [
   {
     id: "hanging-houses",
     title: "Hanging Houses",
+    kind: "2D",
     medium: "Concept art",
     year: "2026",
     summary: "Layered architectural forms designed as a compact fantasy environment.",
@@ -126,6 +130,7 @@ export const artworks: Artwork[] = [
   {
     id: "okinawa-poster",
     title: "Okinawa Poster",
+    kind: "2D",
     medium: "Digital poster",
     year: "2025",
     summary: "A bold poster-style image using graphic shape, flat colour, and travel-inspired composition.",
@@ -138,6 +143,7 @@ export const artworks: Artwork[] = [
   {
     id: "ruined-chapel",
     title: "Ruined Chapel",
+    kind: "2D",
     medium: "Environment study",
     year: "2025",
     summary: "A quiet architectural scene focused on atmosphere, scale, and negative space.",
@@ -150,6 +156,7 @@ export const artworks: Artwork[] = [
   {
     id: "mechanical-parts",
     title: "Mechanical Parts",
+    kind: "2D",
     medium: "Prop sheet",
     year: "2025",
     summary: "A reusable set of industrial prop details for worldbuilding and scene dressing.",
@@ -162,6 +169,7 @@ export const artworks: Artwork[] = [
   {
     id: "night-tree",
     title: "Night Tree",
+    kind: "2D",
     medium: "Digital painting",
     year: "2025",
     summary: "A vertical atmospheric piece built with deep contrast and a sharp silhouette.",
@@ -170,5 +178,31 @@ export const artworks: Artwork[] = [
     tags: ["Digital", "Atmosphere", "Silhouette"],
     imageSeed: "dark-night-tree-silhouette",
     aspect: "tall",
+  },
+  {
+    id: "stylised-crate-model",
+    title: "Stylised Crate Model",
+    kind: "3D",
+    medium: "Low-poly 3D model",
+    year: "2026",
+    summary: "A compact prop model focused on readable silhouette, bevels, and game-ready shape language.",
+    description:
+      "A 3D prop study for practicing clean forms, simple material separation, and a turntable-ready presentation style.",
+    tags: ["3D", "Prop", "Low-poly"],
+    imageSeed: "stylised-wooden-crate-model",
+    aspect: "square",
+  },
+  {
+    id: "modular-tower-model",
+    title: "Modular Tower Model",
+    kind: "3D",
+    medium: "Environment asset",
+    year: "2026",
+    summary: "A vertical modular structure exploring stacked shapes, roof forms, and fantasy asset proportions.",
+    description:
+      "A model-viewer entry for environment assets. Replace the procedural preview with a real GLB file when the finished model is ready.",
+    tags: ["3D", "Environment", "Modular"],
+    imageSeed: "fantasy-modular-tower-model",
+    aspect: "portrait",
   },
 ];

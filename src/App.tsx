@@ -2,13 +2,14 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import * as THREE from "three";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import {
   ArrowUpRight,
   Check,
   ChevronLeft,
   ChevronRight,
   Github,
-  Image,
   Linkedin,
   Mail,
   Menu,
@@ -19,6 +20,8 @@ import {
   Search,
   Sun,
   X,
+  ZoomIn,
+  ZoomOut,
 } from "lucide-react";
 import { Artwork, Project, artworks, profile, projects } from "./data";
 
@@ -46,6 +49,14 @@ const artworkAspectClass = (aspect: Artwork["aspect"]) => {
   return classes[aspect];
 };
 
+const artworkMediaAspectClass = (artwork: Artwork) => {
+  if (artwork.kind === "3D") {
+    return "aspect-[4/3]";
+  }
+
+  return artworkAspectClass(artwork.aspect);
+};
+
 const artworkImageFor = (artwork: Artwork, width = 900, height = 1200) => {
   if (!artwork.imageUrl) {
     return imageFor(artwork.imageSeed, width, height);
@@ -56,6 +67,18 @@ const artworkImageFor = (artwork: Artwork, width = 900, height = 1200) => {
   }
 
   return `${import.meta.env.BASE_URL}${artwork.imageUrl.replace(/^\/+/, "")}`;
+};
+
+const artworkModelFor = (artwork: Artwork) => {
+  if (!artwork.modelUrl) {
+    return null;
+  }
+
+  if (/^https?:\/\//.test(artwork.modelUrl)) {
+    return artwork.modelUrl;
+  }
+
+  return `${import.meta.env.BASE_URL}${artwork.modelUrl.replace(/^\/+/, "")}`;
 };
 
 function App() {
@@ -74,6 +97,46 @@ function App() {
   const lastFocusedElement = useRef<HTMLElement | null>(null);
   const hasMountedTheme = useRef(false);
   const overlayOpen = Boolean(selectedProject || showAllProjects || selectedArtwork || showAllArtwork);
+  const showPreviousProject = () => {
+    setSelectedProject((currentProject) => {
+      if (!currentProject) {
+        return currentProject;
+      }
+
+      const currentIndex = projects.findIndex((project) => project.id === currentProject.id);
+      return projects[(currentIndex - 1 + projects.length) % projects.length];
+    });
+  };
+  const showNextProject = () => {
+    setSelectedProject((currentProject) => {
+      if (!currentProject) {
+        return currentProject;
+      }
+
+      const currentIndex = projects.findIndex((project) => project.id === currentProject.id);
+      return projects[(currentIndex + 1) % projects.length];
+    });
+  };
+  const showPreviousArtwork = () => {
+    setSelectedArtwork((currentArtwork) => {
+      if (!currentArtwork) {
+        return currentArtwork;
+      }
+
+      const currentIndex = artworks.findIndex((artwork) => artwork.id === currentArtwork.id);
+      return artworks[(currentIndex - 1 + artworks.length) % artworks.length];
+    });
+  };
+  const showNextArtwork = () => {
+    setSelectedArtwork((currentArtwork) => {
+      if (!currentArtwork) {
+        return currentArtwork;
+      }
+
+      const currentIndex = artworks.findIndex((artwork) => artwork.id === currentArtwork.id);
+      return artworks[(currentIndex + 1) % artworks.length];
+    });
+  };
 
   useGSAP(() => {
     gsap.fromTo(
@@ -302,8 +365,18 @@ function App() {
       <ArtworkSection onSelect={setSelectedArtwork} onViewAll={() => setShowAllArtwork(true)} />
       <About />
       <Contact />
-      <ProjectOverlay project={selectedProject} onClose={() => setSelectedProject(null)} />
-      <ArtworkOverlay artwork={selectedArtwork} onClose={() => setSelectedArtwork(null)} />
+      <ProjectOverlay
+        project={selectedProject}
+        onClose={() => setSelectedProject(null)}
+        onPrevious={showPreviousProject}
+        onNext={showNextProject}
+      />
+      <ArtworkOverlay
+        artwork={selectedArtwork}
+        onClose={() => setSelectedArtwork(null)}
+        onPrevious={showPreviousArtwork}
+        onNext={showNextArtwork}
+      />
       <AllProjectsOverlay
         open={showAllProjects}
         onClose={() => setShowAllProjects(false)}
@@ -526,6 +599,287 @@ function Projects({
   );
 }
 
+function ModelViewer({
+  artwork,
+  compact = false,
+}: {
+  artwork: Artwork;
+  compact?: boolean;
+}) {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [viewerVersion, setViewerVersion] = useState(0);
+  const zoomControlsRef = useRef<{
+    zoomIn: () => void;
+    zoomOut: () => void;
+  } | null>(null);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) {
+      return;
+    }
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(36, 1, 0.1, 100);
+    const cameraDirection = new THREE.Vector3(3.1, 2.2, 4.2).normalize();
+    let targetDistance = 5.55;
+    const setCameraDistance = (distance: number) => {
+      targetDistance = THREE.MathUtils.clamp(distance, 2.7, 8);
+      camera.position.copy(cameraDirection).multiplyScalar(targetDistance);
+      camera.lookAt(0, 0, 0);
+    };
+    setCameraDistance(targetDistance);
+    zoomControlsRef.current = {
+      zoomIn: () => setCameraDistance(targetDistance - 0.45),
+      zoomOut: () => setCameraDistance(targetDistance + 0.45),
+    };
+
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setClearColor(0x000000, 0);
+    renderer.domElement.style.display = "block";
+    renderer.domElement.style.height = "100%";
+    renderer.domElement.style.inset = "0";
+    renderer.domElement.style.position = "absolute";
+    renderer.domElement.style.width = "100%";
+    renderer.domElement.style.zIndex = "1";
+    container.appendChild(renderer.domElement);
+
+    const modelGroup = new THREE.Group();
+    scene.add(modelGroup);
+
+    const ambientLight = new THREE.AmbientLight(0xffffff, 2.2);
+    scene.add(ambientLight);
+
+    const keyLight = new THREE.DirectionalLight(0xffffff, 3.8);
+    keyLight.position.set(3, 5, 4);
+    scene.add(keyLight);
+
+    const fillLight = new THREE.DirectionalLight(0xb9d2ff, 1.7);
+    fillLight.position.set(-4, 2, -2);
+    scene.add(fillLight);
+
+    const floorGeometry = new THREE.CircleGeometry(1.65, 72);
+    const floorMaterial = new THREE.MeshBasicMaterial({
+      color: 0xffffff,
+      transparent: true,
+      opacity: 0.08,
+      side: THREE.DoubleSide,
+    });
+    const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+    floor.rotation.x = -Math.PI / 2;
+    floor.position.y = -1.08;
+    scene.add(floor);
+
+    let loadedModel: THREE.Object3D | null = null;
+    const modelUrl = artworkModelFor(artwork);
+
+    if (modelUrl) {
+      const loader = new GLTFLoader();
+      loader.load(modelUrl, (gltf) => {
+        loadedModel = gltf.scene;
+        const box = new THREE.Box3().setFromObject(loadedModel);
+        const size = new THREE.Vector3();
+        const center = new THREE.Vector3();
+        box.getSize(size);
+        box.getCenter(center);
+        const largestSide = Math.max(size.x, size.y, size.z) || 1;
+        loadedModel.position.sub(center);
+        loadedModel.scale.setScalar(2.35 / largestSide);
+        modelGroup.clear();
+        modelGroup.add(loadedModel);
+      });
+    }
+
+    if (!modelUrl) {
+      const baseMaterial = new THREE.MeshStandardMaterial({
+        color: artwork.id.includes("tower") ? 0x8a98a8 : 0xb87b44,
+        roughness: 0.68,
+        metalness: 0.08,
+      });
+      const accentMaterial = new THREE.MeshStandardMaterial({
+        color: artwork.id.includes("tower") ? 0xd7c3a2 : 0x3d2b1f,
+        roughness: 0.82,
+      });
+      const edgeMaterial = new THREE.MeshStandardMaterial({
+        color: 0x1f2328,
+        roughness: 0.62,
+        metalness: 0.18,
+      });
+
+      const bodyGeometry = artwork.id.includes("tower")
+        ? new THREE.CylinderGeometry(0.8, 1, 2.2, 6)
+        : new THREE.BoxGeometry(1.75, 1.25, 1.45);
+      const body = new THREE.Mesh(bodyGeometry, baseMaterial);
+      modelGroup.add(body);
+
+      if (artwork.id.includes("tower")) {
+        const roof = new THREE.Mesh(new THREE.ConeGeometry(1.05, 0.8, 6), accentMaterial);
+        roof.position.y = 1.5;
+        modelGroup.add(roof);
+
+        const bands = [-0.64, 0.1, 0.84];
+        bands.forEach((position) => {
+          const band = new THREE.Mesh(new THREE.CylinderGeometry(0.84, 0.98, 0.08, 6), edgeMaterial);
+          band.position.y = position;
+          modelGroup.add(band);
+        });
+      } else {
+        const slats = [
+          { x: 0, y: 0.68, z: 0, sx: 1.98, sy: 0.12, sz: 1.64 },
+          { x: 0, y: -0.68, z: 0, sx: 1.98, sy: 0.12, sz: 1.64 },
+          { x: -0.94, y: 0, z: 0, sx: 0.12, sy: 1.45, sz: 1.62 },
+          { x: 0.94, y: 0, z: 0, sx: 0.12, sy: 1.45, sz: 1.62 },
+        ];
+        slats.forEach((slat) => {
+          const mesh = new THREE.Mesh(new THREE.BoxGeometry(slat.sx, slat.sy, slat.sz), edgeMaterial);
+          mesh.position.set(slat.x, slat.y, slat.z);
+          modelGroup.add(mesh);
+        });
+
+        const brace = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.85, 1.62), accentMaterial);
+        brace.rotation.z = Math.PI / 4;
+        modelGroup.add(brace);
+      }
+    }
+
+    let pointerDown = false;
+    let pointerX = 0;
+    let targetRotation = 0;
+    let frameId = 0;
+    let remountTimeout = 0;
+
+    const resize = () => {
+      const rect = container.getBoundingClientRect();
+      const width = Math.max(1, rect.width);
+      const height = Math.max(1, rect.height);
+      renderer.setSize(width, height, false);
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+    };
+
+    const onPointerDown = (event: PointerEvent) => {
+      pointerDown = true;
+      pointerX = event.clientX;
+      container.setPointerCapture(event.pointerId);
+    };
+
+    const onPointerMove = (event: PointerEvent) => {
+      if (!pointerDown) {
+        return;
+      }
+
+      const delta = event.clientX - pointerX;
+      pointerX = event.clientX;
+      targetRotation += delta * 0.01;
+    };
+
+    const onPointerUp = (event: PointerEvent) => {
+      pointerDown = false;
+      if (container.hasPointerCapture(event.pointerId)) {
+        container.releasePointerCapture(event.pointerId);
+      }
+    };
+
+    const onWheel = (event: WheelEvent) => {
+      event.preventDefault();
+      setCameraDistance(targetDistance + event.deltaY * 0.004);
+    };
+    const onContextLost = (event: Event) => {
+      event.preventDefault();
+      window.cancelAnimationFrame(frameId);
+      window.clearTimeout(remountTimeout);
+      remountTimeout = window.setTimeout(() => {
+        setViewerVersion((version) => version + 1);
+      }, 160);
+    };
+
+    const resizeObserver = new ResizeObserver(resize);
+    resizeObserver.observe(container);
+    container.addEventListener("pointerdown", onPointerDown);
+    container.addEventListener("pointermove", onPointerMove);
+    container.addEventListener("pointerup", onPointerUp);
+    container.addEventListener("pointercancel", onPointerUp);
+    container.addEventListener("wheel", onWheel, { passive: false });
+    renderer.domElement.addEventListener("webglcontextlost", onContextLost);
+    resize();
+
+    const animate = () => {
+      targetRotation += pointerDown ? 0 : 0.006;
+      modelGroup.rotation.y += (targetRotation - modelGroup.rotation.y) * 0.08;
+      modelGroup.rotation.x = Math.sin(targetRotation * 0.35) * 0.08;
+      renderer.render(scene, camera);
+      frameId = window.requestAnimationFrame(animate);
+    };
+    animate();
+
+    return () => {
+      window.cancelAnimationFrame(frameId);
+      window.clearTimeout(remountTimeout);
+      resizeObserver.disconnect();
+      container.removeEventListener("pointerdown", onPointerDown);
+      container.removeEventListener("pointermove", onPointerMove);
+      container.removeEventListener("pointerup", onPointerUp);
+      container.removeEventListener("pointercancel", onPointerUp);
+      container.removeEventListener("wheel", onWheel);
+      renderer.domElement.removeEventListener("webglcontextlost", onContextLost);
+      zoomControlsRef.current = null;
+      renderer.dispose();
+      floorGeometry.dispose();
+      floorMaterial.dispose();
+      scene.traverse((object) => {
+        if (!(object instanceof THREE.Mesh)) {
+          return;
+        }
+
+        object.geometry.dispose();
+        const material = object.material;
+        if (Array.isArray(material)) {
+          material.forEach((item) => item.dispose());
+          return;
+        }
+
+        material.dispose();
+      });
+      loadedModel = null;
+      renderer.domElement.remove();
+    };
+  }, [artwork, viewerVersion]);
+
+  return (
+    <div
+      ref={containerRef}
+      className={`relative isolate cursor-grab overflow-hidden bg-[#202124] active:cursor-grabbing ${
+        compact ? "h-full w-full" : "h-full min-h-[22rem] max-h-[78vh] w-full rounded-[14px]"
+      }`}
+      aria-label={`${artwork.title} interactive 3D model viewer`}
+      role="img"
+    >
+      <div className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(circle_at_35%_20%,rgba(255,255,255,0.18),transparent_32%),radial-gradient(circle_at_70%_80%,rgba(118,144,180,0.18),transparent_36%)]" />
+      {!compact && (
+        <div className="absolute bottom-4 right-4 z-10 flex gap-2">
+          <button
+            type="button"
+            className="grid size-10 place-items-center rounded-full bg-white/12 text-white/82 backdrop-blur-md transition-all duration-300 hover:bg-white hover:text-ink active:scale-95"
+            aria-label="Zoom model out"
+            onClick={() => zoomControlsRef.current?.zoomOut()}
+          >
+            <ZoomOut size={18} />
+          </button>
+          <button
+            type="button"
+            className="grid size-10 place-items-center rounded-full bg-white/12 text-white/82 backdrop-blur-md transition-all duration-300 hover:bg-white hover:text-ink active:scale-95"
+            aria-label="Zoom model in"
+            onClick={() => zoomControlsRef.current?.zoomIn()}
+          >
+            <ZoomIn size={18} />
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ArtworkSection({
   onSelect,
   onViewAll,
@@ -533,7 +887,10 @@ function ArtworkSection({
   onSelect: (artwork: Artwork) => void;
   onViewAll: () => void;
 }) {
-  const featuredArtworks = artworks.slice(0, 6);
+  const featuredArtworks = [
+    ...artworks.filter((artwork) => artwork.kind === "2D").slice(0, 4),
+    ...artworks.filter((artwork) => artwork.kind === "3D").slice(0, 2),
+  ];
 
   return (
     <section id="artwork" className="overflow-hidden bg-canvas px-4 py-20 transition-colors duration-300 dark:bg-[#101114] md:px-8 md:py-24">
@@ -544,7 +901,7 @@ function ArtworkSection({
               Artwork
             </h2>
             <p className="mt-4 max-w-2xl text-[17px] leading-[1.47] text-ink/70 transition-colors duration-300 dark:text-white/70">
-              Sketches, concepts, studies, and visual experiments collected in a dense gallery.
+              Sketches, concepts, 3D models, studies, and visual experiments.
             </p>
           </div>
           <button
@@ -566,17 +923,23 @@ function ArtworkSection({
               style={{ animationDelay: `${index * 45}ms` }}
               onClick={() => onSelect(artwork)}
             >
-              <div className={`overflow-hidden ${artworkAspectClass(artwork.aspect)}`}>
-                <img
-                  src={artworkImageFor(artwork, 900, 1200)}
-                  alt=""
-                  className="h-full w-full object-cover brightness-[0.86] contrast-[1.08] saturate-[0.82] transition duration-700 ease-out group-hover:scale-[1.045] group-hover:brightness-100 group-hover:contrast-100 group-hover:saturate-100"
-                />
+              <div className={`overflow-hidden ${artworkMediaAspectClass(artwork)}`}>
+                {artwork.kind === "3D" ? (
+                  <ModelViewer artwork={artwork} compact />
+                ) : (
+                  <img
+                    src={artworkImageFor(artwork, 900, 1200)}
+                    alt=""
+                    className="h-full w-full object-cover brightness-[0.86] contrast-[1.08] saturate-[0.82] transition duration-700 ease-out group-hover:scale-[1.045] group-hover:brightness-100 group-hover:contrast-100 group-hover:saturate-100"
+                  />
+                )}
               </div>
               <div className="p-5">
                 <div className="flex items-start justify-between gap-4">
                   <h3 className="text-xl font-semibold tracking-[-0.01em]">{artwork.title}</h3>
-                  <Image size={18} className="mt-1 shrink-0 text-ink/45 dark:text-white/45" />
+                  <span className="mt-0.5 shrink-0 rounded-full bg-canvas px-3 py-1 text-xs font-semibold text-ink/55 dark:bg-[#30313a] dark:text-white/55">
+                    {artwork.kind}
+                  </span>
                 </div>
                 <p className="mt-2 text-sm leading-6 text-ink/65 dark:text-white/65">{artwork.summary}</p>
               </div>
@@ -835,19 +1198,25 @@ function AllArtworkOverlay({
   onSelect: (artwork: Artwork) => void;
 }) {
   const [query, setQuery] = useState("");
+  const [kind, setKind] = useState<"All" | Artwork["kind"]>("All");
+  const [filterOpen, setFilterOpen] = useState(false);
   const [shouldRender, setShouldRender] = useState(open);
   const [visible, setVisible] = useState(false);
   const [resultsAnimating, setResultsAnimating] = useState(false);
+  const artworkKinds: Array<"All" | Artwork["kind"]> = ["All", "2D", "3D"];
   const normalizedQuery = query.trim().toLowerCase();
   const filteredArtworks = useMemo(
     () =>
-      artworks.filter((artwork) =>
-        [artwork.title, artwork.medium, artwork.year, artwork.summary, artwork.description, ...artwork.tags]
+      artworks.filter((artwork) => {
+        const matchesKind = kind === "All" || artwork.kind === kind;
+        const matchesSearch = [artwork.title, artwork.kind, artwork.medium, artwork.year, artwork.summary, artwork.description, ...artwork.tags]
           .join(" ")
           .toLowerCase()
-          .includes(normalizedQuery),
-      ),
-    [normalizedQuery],
+          .includes(normalizedQuery);
+
+        return matchesKind && matchesSearch;
+      }),
+    [kind, normalizedQuery],
   );
   const [displayedArtworks, setDisplayedArtworks] = useState<Artwork[]>(filteredArtworks);
 
@@ -917,7 +1286,9 @@ function AllArtworkOverlay({
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) {
           onClose();
+          return;
         }
+        setFilterOpen(false);
       }}
     >
       <section
@@ -945,16 +1316,61 @@ function AllArtworkOverlay({
               <X size={20} />
             </button>
           </div>
-          <label className="mt-7 flex h-11 min-w-0 items-center gap-3 rounded-full bg-white/90 px-5 text-ink shadow-[0_14px_34px_rgba(29,29,31,0.07)] dark:bg-[#24252b] dark:text-white dark:shadow-[0_16px_42px_rgba(0,0,0,0.42)]">
-            <Search size={19} className="shrink-0 text-ink/50 dark:text-white/50" />
-            <input
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search artwork by title, medium, or tag"
-              className="w-full min-w-0 bg-transparent text-sm outline-none placeholder:text-ink/40 dark:placeholder:text-white/50"
-              autoFocus
-            />
-          </label>
+          <div className="mt-7 flex flex-col gap-3 md:flex-row md:items-center">
+            <label className="flex h-11 min-w-0 flex-1 items-center gap-3 rounded-full bg-white/90 px-5 text-ink shadow-[0_14px_34px_rgba(29,29,31,0.07)] dark:bg-[#24252b] dark:text-white dark:shadow-[0_16px_42px_rgba(0,0,0,0.42)]">
+              <Search size={19} className="shrink-0 text-ink/50 dark:text-white/50" />
+              <input
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Search artwork by title, medium, or tag"
+                className="w-full min-w-0 bg-transparent text-sm outline-none placeholder:text-ink/40 dark:placeholder:text-white/50"
+                autoFocus
+              />
+            </label>
+            <div className="relative">
+              <button
+                type="button"
+                className={`flex h-11 w-full items-center justify-center gap-2 rounded-full px-5 text-sm font-medium transition-all duration-300 md:w-auto ${
+                  filterOpen || kind !== "All"
+                    ? "bg-ink text-white shadow-[0_12px_30px_rgba(29,29,31,0.14)] dark:bg-white dark:text-ink dark:shadow-[0_14px_34px_rgba(255,255,255,0.13)]"
+                    : "bg-white/90 text-ink hover:bg-canvas hover:shadow-[0_12px_30px_rgba(29,29,31,0.10)] dark:bg-[#24252b] dark:text-white dark:shadow-[0_16px_42px_rgba(0,0,0,0.42)] dark:hover:bg-[#2d2e35] dark:hover:shadow-[0_20px_52px_rgba(0,0,0,0.56)]"
+                }`}
+                aria-expanded={filterOpen}
+                aria-haspopup="menu"
+                onMouseDown={(event) => event.stopPropagation()}
+                onClick={() => setFilterOpen((value) => !value)}
+              >
+                <SlidersHorizontal size={17} />
+                {kind === "All" ? "Filter" : kind}
+              </button>
+              {filterOpen && (
+                <div
+                  className="filter-menu absolute right-0 top-14 z-10 w-48 rounded-[18px] bg-canvas p-2 shadow-[0_18px_48px_rgba(29,29,31,0.16)] dark:bg-[#24252b] dark:shadow-[0_28px_78px_rgba(0,0,0,0.68),0_0_28px_rgba(255,255,255,0.05)]"
+                  role="menu"
+                  onMouseDown={(event) => event.stopPropagation()}
+                >
+                  {artworkKinds.map((item) => (
+                    <button
+                      key={item}
+                      type="button"
+                      className={`flex w-full items-center justify-between rounded-[14px] px-4 py-3 text-left text-sm font-medium transition-colors duration-200 ${
+                        kind === item ? "bg-ink text-white dark:bg-white dark:text-ink" : "text-ink/70 hover:bg-chalk hover:text-ink dark:text-white/70 dark:hover:bg-white/10 dark:hover:text-white"
+                      }`}
+                      role="menuitemradio"
+                      aria-checked={kind === item}
+                      onClick={() => {
+                        setKind(item);
+                        setFilterOpen(false);
+                      }}
+                    >
+                      {item}
+                      {kind === item && <Check size={16} className="filter-check shrink-0" strokeWidth={2.5} />}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
         <div className="flex-1 overflow-y-auto p-5 pt-3 md:p-8 md:pt-4">
           {displayedArtworks.length ? (
@@ -971,15 +1387,24 @@ function AllArtworkOverlay({
                   style={{ animationDelay: `${index * 30}ms` }}
                   onClick={() => onSelect(artwork)}
                 >
-                  <div className={`overflow-hidden ${artworkAspectClass(artwork.aspect)}`}>
-                    <img
-                      src={artworkImageFor(artwork, 900, 1200)}
-                      alt=""
-                      className="h-full w-full object-cover brightness-[0.86] contrast-[1.08] saturate-[0.82] transition duration-700 ease-out group-hover:scale-[1.045] group-hover:brightness-100 group-hover:contrast-100 group-hover:saturate-100"
-                    />
+                  <div className={`overflow-hidden ${artworkMediaAspectClass(artwork)}`}>
+                    {artwork.kind === "3D" ? (
+                      <ModelViewer artwork={artwork} compact />
+                    ) : (
+                      <img
+                        src={artworkImageFor(artwork, 900, 1200)}
+                        alt=""
+                        className="h-full w-full object-cover brightness-[0.86] contrast-[1.08] saturate-[0.82] transition duration-700 ease-out group-hover:scale-[1.045] group-hover:brightness-100 group-hover:contrast-100 group-hover:saturate-100"
+                      />
+                    )}
                   </div>
                   <div className="p-4">
-                    <h3 className="text-lg font-semibold tracking-[-0.01em]">{artwork.title}</h3>
+                    <div className="flex items-start justify-between gap-3">
+                      <h3 className="text-lg font-semibold tracking-[-0.01em]">{artwork.title}</h3>
+                      <span className="mt-0.5 shrink-0 rounded-full bg-chalk px-2.5 py-1 text-xs font-semibold text-ink/55 dark:bg-[#30313a] dark:text-white/55">
+                        {artwork.kind}
+                      </span>
+                    </div>
                     <p className="mt-1 text-sm text-ink/60 dark:text-white/60">
                       {artwork.medium} · {artwork.year}
                     </p>
@@ -1122,9 +1547,13 @@ function Contact() {
 function ProjectOverlay({
   project,
   onClose,
+  onPrevious,
+  onNext,
 }: {
   project: Project | null;
   onClose: () => void;
+  onPrevious: () => void;
+  onNext: () => void;
 }) {
   const [displayProject, setDisplayProject] = useState<Project | null>(project);
   const [shouldRender, setShouldRender] = useState(Boolean(project));
@@ -1132,8 +1561,8 @@ function ProjectOverlay({
 
   useEffect(() => {
     if (project) {
-      setDisplayProject(project);
       setShouldRender(true);
+      setDisplayProject(project);
       return;
     }
 
@@ -1145,6 +1574,25 @@ function ProjectOverlay({
 
     return () => window.clearTimeout(timeout);
   }, [project]);
+
+  useEffect(() => {
+    if (!project) {
+      return;
+    }
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "ArrowLeft") {
+        onPrevious();
+      }
+
+      if (event.key === "ArrowRight") {
+        onNext();
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [onNext, onPrevious, project]);
 
   useEffect(() => {
     if (!shouldRender) {
@@ -1171,8 +1619,30 @@ function ProjectOverlay({
         }
       }}
     >
+      <div className="pointer-events-none absolute inset-y-0 left-0 z-10 flex items-center bg-gradient-to-r from-ink/34 via-ink/10 to-transparent px-3 md:px-7">
+        <button
+          type="button"
+          className="pointer-events-auto group inline-flex items-center gap-2 rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-ink shadow-[0_18px_44px_rgba(0,0,0,0.24)] transition-all duration-300 hover:bg-ink hover:text-white active:scale-95 dark:bg-ink dark:text-white dark:hover:bg-white dark:hover:text-ink"
+          aria-label="Previous project"
+          onClick={onPrevious}
+        >
+          <ChevronLeft size={17} className="transition-transform duration-300 group-hover:-translate-x-0.5" />
+          Back
+        </button>
+      </div>
+      <div className="pointer-events-none absolute inset-y-0 right-0 z-10 flex items-center bg-gradient-to-l from-ink/34 via-ink/10 to-transparent px-3 md:px-7">
+        <button
+          type="button"
+          className="pointer-events-auto group inline-flex items-center gap-2 rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-ink shadow-[0_18px_44px_rgba(0,0,0,0.24)] transition-all duration-300 hover:bg-ink hover:text-white active:scale-95 dark:bg-ink dark:text-white dark:hover:bg-white dark:hover:text-ink"
+          aria-label="Next project"
+          onClick={onNext}
+        >
+          Next
+          <ChevronRight size={17} className="transition-transform duration-300 group-hover:translate-x-0.5" />
+        </button>
+      </div>
       <article
-        className={`max-h-[92vh] w-full max-w-5xl overflow-y-auto rounded-[18px] bg-chalk outline-none transition-all duration-300 ease-out dark:bg-[#191a1f] dark:shadow-[0_34px_110px_rgba(0,0,0,0.72),0_0_48px_rgba(255,255,255,0.06)] ${
+        className={`h-[min(46rem,86vh)] w-full max-w-5xl overflow-hidden rounded-[18px] bg-chalk outline-none transition-all duration-300 ease-out dark:bg-[#191a1f] dark:shadow-[0_34px_110px_rgba(0,0,0,0.72),0_0_48px_rgba(255,255,255,0.06)] ${
           visible ? "scale-100 opacity-100" : "scale-[0.98] opacity-0"
         }`}
         role="dialog"
@@ -1180,7 +1650,9 @@ function ProjectOverlay({
         aria-labelledby="project-title"
         tabIndex={-1}
       >
-        <div className="grid lg:grid-cols-[0.9fr_1.1fr]">
+        <div
+          className="grid h-full lg:grid-cols-[0.9fr_1.1fr]"
+        >
           <div className="relative min-h-[20rem] overflow-hidden lg:min-h-full">
             <img
               src={imageFor(displayProject.imageSeed)}
@@ -1189,7 +1661,7 @@ function ProjectOverlay({
             />
             <div className="absolute inset-0 bg-gradient-to-t from-ink/65 to-transparent" />
           </div>
-          <div className="p-6 md:p-10">
+          <div className="overflow-y-auto p-6 md:p-10">
             <div className="mb-8 flex items-start justify-between gap-4">
               <h3 id="project-title" className="text-4xl font-semibold leading-[1.08] tracking-[-0.01em] md:text-6xl">
                 {displayProject.title}
@@ -1246,9 +1718,13 @@ function ProjectOverlay({
 function ArtworkOverlay({
   artwork,
   onClose,
+  onPrevious,
+  onNext,
 }: {
   artwork: Artwork | null;
   onClose: () => void;
+  onPrevious: () => void;
+  onNext: () => void;
 }) {
   const [displayArtwork, setDisplayArtwork] = useState<Artwork | null>(artwork);
   const [shouldRender, setShouldRender] = useState(Boolean(artwork));
@@ -1256,8 +1732,8 @@ function ArtworkOverlay({
 
   useEffect(() => {
     if (artwork) {
-      setDisplayArtwork(artwork);
       setShouldRender(true);
+      setDisplayArtwork(artwork);
       return;
     }
 
@@ -1269,6 +1745,25 @@ function ArtworkOverlay({
 
     return () => window.clearTimeout(timeout);
   }, [artwork]);
+
+  useEffect(() => {
+    if (!artwork) {
+      return;
+    }
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "ArrowLeft") {
+        onPrevious();
+      }
+
+      if (event.key === "ArrowRight") {
+        onNext();
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [artwork, onNext, onPrevious]);
 
   useEffect(() => {
     if (!shouldRender) {
@@ -1312,8 +1807,30 @@ function ArtworkOverlay({
         }
       }}
     >
+      <div className="pointer-events-none absolute inset-y-0 left-0 z-10 flex items-center bg-gradient-to-r from-ink/34 via-ink/10 to-transparent px-3 md:px-7">
+        <button
+          type="button"
+          className="pointer-events-auto group inline-flex items-center gap-2 rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-ink shadow-[0_18px_44px_rgba(0,0,0,0.24)] transition-all duration-300 hover:bg-ink hover:text-white active:scale-95 dark:bg-ink dark:text-white dark:hover:bg-white dark:hover:text-ink"
+          aria-label="Previous artwork"
+          onClick={onPrevious}
+        >
+          <ChevronLeft size={17} className="transition-transform duration-300 group-hover:-translate-x-0.5" />
+          Back
+        </button>
+      </div>
+      <div className="pointer-events-none absolute inset-y-0 right-0 z-10 flex items-center bg-gradient-to-l from-ink/34 via-ink/10 to-transparent px-3 md:px-7">
+        <button
+          type="button"
+          className="pointer-events-auto group inline-flex items-center gap-2 rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-ink shadow-[0_18px_44px_rgba(0,0,0,0.24)] transition-all duration-300 hover:bg-ink hover:text-white active:scale-95 dark:bg-ink dark:text-white dark:hover:bg-white dark:hover:text-ink"
+          aria-label="Next artwork"
+          onClick={onNext}
+        >
+          Next
+          <ChevronRight size={17} className="transition-transform duration-300 group-hover:translate-x-0.5" />
+        </button>
+      </div>
       <article
-        className={`max-h-[92vh] w-full max-w-6xl overflow-y-auto rounded-[18px] bg-chalk outline-none transition-all duration-300 ease-out dark:bg-[#191a1f] dark:shadow-[0_34px_110px_rgba(0,0,0,0.72),0_0_48px_rgba(255,255,255,0.06)] ${
+        className={`max-h-[92vh] w-full max-w-5xl overflow-y-auto rounded-[18px] bg-chalk outline-none transition-all duration-300 ease-out dark:bg-[#191a1f] dark:shadow-[0_34px_110px_rgba(0,0,0,0.72),0_0_48px_rgba(255,255,255,0.06)] ${
           visible ? "scale-100 opacity-100" : "scale-[0.98] opacity-0"
         }`}
         role="dialog"
@@ -1321,13 +1838,19 @@ function ArtworkOverlay({
         aria-labelledby="artwork-title"
         tabIndex={-1}
       >
-        <div className="grid min-h-[min(46rem,86vh)] lg:grid-cols-[1.15fr_0.85fr]">
-          <div className="grid min-h-[22rem] place-items-center bg-[#202124] p-4 dark:bg-[#202124] md:min-h-[34rem] md:p-6 lg:min-h-0">
-            <img
-              src={artworkImageFor(displayArtwork, 1400, 1800)}
-              alt=""
-              className="h-full max-h-[78vh] w-full rounded-[14px] bg-[#202124] object-contain dark:bg-[#202124]"
-            />
+        <div
+          className="grid min-h-[min(46rem,86vh)] lg:grid-cols-[1.15fr_0.85fr]"
+        >
+          <div className="relative grid min-h-[22rem] place-items-center overflow-hidden bg-[#202124] p-4 dark:bg-[#202124] md:min-h-[34rem] md:p-6 lg:min-h-0">
+            {displayArtwork.kind === "3D" ? (
+              <ModelViewer artwork={displayArtwork} />
+            ) : (
+              <img
+                src={artworkImageFor(displayArtwork, 1400, 1800)}
+                alt=""
+                className="h-full max-h-[78vh] w-full rounded-[14px] bg-[#202124] object-contain dark:bg-[#202124]"
+              />
+            )}
           </div>
           <div className="p-6 md:p-10">
             <div className="mb-8 flex items-start justify-between gap-4">
@@ -1336,7 +1859,7 @@ function ArtworkOverlay({
                   {displayArtwork.title}
                 </h3>
                 <p className="mt-4 text-sm font-medium text-muted dark:text-white/60">
-                  {displayArtwork.medium} · {displayArtwork.year}
+                  {displayArtwork.kind} · {displayArtwork.medium} · {displayArtwork.year}
                 </p>
               </div>
               <button
