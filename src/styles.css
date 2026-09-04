@@ -16,7 +16,7 @@
 
 :root.dark {
   color: #f5f5f7;
-  background: #08090b;
+  background: #101114;
   color-scheme: dark;
 }
 
@@ -37,13 +37,15 @@ body {
 }
 
 :root.dark body {
-  background: #08090b;
+  background: #101114;
 }
 
-html.theme-changing,
-html.theme-changing body {
-  transition-duration: 240ms;
-  transition-timing-function: cubic-bezier(0.2, 0, 0.2, 1);
+html.theme-changing *,
+html.theme-changing *::before,
+html.theme-changing *::after {
+  transition-duration: 220ms !important;
+  transition-property: background-color, border-color, box-shadow, opacity, transform, filter !important;
+  transition-timing-function: cubic-bezier(0.2, 0, 0.2, 1) !important;
 }
 
 html.overlay-open,
@@ -64,7 +66,7 @@ html.is-scrolling {
 
 html.dark.is-pointer-active,
 html.dark.is-scrolling {
-  scrollbar-color: rgba(255, 255, 255, 0.34) #08090b;
+  scrollbar-color: rgba(255, 255, 255, 0.34) #101114;
 }
 
 ::-webkit-scrollbar {
@@ -94,7 +96,7 @@ html.dark.is-pointer-active::-webkit-scrollbar-thumb,
 html.dark.is-scrolling::-webkit-scrollbar-thumb,
 html.dark ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.34);
-  border-color: #08090b;
+  border-color: #101114;
 }
 
 button,
