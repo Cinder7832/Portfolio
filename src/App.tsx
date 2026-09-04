@@ -360,7 +360,7 @@ function Hero() {
           <img
             src={profilePicture}
             alt="Devanand Asai profile picture"
-            className="profile-photo aspect-square w-full rounded-full bg-canvas object-cover shadow-[0_16px_45px_rgba(29,29,31,0.12)] transition-all duration-700 ease-out hover:scale-[1.025] hover:shadow-[0_22px_58px_rgba(29,29,31,0.16)] dark:bg-white dark:shadow-[0_26px_74px_rgba(0,0,0,0.55),0_0_42px_rgba(255,255,255,0.06)] dark:hover:shadow-[0_32px_88px_rgba(0,0,0,0.66),0_0_52px_rgba(255,255,255,0.08)]"
+            className="profile-photo aspect-square w-full rounded-full bg-canvas object-cover shadow-[0_16px_45px_rgba(29,29,31,0.12)] transition-all duration-700 ease-out hover:scale-[1.025] hover:shadow-[0_22px_58px_rgba(29,29,31,0.16)] dark:bg-white dark:shadow-[0_0_0_1px_rgba(255,255,255,0.18),0_28px_80px_rgba(0,0,0,0.62),0_0_64px_rgba(255,255,255,0.10)] dark:hover:shadow-[0_0_0_1px_rgba(255,255,255,0.22),0_34px_96px_rgba(0,0,0,0.72),0_0_78px_rgba(255,255,255,0.13)]"
           />
         </div>
       </div>
@@ -420,14 +420,14 @@ function Projects({
         </div>
         <div
           ref={scrollerRef}
-          className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-10 py-16 [-ms-overflow-style:none] [scrollbar-width:none] md:-mx-8 md:px-16 [&::-webkit-scrollbar]:hidden"
+          className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-10 pb-28 pt-16 [-ms-overflow-style:none] [scrollbar-width:none] md:-mx-8 md:px-16 md:pb-32 [&::-webkit-scrollbar]:hidden"
         >
           {projects.map((project, index) => {
             return (
               <button
                 key={project.id}
                 type="button"
-                className="project-card group relative h-[24rem] w-[82vw] shrink-0 snap-start overflow-hidden rounded-[18px] bg-canvas text-left shadow-[0_16px_38px_rgba(29,29,31,0.08)] outline-none transition-shadow duration-500 ease-out hover:shadow-[0_22px_52px_rgba(29,29,31,0.14)] focus-visible:ring-4 focus-visible:ring-blueFocus/35 dark:bg-[#24252b] dark:shadow-[0_24px_70px_rgba(0,0,0,0.56),0_0_30px_rgba(255,255,255,0.04)] dark:hover:shadow-[0_30px_86px_rgba(0,0,0,0.68),0_0_42px_rgba(255,255,255,0.06)] sm:w-[28rem] lg:w-[34rem]"
+                className="project-card group relative h-[24rem] w-[82vw] shrink-0 snap-start overflow-hidden rounded-[18px] bg-canvas text-left shadow-[0_16px_38px_rgba(29,29,31,0.08)] outline-none transition-shadow duration-500 ease-out hover:shadow-[0_22px_52px_rgba(29,29,31,0.14)] focus-visible:ring-4 focus-visible:ring-blueFocus/35 dark:bg-[#24252b] dark:shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_34px_86px_rgba(0,0,0,0.66),0_0_42px_rgba(255,255,255,0.06)] dark:hover:shadow-[0_0_0_1px_rgba(255,255,255,0.12),0_42px_104px_rgba(0,0,0,0.78),0_0_58px_rgba(255,255,255,0.09)] sm:w-[28rem] lg:w-[34rem]"
                 onClick={() => onSelect(project)}
               >
                 <img
