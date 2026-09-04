@@ -160,8 +160,14 @@ function App() {
   }, []);
 
   useEffect(() => {
+    document.documentElement.classList.add("theme-changing");
     document.documentElement.classList.toggle("dark", darkMode);
     window.localStorage.setItem("theme", darkMode ? "dark" : "light");
+    const timeout = window.setTimeout(() => {
+      document.documentElement.classList.remove("theme-changing");
+    }, 320);
+
+    return () => window.clearTimeout(timeout);
   }, [darkMode]);
 
   useEffect(() => {
@@ -265,46 +271,46 @@ function Navigation({
 
   return (
     <header className="fixed left-0 right-0 top-0 z-40 px-4 pt-4 md:px-8">
-      <div className="site-nav mx-auto flex w-fit items-center justify-center gap-2">
-      <nav className="flex w-fit items-center justify-center rounded-full bg-chalk/86 px-2 py-2 shadow-nav backdrop-blur-xl transition-colors duration-300 dark:bg-[#24252b]/90 dark:shadow-[0_28px_88px_rgba(0,0,0,0.68),0_12px_34px_rgba(0,0,0,0.46),0_0_26px_rgba(255,255,255,0.05)]">
-        <div className="hidden items-center gap-1 md:flex">
-          {links.map(([label, href]) => (
+        <div className="site-nav mx-auto flex w-fit items-center justify-center gap-2">
+          <nav className="flex h-[58px] w-fit items-center justify-center rounded-full bg-chalk/86 px-2 shadow-nav backdrop-blur-xl transition-colors duration-300 dark:bg-[#24252b]/90 dark:shadow-[0_28px_88px_rgba(0,0,0,0.68),0_12px_34px_rgba(0,0,0,0.46),0_0_26px_rgba(255,255,255,0.05)]">
+            <div className="hidden items-center gap-1 md:flex">
+              {links.map(([label, href]) => (
+                <button
+                  key={label}
+                  type="button"
+                  className="rounded-full px-5 py-2.5 text-sm font-medium text-ink/70 transition-all duration-[250ms] ease-out hover:bg-ink hover:text-white hover:shadow-[0_8px_24px_rgba(29,29,31,0.14)] active:scale-95 dark:text-white/80 dark:hover:bg-white dark:hover:text-ink dark:hover:shadow-[0_12px_30px_rgba(255,255,255,0.18)]"
+                  onClick={() => scrollToSection(href)}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
             <button
-              key={label}
               type="button"
-              className="rounded-full px-5 py-2.5 text-sm font-medium text-ink/62 transition-all duration-[250ms] ease-out hover:bg-ink hover:text-white hover:shadow-[0_8px_24px_rgba(29,29,31,0.14)] active:scale-95 dark:text-white/72 dark:hover:bg-white dark:hover:text-ink dark:hover:shadow-[0_12px_30px_rgba(255,255,255,0.18)]"
-              onClick={() => scrollToSection(href)}
+              className="rounded-full px-3 py-2 text-ink transition-transform duration-300 hover:scale-105 active:scale-95 dark:text-white md:hidden"
+              aria-label="Open navigation"
+              onClick={() => setOpen((value) => !value)}
             >
-              {label}
+              {open ? <X size={19} /> : <Menu size={19} />}
             </button>
-          ))}
+          </nav>
+          <button
+            type="button"
+            className="grid size-[58px] place-items-center rounded-full bg-chalk/86 text-ink/70 shadow-nav backdrop-blur-xl transition-all duration-[250ms] hover:bg-ink hover:text-white hover:shadow-[0_16px_42px_rgba(29,29,31,0.22)] active:scale-95 dark:bg-[#24252b]/90 dark:text-white/80 dark:shadow-[0_28px_88px_rgba(0,0,0,0.68),0_12px_34px_rgba(0,0,0,0.46),0_0_26px_rgba(255,255,255,0.05)] dark:hover:bg-white dark:hover:text-ink dark:hover:shadow-[0_18px_48px_rgba(0,0,0,0.58),0_0_34px_rgba(255,255,255,0.12)]"
+            aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
+            aria-pressed={darkMode}
+            onClick={onToggleTheme}
+          >
+            {darkMode ? <Sun size={19} /> : <Moon size={19} />}
+          </button>
         </div>
-        <button
-          type="button"
-          className="rounded-full px-3 py-2 text-ink transition-transform duration-300 hover:scale-105 active:scale-95 dark:text-white md:hidden"
-          aria-label="Open navigation"
-          onClick={() => setOpen((value) => !value)}
-        >
-          {open ? <X size={19} /> : <Menu size={19} />}
-        </button>
-      </nav>
-      <button
-        type="button"
-        className="grid size-[46px] place-items-center rounded-full bg-chalk/86 text-ink/72 shadow-nav backdrop-blur-xl transition-all duration-[250ms] hover:bg-ink hover:text-white hover:shadow-[0_16px_42px_rgba(29,29,31,0.22)] active:scale-95 dark:bg-[#24252b]/90 dark:text-white/78 dark:shadow-[0_28px_88px_rgba(0,0,0,0.68),0_12px_34px_rgba(0,0,0,0.46),0_0_26px_rgba(255,255,255,0.05)] dark:hover:bg-white dark:hover:text-ink dark:hover:shadow-[0_18px_48px_rgba(0,0,0,0.58),0_0_34px_rgba(255,255,255,0.12)]"
-        aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
-        aria-pressed={darkMode}
-        onClick={onToggleTheme}
-      >
-        {darkMode ? <Sun size={18} /> : <Moon size={18} />}
-      </button>
-      </div>
       {open && (
         <div className="mx-auto mt-2 grid max-w-6xl gap-1 rounded-3xl bg-chalk/95 p-3 shadow-soft backdrop-blur-xl transition-colors duration-300 dark:bg-[#24252b]/95 dark:shadow-[0_26px_80px_rgba(0,0,0,0.55)] md:hidden">
           {links.map(([label, href]) => (
             <button
               key={label}
               type="button"
-              className="rounded-2xl px-4 py-3 text-sm text-ink/75 transition-all duration-[250ms] hover:bg-canvas hover:pl-5 dark:text-white/76 dark:hover:bg-white/12"
+              className="rounded-2xl px-4 py-3 text-sm text-ink/75 transition-all duration-[250ms] hover:bg-canvas hover:pl-5 dark:text-white/80 dark:hover:bg-white/12"
               onClick={() => {
                 scrollToSection(href);
                 setOpen(false);
@@ -327,13 +333,13 @@ function Hero() {
           <h1 className="max-w-6xl text-[clamp(3rem,6vw,5.4rem)] font-semibold leading-[1.03] tracking-[-0.01em]">
             Devanand Asai
           </h1>
-          <p className="mx-auto mt-5 max-w-2xl text-[21px] leading-[1.25] text-ink/80 transition-colors duration-300 dark:text-white/74 lg:mx-0">
+          <p className="mx-auto mt-5 max-w-2xl text-[21px] leading-[1.25] text-ink/80 transition-colors duration-300 dark:text-white/80 lg:mx-0">
             Portfolio, projects, and ways to get in touch.
           </p>
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row lg:justify-start">
             <button
               type="button"
-              className="group inline-flex items-center justify-center gap-2 rounded-full bg-ink px-[22px] py-[11px] text-[17px] font-medium text-white transition-all duration-300 hover:bg-black hover:shadow-[0_14px_34px_rgba(29,29,31,0.18)] active:scale-95 dark:bg-white dark:text-ink dark:hover:bg-white/88 dark:hover:shadow-[0_14px_34px_rgba(255,255,255,0.12)]"
+              className="group inline-flex items-center justify-center gap-2 rounded-full bg-ink px-[22px] py-[11px] text-[17px] font-medium text-white transition-all duration-300 hover:bg-black hover:shadow-[0_14px_34px_rgba(29,29,31,0.18)] active:scale-95 dark:bg-white dark:text-ink dark:hover:bg-white/90 dark:hover:shadow-[0_14px_34px_rgba(255,255,255,0.12)]"
               onClick={() => scrollToSection("projects")}
             >
               View projects
@@ -343,7 +349,7 @@ function Hero() {
               href={profile.linkedin}
               target="_blank"
               rel="noreferrer"
-              className="group inline-flex items-center justify-center gap-2 rounded-full bg-canvas px-[22px] py-[11px] text-[17px] font-medium text-ink transition-all duration-300 hover:bg-chalk hover:shadow-[0_12px_30px_rgba(29,29,31,0.10)] active:scale-95 dark:bg-[#24252b] dark:text-white dark:shadow-[0_14px_38px_rgba(0,0,0,0.32)] dark:hover:bg-[#2d2e35] dark:hover:shadow-[0_18px_48px_rgba(0,0,0,0.46)]"
+              className="group inline-flex items-center justify-center gap-2 rounded-full bg-transparent px-[22px] py-[11px] text-[17px] font-medium text-ink transition-all duration-300 hover:bg-chalk hover:shadow-[0_12px_30px_rgba(29,29,31,0.10)] active:scale-95 dark:text-white dark:hover:bg-white/10 dark:hover:shadow-[0_18px_48px_rgba(0,0,0,0.42)]"
             >
               LinkedIn
               <ArrowUpRight size={18} className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
@@ -354,7 +360,7 @@ function Hero() {
           <img
             src={profilePicture}
             alt="Devanand Asai profile picture"
-            className="profile-photo aspect-square w-full rounded-full bg-canvas object-cover shadow-[0_16px_45px_rgba(29,29,31,0.12)] transition-all duration-700 ease-out hover:scale-[1.025] hover:shadow-[0_22px_58px_rgba(29,29,31,0.16)] dark:bg-[#191a1f] dark:shadow-[0_26px_74px_rgba(0,0,0,0.55),0_0_42px_rgba(255,255,255,0.06)] dark:hover:shadow-[0_32px_88px_rgba(0,0,0,0.66),0_0_52px_rgba(255,255,255,0.08)]"
+            className="profile-photo aspect-square w-full rounded-full bg-canvas object-cover shadow-[0_16px_45px_rgba(29,29,31,0.12)] transition-all duration-700 ease-out hover:scale-[1.025] hover:shadow-[0_22px_58px_rgba(29,29,31,0.16)] dark:bg-white dark:shadow-[0_26px_74px_rgba(0,0,0,0.55),0_0_42px_rgba(255,255,255,0.06)] dark:hover:shadow-[0_32px_88px_rgba(0,0,0,0.66),0_0_52px_rgba(255,255,255,0.08)]"
           />
         </div>
       </div>
@@ -387,7 +393,7 @@ function Projects({
           </h2>
           <button
             type="button"
-            className="group inline-flex w-fit items-center gap-2 rounded-full bg-ink px-[22px] py-[11px] text-[17px] font-medium text-white transition-all duration-300 hover:bg-black hover:shadow-[0_14px_34px_rgba(29,29,31,0.18)] active:scale-95 dark:bg-white dark:text-ink dark:hover:bg-white/88 dark:hover:shadow-[0_14px_34px_rgba(255,255,255,0.12)]"
+            className="group inline-flex w-fit items-center gap-2 rounded-full bg-ink px-[22px] py-[11px] text-[17px] font-medium text-white transition-all duration-300 hover:bg-black hover:shadow-[0_14px_34px_rgba(29,29,31,0.18)] active:scale-95 dark:bg-white dark:text-ink dark:hover:bg-white/90 dark:hover:shadow-[0_14px_34px_rgba(255,255,255,0.12)]"
             onClick={onViewAll}
           >
             View all
@@ -397,7 +403,7 @@ function Projects({
         <div className="mb-5 flex justify-end gap-2">
           <button
             type="button"
-            className="group rounded-full bg-[#d2d2d7]/70 p-3 text-ink transition-all duration-300 hover:bg-[#d2d2d7] hover:shadow-[0_10px_26px_rgba(29,29,31,0.12)] active:scale-95 dark:bg-[#2a2b32] dark:text-white/82 dark:shadow-[0_12px_32px_rgba(0,0,0,0.36)] dark:hover:bg-[#343640] dark:hover:shadow-[0_16px_42px_rgba(0,0,0,0.48)]"
+            className="group rounded-full bg-[#d2d2d7]/70 p-3 text-ink transition-all duration-300 hover:bg-[#d2d2d7] hover:shadow-[0_10px_26px_rgba(29,29,31,0.12)] active:scale-95 dark:bg-[#2a2b32] dark:text-white/80 dark:shadow-[0_12px_32px_rgba(0,0,0,0.36)] dark:hover:bg-[#343640] dark:hover:shadow-[0_16px_42px_rgba(0,0,0,0.48)]"
             aria-label="Scroll projects left"
             onClick={() => scrollProjects("left")}
           >
@@ -405,7 +411,7 @@ function Projects({
           </button>
           <button
             type="button"
-            className="group rounded-full bg-[#d2d2d7]/70 p-3 text-ink transition-all duration-300 hover:bg-[#d2d2d7] hover:shadow-[0_10px_26px_rgba(29,29,31,0.12)] active:scale-95 dark:bg-[#2a2b32] dark:text-white/82 dark:shadow-[0_12px_32px_rgba(0,0,0,0.36)] dark:hover:bg-[#343640] dark:hover:shadow-[0_16px_42px_rgba(0,0,0,0.48)]"
+            className="group rounded-full bg-[#d2d2d7]/70 p-3 text-ink transition-all duration-300 hover:bg-[#d2d2d7] hover:shadow-[0_10px_26px_rgba(29,29,31,0.12)] active:scale-95 dark:bg-[#2a2b32] dark:text-white/80 dark:shadow-[0_12px_32px_rgba(0,0,0,0.36)] dark:hover:bg-[#343640] dark:hover:shadow-[0_16px_42px_rgba(0,0,0,0.48)]"
             aria-label="Scroll projects right"
             onClick={() => scrollProjects("right")}
           >
@@ -433,7 +439,7 @@ function Projects({
                 <div className="pointer-events-none absolute inset-y-0 left-[-55%] w-1/2 -skew-x-12 bg-white/14 opacity-0 blur-sm transition-all duration-700 ease-out group-hover:left-[115%] group-hover:opacity-100" />
                 <div className="absolute inset-x-0 bottom-0 p-6 text-white transition-transform duration-500 ease-out group-hover:-translate-y-1">
                   <h3 className="text-2xl font-semibold tracking-[-0.01em]">{project.title}</h3>
-                  <p className="mt-3 max-w-xl text-sm leading-6 text-white/76 transition-opacity duration-500 group-hover:opacity-95">
+                  <p className="mt-3 max-w-xl text-sm leading-6 text-white/80 transition-opacity duration-500 group-hover:opacity-95">
                     {project.summary}
                   </p>
                 </div>
@@ -545,7 +551,7 @@ function AllProjectsOverlay({
 
   return (
     <div
-      className={`fixed inset-0 z-40 flex items-center justify-center bg-ink/72 px-4 py-6 backdrop-blur-md transition-opacity duration-300 ease-out dark:bg-black/78 ${
+      className={`fixed inset-0 z-40 flex items-center justify-center bg-ink/70 px-4 py-6 backdrop-blur-md transition-opacity duration-300 ease-out dark:bg-black/80 ${
         visible ? "opacity-100" : "opacity-0"
       }`}
       role="presentation"
@@ -571,7 +577,7 @@ function AllProjectsOverlay({
               <h2 id="all-projects-title" className="text-4xl font-semibold leading-[1.08] tracking-[-0.01em] md:text-6xl">
                 All projects
               </h2>
-              <p className="mt-3 text-sm text-muted dark:text-white/48">{displayedProjects.length} project results</p>
+              <p className="mt-3 text-sm text-muted dark:text-white/60">{displayedProjects.length} project results</p>
             </div>
             <button
               type="button"
@@ -583,13 +589,13 @@ function AllProjectsOverlay({
             </button>
           </div>
           <div className="mt-7 flex flex-col gap-3 md:flex-row">
-            <label className="flex h-11 min-w-0 flex-1 items-center gap-3 rounded-full bg-white/85 px-5 text-ink shadow-[0_14px_34px_rgba(29,29,31,0.07)] dark:bg-[#24252b] dark:text-white dark:shadow-[0_16px_42px_rgba(0,0,0,0.42)]">
-              <Search size={19} className="shrink-0 text-ink/45 dark:text-white/45" />
+            <label className="flex h-11 min-w-0 flex-1 items-center gap-3 rounded-full bg-white/90 px-5 text-ink shadow-[0_14px_34px_rgba(29,29,31,0.07)] dark:bg-[#24252b] dark:text-white dark:shadow-[0_16px_42px_rgba(0,0,0,0.42)]">
+              <Search size={19} className="shrink-0 text-ink/50 dark:text-white/50" />
               <input
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="Search by title, category, or detail"
-                className="w-full min-w-0 bg-transparent text-sm outline-none placeholder:text-ink/38 dark:placeholder:text-white/36"
+                className="w-full min-w-0 bg-transparent text-sm outline-none placeholder:text-ink/40 dark:placeholder:text-white/50"
                 autoFocus
               />
             </label>
@@ -620,7 +626,7 @@ function AllProjectsOverlay({
                       key={item}
                       type="button"
                       className={`flex w-full items-center justify-between rounded-[14px] px-4 py-3 text-left text-sm font-medium transition-colors duration-200 ${
-                        category === item ? "bg-ink text-white dark:bg-white dark:text-ink" : "text-ink/70 hover:bg-chalk hover:text-ink dark:text-white/62 dark:hover:bg-white/10 dark:hover:text-white"
+                        category === item ? "bg-ink text-white dark:bg-white dark:text-ink" : "text-ink/70 hover:bg-chalk hover:text-ink dark:text-white/70 dark:hover:bg-white/10 dark:hover:text-white"
                       }`}
                       role="menuitemradio"
                       aria-checked={category === item}
@@ -662,7 +668,7 @@ function AllProjectsOverlay({
                   </div>
                   <div className="p-5">
                     <h3 className="text-2xl font-semibold tracking-[-0.01em]">{project.title}</h3>
-                    <p className="mt-3 text-sm leading-6 text-ink/66 dark:text-white/58">{project.summary}</p>
+                    <p className="mt-3 text-sm leading-6 text-ink/70 dark:text-white/70">{project.summary}</p>
                   </div>
                 </button>
               ))}
@@ -674,7 +680,7 @@ function AllProjectsOverlay({
               }`}
             >
               <p className="text-lg font-medium">No projects found</p>
-              <p className="mt-2 text-sm text-ink/58 dark:text-white/50">Try a different title, tool, or keyword.</p>
+              <p className="mt-2 text-sm text-ink/60 dark:text-white/60">Try a different title, tool, or keyword.</p>
             </div>
           )}
         </div>
@@ -706,32 +712,32 @@ function About() {
           <h2 className="text-[clamp(2.4rem,5vw,4.5rem)] font-semibold leading-[1.03] tracking-[-0.01em]">
             About me
           </h2>
-          <div className="mx-auto mt-7 max-w-2xl space-y-5 text-[17px] leading-[1.47] text-ink/72 transition-colors duration-300 dark:text-white/68">
+          <div className="mx-auto mt-7 max-w-2xl space-y-5 text-[17px] leading-[1.47] text-ink/75 transition-colors duration-300 dark:text-white/80">
             <p>
               Game Development &amp; Creative Media student at New College Swindon.
             </p>
           </div>
           <div className="mx-auto mt-10 grid max-w-2xl gap-6">
-            <div className="rounded-[18px] bg-chalk p-5 shadow-[0_12px_30px_rgba(29,29,31,0.04)] transition-colors duration-300 dark:bg-[#191a1f] dark:shadow-[0_22px_60px_rgba(0,0,0,0.46)]">
-              <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-muted dark:text-white/46">Skills</h3>
+            <div className="rounded-[18px] bg-chalk p-5 shadow-[0_12px_30px_rgba(29,29,31,0.04)] transition-colors duration-300 dark:bg-[#1c1d23] dark:shadow-[0_22px_60px_rgba(0,0,0,0.46)]">
+              <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-muted dark:text-white/60">Skills</h3>
               <div className="mt-4 flex flex-wrap justify-center gap-2">
                 {skills.map((skill) => (
                   <span
                     key={skill}
-                    className="rounded-full bg-canvas px-4 py-2 text-sm font-medium text-ink transition-colors duration-300 dark:bg-[#2a2b32] dark:text-white/78"
+                    className="rounded-full bg-canvas px-4 py-2 text-sm font-medium text-ink transition-colors duration-300 dark:bg-[#30313a] dark:text-white/80"
                   >
                     {skill}
                   </span>
                 ))}
               </div>
             </div>
-            <div className="rounded-[18px] bg-chalk p-5 shadow-[0_12px_30px_rgba(29,29,31,0.04)] transition-colors duration-300 dark:bg-[#191a1f] dark:shadow-[0_22px_60px_rgba(0,0,0,0.46)]">
-              <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-muted dark:text-white/46">Tools</h3>
+            <div className="rounded-[18px] bg-chalk p-5 shadow-[0_12px_30px_rgba(29,29,31,0.04)] transition-colors duration-300 dark:bg-[#1c1d23] dark:shadow-[0_22px_60px_rgba(0,0,0,0.46)]">
+              <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-muted dark:text-white/60">Tools</h3>
               <div className="mt-4 flex flex-wrap justify-center gap-2">
                 {tools.map((tool) => (
                   <span
                     key={tool}
-                    className="rounded-full bg-canvas px-4 py-2 text-sm font-medium text-ink transition-colors duration-300 dark:bg-[#2a2b32] dark:text-white/78"
+                    className="rounded-full bg-canvas px-4 py-2 text-sm font-medium text-ink transition-colors duration-300 dark:bg-[#30313a] dark:text-white/80"
                   >
                     {tool}
                   </span>
@@ -743,7 +749,7 @@ function About() {
             href={cvUrl}
             target="_blank"
             rel="noreferrer"
-            className="mt-8 inline-flex items-center justify-center gap-2 rounded-full bg-ink px-[22px] py-[11px] text-[17px] font-medium text-white transition-all duration-300 hover:bg-black hover:shadow-[0_14px_34px_rgba(29,29,31,0.18)] active:scale-95 dark:bg-white dark:text-ink dark:hover:bg-white/88 dark:hover:shadow-[0_14px_34px_rgba(255,255,255,0.12)]"
+            className="mt-8 inline-flex items-center justify-center gap-2 rounded-full bg-ink px-[22px] py-[11px] text-[17px] font-medium text-white transition-all duration-300 hover:bg-black hover:shadow-[0_14px_34px_rgba(29,29,31,0.18)] active:scale-95 dark:bg-white dark:text-ink dark:hover:bg-white/90 dark:hover:shadow-[0_14px_34px_rgba(255,255,255,0.12)]"
           >
             <FileText size={18} />
             View CV
@@ -761,13 +767,13 @@ function Contact() {
         <h2 className="text-[clamp(2.6rem,6vw,5rem)] font-semibold leading-[1.05] tracking-[-0.01em]">
           Contact
         </h2>
-        <p className="mx-auto mt-5 max-w-2xl text-[21px] leading-[1.25] text-ink/72 transition-colors duration-300 dark:text-white/68">
+        <p className="mx-auto mt-5 max-w-2xl text-[21px] leading-[1.25] text-ink/75 transition-colors duration-300 dark:text-white/80">
           Reach out for development work or collaboration.
         </p>
         <div className="mt-10 flex flex-col justify-center gap-3 sm:flex-row">
           <a
             href={`mailto:${profile.email}`}
-            className="group inline-flex items-center justify-center gap-2 rounded-full bg-ink px-[22px] py-[11px] text-[17px] font-medium text-white transition-all duration-300 hover:bg-black hover:shadow-[0_14px_34px_rgba(29,29,31,0.18)] active:scale-95 dark:bg-white dark:text-ink dark:hover:bg-white/88 dark:hover:shadow-[0_14px_34px_rgba(255,255,255,0.12)]"
+            className="group inline-flex items-center justify-center gap-2 rounded-full bg-ink px-[22px] py-[11px] text-[17px] font-medium text-white transition-all duration-300 hover:bg-black hover:shadow-[0_14px_34px_rgba(29,29,31,0.18)] active:scale-95 dark:bg-white dark:text-ink dark:hover:bg-white/90 dark:hover:shadow-[0_14px_34px_rgba(255,255,255,0.12)]"
           >
             <Mail size={18} />
             Email me
@@ -776,7 +782,7 @@ function Contact() {
             href={profile.github}
             target="_blank"
             rel="noreferrer"
-            className="group inline-flex items-center justify-center gap-2 rounded-full bg-canvas px-[22px] py-[11px] text-[17px] font-medium text-ink transition-all duration-300 hover:bg-chalk hover:shadow-[0_12px_30px_rgba(29,29,31,0.10)] active:scale-95 dark:bg-[#24252b] dark:text-white dark:shadow-[0_14px_38px_rgba(0,0,0,0.32)] dark:hover:bg-[#2d2e35] dark:hover:shadow-[0_18px_48px_rgba(0,0,0,0.46)]"
+            className="group inline-flex items-center justify-center gap-2 rounded-full bg-transparent px-[22px] py-[11px] text-[17px] font-medium text-ink transition-all duration-300 hover:bg-chalk hover:shadow-[0_12px_30px_rgba(29,29,31,0.10)] active:scale-95 dark:text-white dark:hover:bg-white/10 dark:hover:shadow-[0_18px_48px_rgba(0,0,0,0.42)]"
           >
             <Github size={18} />
             GitHub
@@ -785,14 +791,14 @@ function Contact() {
             href={profile.linkedin}
             target="_blank"
             rel="noreferrer"
-            className="group inline-flex items-center justify-center gap-2 rounded-full bg-canvas px-[22px] py-[11px] text-[17px] font-medium text-ink transition-all duration-300 hover:bg-chalk hover:shadow-[0_12px_30px_rgba(29,29,31,0.10)] active:scale-95 dark:bg-[#24252b] dark:text-white dark:shadow-[0_14px_38px_rgba(0,0,0,0.32)] dark:hover:bg-[#2d2e35] dark:hover:shadow-[0_18px_48px_rgba(0,0,0,0.46)]"
+            className="group inline-flex items-center justify-center gap-2 rounded-full bg-transparent px-[22px] py-[11px] text-[17px] font-medium text-ink transition-all duration-300 hover:bg-chalk hover:shadow-[0_12px_30px_rgba(29,29,31,0.10)] active:scale-95 dark:text-white dark:hover:bg-white/10 dark:hover:shadow-[0_18px_48px_rgba(0,0,0,0.42)]"
           >
             <Linkedin size={18} />
             LinkedIn
           </a>
         </div>
       </div>
-      <footer className="mx-auto mt-20 max-w-6xl border-t border-hairline pt-8 text-center text-xs text-muted transition-colors duration-300 dark:border-white/10 dark:text-white/42">
+      <footer className="mx-auto mt-20 max-w-6xl border-t border-hairline pt-8 text-center text-xs text-muted transition-colors duration-300 dark:border-white/10 dark:text-white/60">
         <p>&copy; 2026 Devanand Asai. All rights reserved.</p>
       </footer>
     </section>
@@ -841,7 +847,7 @@ function ProjectOverlay({
 
   return (
     <div
-      className={`fixed inset-0 z-50 flex items-center justify-center bg-ink/72 px-4 py-6 backdrop-blur-md transition-opacity duration-300 ease-out dark:bg-black/78 ${
+      className={`fixed inset-0 z-50 flex items-center justify-center bg-ink/70 px-4 py-6 backdrop-blur-md transition-opacity duration-300 ease-out dark:bg-black/80 ${
         visible ? "opacity-100" : "opacity-0"
       }`}
       role="presentation"
@@ -884,10 +890,10 @@ function ProjectOverlay({
                 <X size={20} />
               </button>
             </div>
-            <p className="text-[17px] leading-[1.47] text-ink/72 dark:text-white/66">{displayProject.description}</p>
+            <p className="text-[17px] leading-[1.47] text-ink/75 dark:text-white/80">{displayProject.description}</p>
             <div className="mt-10 grid gap-3">
               {displayProject.highlights.map((highlight) => (
-                <p key={highlight} className="rounded-[18px] bg-white/75 p-4 text-sm leading-6 text-ink/72 dark:bg-[#24252b] dark:text-white/66 dark:shadow-[0_12px_32px_rgba(0,0,0,0.30)]">
+                <p key={highlight} className="rounded-[18px] bg-white/75 p-4 text-sm leading-6 text-ink/75 dark:bg-[#24252b] dark:text-white/80 dark:shadow-[0_12px_32px_rgba(0,0,0,0.30)]">
                   {highlight}
                 </p>
               ))}
@@ -898,7 +904,7 @@ function ProjectOverlay({
                   href={displayProject.githubUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="group inline-flex items-center gap-2 rounded-full bg-ink px-[22px] py-[11px] text-[17px] font-medium text-white transition-all duration-300 hover:bg-black hover:shadow-[0_14px_34px_rgba(29,29,31,0.18)] active:scale-95 dark:bg-white dark:text-ink dark:hover:bg-white/88 dark:hover:shadow-[0_14px_34px_rgba(255,255,255,0.12)]"
+                  className="group inline-flex items-center gap-2 rounded-full bg-ink px-[22px] py-[11px] text-[17px] font-medium text-white transition-all duration-300 hover:bg-black hover:shadow-[0_14px_34px_rgba(29,29,31,0.18)] active:scale-95 dark:bg-white dark:text-ink dark:hover:bg-white/90 dark:hover:shadow-[0_14px_34px_rgba(255,255,255,0.12)]"
                 >
                   <Github size={17} />
                   Repository
@@ -909,7 +915,7 @@ function ProjectOverlay({
                   href={displayProject.liveUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="group inline-flex items-center gap-2 rounded-full bg-canvas px-[22px] py-[11px] text-[17px] font-medium text-ink transition-all duration-300 hover:bg-chalk hover:shadow-[0_12px_30px_rgba(29,29,31,0.10)] active:scale-95 dark:bg-[#24252b] dark:text-white dark:shadow-[0_14px_38px_rgba(0,0,0,0.32)] dark:hover:bg-[#2d2e35] dark:hover:shadow-[0_18px_48px_rgba(0,0,0,0.46)]"
+                  className="group inline-flex items-center gap-2 rounded-full bg-transparent px-[22px] py-[11px] text-[17px] font-medium text-ink transition-all duration-300 hover:bg-chalk hover:shadow-[0_12px_30px_rgba(29,29,31,0.10)] active:scale-95 dark:text-white dark:hover:bg-white/10 dark:hover:shadow-[0_18px_48px_rgba(0,0,0,0.42)]"
                 >
                   Live site
                   <ArrowUpRight size={17} className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />

@@ -40,6 +40,12 @@ body {
   background: #08090b;
 }
 
+html.theme-changing,
+html.theme-changing body {
+  transition-duration: 240ms;
+  transition-timing-function: cubic-bezier(0.2, 0, 0.2, 1);
+}
+
 html.overlay-open,
 body.overlay-open {
   overflow: hidden;
