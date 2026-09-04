@@ -46,13 +46,14 @@ function App() {
     return savedTheme === "dark";
   });
   const lastFocusedElement = useRef<HTMLElement | null>(null);
+  const hasMountedTheme = useRef(false);
   const overlayOpen = Boolean(selectedProject || showAllProjects);
 
   useGSAP(() => {
     gsap.fromTo(
       ".site-nav",
-      { y: -18, opacity: 0, scale: 0.98 },
-      { y: 0, opacity: 1, scale: 1, duration: 0.65, ease: "power3.out" },
+      { opacity: 0 },
+      { opacity: 1, duration: 0.65, ease: "power3.out" },
     );
 
     gsap.fromTo(
@@ -160,9 +161,20 @@ function App() {
   }, []);
 
   useEffect(() => {
-    document.documentElement.classList.add("theme-changing");
+    const shouldAnimateTheme = hasMountedTheme.current;
+    hasMountedTheme.current = true;
+
+    if (shouldAnimateTheme) {
+      document.documentElement.classList.add("theme-changing");
+    }
+
     document.documentElement.classList.toggle("dark", darkMode);
     window.localStorage.setItem("theme", darkMode ? "dark" : "light");
+
+    if (!shouldAnimateTheme) {
+      return;
+    }
+
     const timeout = window.setTimeout(() => {
       document.documentElement.classList.remove("theme-changing");
     }, 320);
@@ -272,7 +284,7 @@ function Navigation({
   return (
     <header className="fixed left-0 right-0 top-0 z-40 px-4 pt-4 md:px-8">
         <div className="site-nav mx-auto flex w-fit items-center justify-center gap-2">
-          <nav className="flex h-[58px] w-fit items-center justify-center rounded-full bg-chalk/86 px-2 shadow-nav backdrop-blur-xl transition-colors duration-300 dark:bg-[#24252b]/90 dark:shadow-[0_28px_88px_rgba(0,0,0,0.68),0_12px_34px_rgba(0,0,0,0.46),0_0_26px_rgba(255,255,255,0.05)]">
+          <nav className="flex h-[58px] w-fit items-center justify-center rounded-full bg-chalk/86 px-2 shadow-nav backdrop-blur-xl transition-colors duration-300 dark:bg-[rgba(37,38,48,0.66)] dark:shadow-[0_30px_90px_rgba(0,0,0,0.58),0_12px_34px_rgba(0,0,0,0.38),0_0_34px_rgba(255,255,255,0.06)] dark:backdrop-blur-2xl">
             <div className="hidden items-center gap-1 md:flex">
               {links.map(([label, href]) => (
                 <button
@@ -296,7 +308,7 @@ function Navigation({
           </nav>
           <button
             type="button"
-            className="grid size-[58px] place-items-center rounded-full bg-chalk/86 text-ink/70 shadow-nav backdrop-blur-xl transition-all duration-[250ms] hover:bg-ink hover:text-white hover:shadow-[0_16px_42px_rgba(29,29,31,0.22)] active:scale-95 dark:bg-[#24252b]/90 dark:text-white/80 dark:shadow-[0_28px_88px_rgba(0,0,0,0.68),0_12px_34px_rgba(0,0,0,0.46),0_0_26px_rgba(255,255,255,0.05)] dark:hover:bg-white dark:hover:text-ink dark:hover:shadow-[0_18px_48px_rgba(0,0,0,0.58),0_0_34px_rgba(255,255,255,0.12)]"
+            className="grid size-[58px] place-items-center rounded-full bg-chalk/86 text-ink/70 shadow-nav backdrop-blur-xl transition-all duration-[250ms] hover:bg-ink hover:text-white hover:shadow-[0_16px_42px_rgba(29,29,31,0.22)] active:scale-95 dark:bg-[rgba(37,38,48,0.66)] dark:text-white/80 dark:shadow-[0_30px_90px_rgba(0,0,0,0.58),0_12px_34px_rgba(0,0,0,0.38),0_0_34px_rgba(255,255,255,0.06)] dark:backdrop-blur-2xl dark:hover:bg-white dark:hover:text-ink dark:hover:shadow-[0_18px_48px_rgba(0,0,0,0.58),0_0_34px_rgba(255,255,255,0.12)]"
             aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
             aria-pressed={darkMode}
             onClick={onToggleTheme}
@@ -378,16 +390,18 @@ function Projects({
   const scrollerRef = useRef<HTMLDivElement | null>(null);
 
   const scrollProjects = (direction: "left" | "right") => {
+    const cardWidth = scrollerRef.current?.querySelector(".project-card")?.getBoundingClientRect().width ?? 420;
+
     scrollerRef.current?.scrollBy({
-      left: direction === "left" ? -420 : 420,
+      left: direction === "left" ? -(cardWidth + 24) : cardWidth + 24,
       behavior: "smooth",
     });
   };
 
   return (
-    <section id="projects" className="projects-section overflow-hidden bg-chalk px-4 py-20 transition-colors duration-300 dark:bg-[#191a1f] md:px-8 md:py-24">
+    <section id="projects" className="projects-section overflow-hidden bg-chalk py-20 transition-colors duration-300 dark:bg-[#191a1f] md:py-24">
       <div className="mx-auto max-w-7xl">
-        <div className="reveal mb-14 flex flex-col justify-between gap-6 md:flex-row md:items-end">
+        <div className="reveal mb-14 flex flex-col justify-between gap-6 px-4 md:flex-row md:items-end md:px-8 xl:px-0">
           <h2 className="max-w-4xl text-[clamp(2.3rem,5vw,4rem)] font-semibold leading-[1.08] tracking-[-0.01em]">
             Projects
           </h2>
@@ -400,7 +414,7 @@ function Projects({
             <ArrowUpRight size={17} className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
           </button>
         </div>
-        <div className="mb-5 flex justify-end gap-2">
+        <div className="mb-5 flex justify-end gap-2 px-4 md:px-8 xl:px-0">
           <button
             type="button"
             className="group rounded-full bg-[#d2d2d7]/70 p-3 text-ink transition-all duration-300 hover:bg-[#d2d2d7] hover:shadow-[0_10px_26px_rgba(29,29,31,0.12)] active:scale-95 dark:bg-[#2a2b32] dark:text-white/80 dark:shadow-[0_12px_32px_rgba(0,0,0,0.36)] dark:hover:bg-[#343640] dark:hover:shadow-[0_16px_42px_rgba(0,0,0,0.48)]"
@@ -420,14 +434,14 @@ function Projects({
         </div>
         <div
           ref={scrollerRef}
-          className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-10 pb-28 pt-16 [-ms-overflow-style:none] [scrollbar-width:none] md:-mx-8 md:px-16 md:pb-32 [&::-webkit-scrollbar]:hidden"
+          className="relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] flex w-screen snap-x snap-mandatory gap-4 overflow-x-auto pl-4 pr-[max(1rem,6vw)] pb-28 pt-16 [-ms-overflow-style:none] [scrollbar-width:none] md:gap-6 md:pl-8 md:pr-[max(2rem,8vw)] md:pb-32 xl:pl-[calc((100vw-80rem)/2)] [&::-webkit-scrollbar]:hidden"
         >
           {projects.map((project, index) => {
             return (
               <button
                 key={project.id}
                 type="button"
-                className="project-card group relative h-[24rem] w-[82vw] shrink-0 snap-start overflow-hidden rounded-[18px] bg-canvas text-left shadow-[0_16px_38px_rgba(29,29,31,0.08)] outline-none transition-shadow duration-500 ease-out hover:shadow-[0_22px_52px_rgba(29,29,31,0.14)] focus-visible:ring-4 focus-visible:ring-blueFocus/35 dark:bg-[#24252b] dark:shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_34px_86px_rgba(0,0,0,0.66),0_0_42px_rgba(255,255,255,0.06)] dark:hover:shadow-[0_0_0_1px_rgba(255,255,255,0.12),0_42px_104px_rgba(0,0,0,0.78),0_0_58px_rgba(255,255,255,0.09)] sm:w-[28rem] lg:w-[34rem]"
+                className="project-card group relative h-[24rem] w-[82vw] shrink-0 snap-center overflow-hidden rounded-[18px] bg-canvas text-left shadow-[0_16px_38px_rgba(29,29,31,0.08)] outline-none transition-shadow duration-500 ease-out hover:shadow-[0_22px_52px_rgba(29,29,31,0.14)] focus-visible:ring-4 focus-visible:ring-blueFocus/35 dark:bg-[#24252b] dark:shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_34px_86px_rgba(0,0,0,0.66),0_0_42px_rgba(255,255,255,0.06)] dark:hover:shadow-[0_0_0_1px_rgba(255,255,255,0.12),0_42px_104px_rgba(0,0,0,0.78),0_0_58px_rgba(255,255,255,0.09)] sm:w-[28rem] lg:w-[38rem]"
                 onClick={() => onSelect(project)}
               >
                 <img
