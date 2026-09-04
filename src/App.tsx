@@ -8,6 +8,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Github,
+  Image,
   Linkedin,
   Mail,
   Menu,
@@ -19,7 +20,7 @@ import {
   Sun,
   X,
 } from "lucide-react";
-import { Project, profile, projects } from "./data";
+import { Artwork, Project, artworks, profile, projects } from "./data";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -34,9 +35,34 @@ const scrollToSection = (targetId: string) => {
   window.history.replaceState(null, "", window.location.pathname);
 };
 
+const artworkAspectClass = (aspect: Artwork["aspect"]) => {
+  const classes: Record<Artwork["aspect"], string> = {
+    landscape: "aspect-[4/3]",
+    portrait: "aspect-[3/4]",
+    square: "aspect-square",
+    tall: "aspect-[3/5]",
+  };
+
+  return classes[aspect];
+};
+
+const artworkImageFor = (artwork: Artwork, width = 900, height = 1200) => {
+  if (!artwork.imageUrl) {
+    return imageFor(artwork.imageSeed, width, height);
+  }
+
+  if (/^https?:\/\//.test(artwork.imageUrl)) {
+    return artwork.imageUrl;
+  }
+
+  return `${import.meta.env.BASE_URL}${artwork.imageUrl.replace(/^\/+/, "")}`;
+};
+
 function App() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [showAllProjects, setShowAllProjects] = useState(false);
+  const [selectedArtwork, setSelectedArtwork] = useState<Artwork | null>(null);
+  const [showAllArtwork, setShowAllArtwork] = useState(false);
   const [darkMode, setDarkMode] = useState(() => {
     if (typeof window === "undefined") {
       return false;
@@ -47,7 +73,7 @@ function App() {
   });
   const lastFocusedElement = useRef<HTMLElement | null>(null);
   const hasMountedTheme = useRef(false);
-  const overlayOpen = Boolean(selectedProject || showAllProjects);
+  const overlayOpen = Boolean(selectedProject || showAllProjects || selectedArtwork || showAllArtwork);
 
   useGSAP(() => {
     gsap.fromTo(
@@ -152,6 +178,25 @@ function App() {
         },
       });
     });
+
+    gsap.utils.toArray<HTMLElement>(".artwork-tile").forEach((tile, index) => {
+      gsap.fromTo(
+        tile,
+        { opacity: 0, y: 28, scale: 0.96 },
+        {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.7,
+          delay: index * 0.04,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: tile,
+            start: "top 88%",
+          },
+        },
+      );
+    });
   });
 
   useEffect(() => {
@@ -254,13 +299,20 @@ function App() {
       <Navigation darkMode={darkMode} onToggleTheme={() => setDarkMode((value) => !value)} />
       <Hero />
       <Projects onSelect={setSelectedProject} onViewAll={() => setShowAllProjects(true)} />
+      <ArtworkSection onSelect={setSelectedArtwork} onViewAll={() => setShowAllArtwork(true)} />
       <About />
       <Contact />
       <ProjectOverlay project={selectedProject} onClose={() => setSelectedProject(null)} />
+      <ArtworkOverlay artwork={selectedArtwork} onClose={() => setSelectedArtwork(null)} />
       <AllProjectsOverlay
         open={showAllProjects}
         onClose={() => setShowAllProjects(false)}
         onSelect={setSelectedProject}
+      />
+      <AllArtworkOverlay
+        open={showAllArtwork}
+        onClose={() => setShowAllArtwork(false)}
+        onSelect={setSelectedArtwork}
       />
     </main>
   );
@@ -277,6 +329,7 @@ function Navigation({
   const links = [
     ["Home", "home"],
     ["Projects", "projects"],
+    ["Artwork", "artwork"],
     ["About", "about"],
     ["Contact", "contact"],
   ];
@@ -401,36 +454,43 @@ function Projects({
   return (
     <section id="projects" className="projects-section overflow-hidden bg-chalk py-20 transition-colors duration-300 dark:bg-[#191a1f] md:py-24">
       <div className="mx-auto max-w-7xl">
-        <div className="reveal mb-14 flex flex-col justify-between gap-6 px-4 md:flex-row md:items-end md:px-8 xl:px-0">
-          <h2 className="max-w-4xl text-[clamp(2.3rem,5vw,4rem)] font-semibold leading-[1.08] tracking-[-0.01em]">
-            Projects
-          </h2>
-          <button
-            type="button"
-            className="group inline-flex w-fit items-center gap-2 rounded-full bg-ink px-[22px] py-[11px] text-[17px] font-medium text-white transition-all duration-300 hover:bg-black hover:shadow-[0_14px_34px_rgba(29,29,31,0.18)] active:scale-95 dark:bg-white dark:text-ink dark:hover:bg-white/90 dark:hover:shadow-[0_14px_34px_rgba(255,255,255,0.12)]"
-            onClick={onViewAll}
-          >
-            View all
-            <ArrowUpRight size={17} className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-          </button>
-        </div>
-        <div className="mb-5 flex justify-end gap-2 px-4 md:px-8 xl:px-0">
-          <button
-            type="button"
-            className="group rounded-full bg-[#d2d2d7]/70 p-3 text-ink transition-all duration-300 hover:bg-[#d2d2d7] hover:shadow-[0_10px_26px_rgba(29,29,31,0.12)] active:scale-95 dark:bg-[#2a2b32] dark:text-white/80 dark:shadow-[0_12px_32px_rgba(0,0,0,0.36)] dark:hover:bg-[#343640] dark:hover:shadow-[0_16px_42px_rgba(0,0,0,0.48)]"
-            aria-label="Scroll projects left"
-            onClick={() => scrollProjects("left")}
-          >
-            <ChevronLeft size={20} className="transition-transform duration-300 group-hover:-translate-x-0.5" />
-          </button>
-          <button
-            type="button"
-            className="group rounded-full bg-[#d2d2d7]/70 p-3 text-ink transition-all duration-300 hover:bg-[#d2d2d7] hover:shadow-[0_10px_26px_rgba(29,29,31,0.12)] active:scale-95 dark:bg-[#2a2b32] dark:text-white/80 dark:shadow-[0_12px_32px_rgba(0,0,0,0.36)] dark:hover:bg-[#343640] dark:hover:shadow-[0_16px_42px_rgba(0,0,0,0.48)]"
-            aria-label="Scroll projects right"
-            onClick={() => scrollProjects("right")}
-          >
-            <ChevronRight size={20} className="transition-transform duration-300 group-hover:translate-x-0.5" />
-          </button>
+        <div className="reveal mb-10 flex flex-col justify-between gap-6 px-4 md:flex-row md:items-end md:px-8 xl:px-0">
+          <div>
+            <h2 className="max-w-4xl text-[clamp(2.3rem,5vw,4rem)] font-semibold leading-[1.08] tracking-[-0.01em]">
+              Projects
+            </h2>
+            <p className="mt-4 max-w-2xl text-[17px] leading-[1.47] text-ink/70 transition-colors duration-300 dark:text-white/70">
+              Games, tools, and development experiments with case studies.
+            </p>
+          </div>
+          <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
+            <div className="flex w-fit gap-1 rounded-full bg-canvas/75 p-1 shadow-[0_12px_30px_rgba(29,29,31,0.08)] backdrop-blur-xl dark:bg-[#24252b] dark:shadow-[0_18px_46px_rgba(0,0,0,0.46)]">
+              <button
+                type="button"
+                className="group grid size-10 place-items-center rounded-full text-ink/72 transition-all duration-300 hover:bg-ink hover:text-white active:scale-95 dark:text-white/75 dark:hover:bg-white dark:hover:text-ink"
+                aria-label="Scroll projects left"
+                onClick={() => scrollProjects("left")}
+              >
+                <ChevronLeft size={20} className="transition-transform duration-300 group-hover:-translate-x-0.5" />
+              </button>
+              <button
+                type="button"
+                className="group grid size-10 place-items-center rounded-full text-ink/72 transition-all duration-300 hover:bg-ink hover:text-white active:scale-95 dark:text-white/75 dark:hover:bg-white dark:hover:text-ink"
+                aria-label="Scroll projects right"
+                onClick={() => scrollProjects("right")}
+              >
+                <ChevronRight size={20} className="transition-transform duration-300 group-hover:translate-x-0.5" />
+              </button>
+            </div>
+            <button
+              type="button"
+              className="group inline-flex w-fit items-center gap-2 rounded-full bg-ink px-[22px] py-[11px] text-[17px] font-medium text-white transition-all duration-300 hover:bg-black hover:shadow-[0_14px_34px_rgba(29,29,31,0.18)] active:scale-95 dark:bg-white dark:text-ink dark:hover:bg-white/90 dark:hover:shadow-[0_14px_34px_rgba(255,255,255,0.12)]"
+              onClick={onViewAll}
+            >
+              View all
+              <ArrowUpRight size={17} className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+            </button>
+          </div>
         </div>
         <div
           ref={scrollerRef}
@@ -466,6 +526,68 @@ function Projects({
   );
 }
 
+function ArtworkSection({
+  onSelect,
+  onViewAll,
+}: {
+  onSelect: (artwork: Artwork) => void;
+  onViewAll: () => void;
+}) {
+  const featuredArtworks = artworks.slice(0, 6);
+
+  return (
+    <section id="artwork" className="overflow-hidden bg-canvas px-4 py-20 transition-colors duration-300 dark:bg-[#101114] md:px-8 md:py-24">
+      <div className="mx-auto max-w-7xl">
+        <div className="reveal mb-12 flex flex-col justify-between gap-6 md:flex-row md:items-end">
+          <div>
+            <h2 className="max-w-5xl text-[clamp(2.3rem,5vw,4rem)] font-semibold leading-[1.08] tracking-[-0.01em]">
+              Artwork
+            </h2>
+            <p className="mt-4 max-w-2xl text-[17px] leading-[1.47] text-ink/70 transition-colors duration-300 dark:text-white/70">
+              Sketches, concepts, studies, and visual experiments collected in a dense gallery.
+            </p>
+          </div>
+          <button
+            type="button"
+            className="group inline-flex w-fit items-center gap-2 rounded-full bg-ink px-[22px] py-[11px] text-[17px] font-medium text-white transition-all duration-300 hover:bg-black hover:shadow-[0_14px_34px_rgba(29,29,31,0.18)] active:scale-95 dark:bg-white dark:text-ink dark:hover:bg-white/90 dark:hover:shadow-[0_14px_34px_rgba(255,255,255,0.12)]"
+            onClick={onViewAll}
+          >
+            View all
+            <ArrowUpRight size={17} className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+          </button>
+        </div>
+
+        <div className="columns-1 gap-4 sm:columns-2 lg:columns-3">
+          {featuredArtworks.map((artwork, index) => (
+            <button
+              key={artwork.id}
+              type="button"
+              className="artwork-tile group mb-4 block w-full break-inside-avoid overflow-hidden rounded-[18px] bg-chalk text-left shadow-[0_16px_38px_rgba(29,29,31,0.08)] outline-none transition-all duration-500 ease-out hover:-translate-y-1 hover:shadow-[0_22px_52px_rgba(29,29,31,0.14)] focus-visible:ring-4 focus-visible:ring-blueFocus/35 dark:bg-[#1c1d23] dark:shadow-[0_24px_70px_rgba(0,0,0,0.56)] dark:hover:shadow-[0_30px_86px_rgba(0,0,0,0.7)]"
+              style={{ animationDelay: `${index * 45}ms` }}
+              onClick={() => onSelect(artwork)}
+            >
+              <div className={`overflow-hidden ${artworkAspectClass(artwork.aspect)}`}>
+                <img
+                  src={artworkImageFor(artwork, 900, 1200)}
+                  alt=""
+                  className="h-full w-full object-cover brightness-[0.86] contrast-[1.08] saturate-[0.82] transition duration-700 ease-out group-hover:scale-[1.045] group-hover:brightness-100 group-hover:contrast-100 group-hover:saturate-100"
+                />
+              </div>
+              <div className="p-5">
+                <div className="flex items-start justify-between gap-4">
+                  <h3 className="text-xl font-semibold tracking-[-0.01em]">{artwork.title}</h3>
+                  <Image size={18} className="mt-1 shrink-0 text-ink/45 dark:text-white/45" />
+                </div>
+                <p className="mt-2 text-sm leading-6 text-ink/65 dark:text-white/65">{artwork.summary}</p>
+              </div>
+            </button>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function AllProjectsOverlay({
   open,
   onClose,
@@ -481,7 +603,7 @@ function AllProjectsOverlay({
   const [shouldRender, setShouldRender] = useState(open);
   const [visible, setVisible] = useState(false);
   const [resultsAnimating, setResultsAnimating] = useState(false);
-  const categories: Array<"All" | Project["category"]> = ["All", "Games", "3D", "2D Art", "Tools"];
+  const categories: Array<"All" | Project["category"]> = ["All", "Games", "Tools"];
   const normalizedQuery = query.trim().toLowerCase();
   const filteredProjects = useMemo(
     () =>
@@ -695,6 +817,184 @@ function AllProjectsOverlay({
             >
               <p className="text-lg font-medium">No projects found</p>
               <p className="mt-2 text-sm text-ink/60 dark:text-white/60">Try a different title, tool, or keyword.</p>
+            </div>
+          )}
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function AllArtworkOverlay({
+  open,
+  onClose,
+  onSelect,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onSelect: (artwork: Artwork) => void;
+}) {
+  const [query, setQuery] = useState("");
+  const [shouldRender, setShouldRender] = useState(open);
+  const [visible, setVisible] = useState(false);
+  const [resultsAnimating, setResultsAnimating] = useState(false);
+  const normalizedQuery = query.trim().toLowerCase();
+  const filteredArtworks = useMemo(
+    () =>
+      artworks.filter((artwork) =>
+        [artwork.title, artwork.medium, artwork.year, artwork.summary, artwork.description, ...artwork.tags]
+          .join(" ")
+          .toLowerCase()
+          .includes(normalizedQuery),
+      ),
+    [normalizedQuery],
+  );
+  const [displayedArtworks, setDisplayedArtworks] = useState<Artwork[]>(filteredArtworks);
+
+  useEffect(() => {
+    if (open) {
+      setShouldRender(true);
+      return;
+    }
+
+    setVisible(false);
+    const timeout = window.setTimeout(() => setShouldRender(false), 360);
+    return () => window.clearTimeout(timeout);
+  }, [open]);
+
+  useEffect(() => {
+    if (!shouldRender) {
+      return;
+    }
+
+    const timeout = window.setTimeout(() => setVisible(open), 20);
+    return () => window.clearTimeout(timeout);
+  }, [open, shouldRender]);
+
+  useEffect(() => {
+    if (!shouldRender) {
+      return;
+    }
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [shouldRender, onClose]);
+
+  useEffect(() => {
+    if (!shouldRender) {
+      setDisplayedArtworks(filteredArtworks);
+      setResultsAnimating(false);
+      return;
+    }
+
+    setResultsAnimating(true);
+    const timeout = window.setTimeout(() => {
+      setDisplayedArtworks(filteredArtworks);
+      window.requestAnimationFrame(() => setResultsAnimating(false));
+    }, 140);
+
+    return () => window.clearTimeout(timeout);
+  }, [filteredArtworks, shouldRender]);
+
+  if (!shouldRender) {
+    return null;
+  }
+
+  return (
+    <div
+      className={`fixed inset-0 z-40 flex items-center justify-center bg-ink/70 px-4 py-6 backdrop-blur-md transition-opacity duration-300 ease-out dark:bg-black/80 ${
+        visible ? "opacity-100" : "opacity-0"
+      }`}
+      role="presentation"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) {
+          onClose();
+        }
+      }}
+    >
+      <section
+        className={`flex h-[88vh] w-full max-w-7xl flex-col overflow-hidden rounded-[18px] bg-chalk transition-all duration-300 ease-out dark:bg-[#191a1f] dark:shadow-[0_34px_110px_rgba(0,0,0,0.72),0_0_48px_rgba(255,255,255,0.06)] md:max-h-[88vh] ${
+          visible ? "scale-100 opacity-100" : "scale-[0.98] opacity-0"
+        }`}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="all-artwork-title"
+      >
+        <div className="p-5 pb-4 md:p-8 md:pb-6">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h2 id="all-artwork-title" className="text-4xl font-semibold leading-[1.08] tracking-[-0.01em] md:text-6xl">
+                All artwork
+              </h2>
+              <p className="mt-3 text-sm text-muted dark:text-white/60">{displayedArtworks.length} artwork results</p>
+            </div>
+            <button
+              type="button"
+              className="shrink-0 rounded-full bg-[#d2d2d7]/70 p-3 text-ink transition-all duration-300 hover:rotate-90 hover:bg-[#d2d2d7] active:scale-95 dark:bg-[#2a2b32] dark:text-white dark:shadow-[0_10px_28px_rgba(0,0,0,0.36)] dark:hover:bg-[#343640]"
+              aria-label="Close all artwork"
+              onClick={onClose}
+            >
+              <X size={20} />
+            </button>
+          </div>
+          <label className="mt-7 flex h-11 min-w-0 items-center gap-3 rounded-full bg-white/90 px-5 text-ink shadow-[0_14px_34px_rgba(29,29,31,0.07)] dark:bg-[#24252b] dark:text-white dark:shadow-[0_16px_42px_rgba(0,0,0,0.42)]">
+            <Search size={19} className="shrink-0 text-ink/50 dark:text-white/50" />
+            <input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search artwork by title, medium, or tag"
+              className="w-full min-w-0 bg-transparent text-sm outline-none placeholder:text-ink/40 dark:placeholder:text-white/50"
+              autoFocus
+            />
+          </label>
+        </div>
+        <div className="flex-1 overflow-y-auto p-5 pt-3 md:p-8 md:pt-4">
+          {displayedArtworks.length ? (
+            <div
+              className={`columns-1 gap-4 transition-all duration-300 ease-out sm:columns-2 lg:columns-3 xl:columns-4 ${
+                resultsAnimating ? "translate-y-1 opacity-0" : "translate-y-0 opacity-100"
+              }`}
+            >
+              {displayedArtworks.map((artwork, index) => (
+                <button
+                  key={artwork.id}
+                  type="button"
+                  className="filter-result-card group mb-4 block w-full break-inside-avoid overflow-hidden rounded-[18px] bg-canvas text-left shadow-[0_12px_30px_rgba(29,29,31,0.06)] outline-none transition-shadow duration-500 ease-out hover:shadow-[0_18px_46px_rgba(29,29,31,0.12)] focus-visible:ring-4 focus-visible:ring-blueFocus/35 dark:bg-[#24252b] dark:shadow-[0_20px_54px_rgba(0,0,0,0.48)] dark:hover:shadow-[0_26px_70px_rgba(0,0,0,0.62)]"
+                  style={{ animationDelay: `${index * 30}ms` }}
+                  onClick={() => onSelect(artwork)}
+                >
+                  <div className={`overflow-hidden ${artworkAspectClass(artwork.aspect)}`}>
+                    <img
+                      src={artworkImageFor(artwork, 900, 1200)}
+                      alt=""
+                      className="h-full w-full object-cover brightness-[0.86] contrast-[1.08] saturate-[0.82] transition duration-700 ease-out group-hover:scale-[1.045] group-hover:brightness-100 group-hover:contrast-100 group-hover:saturate-100"
+                    />
+                  </div>
+                  <div className="p-4">
+                    <h3 className="text-lg font-semibold tracking-[-0.01em]">{artwork.title}</h3>
+                    <p className="mt-1 text-sm text-ink/60 dark:text-white/60">
+                      {artwork.medium} · {artwork.year}
+                    </p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div
+              className={`empty-results rounded-[18px] bg-canvas p-10 text-center shadow-[0_12px_30px_rgba(29,29,31,0.06)] transition-all duration-300 ease-out dark:bg-[#24252b] dark:shadow-[0_20px_54px_rgba(0,0,0,0.48)] ${
+                resultsAnimating ? "translate-y-1 opacity-0" : "translate-y-0 opacity-100"
+              }`}
+            >
+              <p className="text-lg font-medium">No artwork found</p>
+              <p className="mt-2 text-sm text-ink/60 dark:text-white/60">Try a different title, medium, or tag.</p>
             </div>
           )}
         </div>
@@ -935,6 +1235,130 @@ function ProjectOverlay({
                   <ArrowUpRight size={17} className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                 </a>
               )}
+            </div>
+          </div>
+        </div>
+      </article>
+    </div>
+  );
+}
+
+function ArtworkOverlay({
+  artwork,
+  onClose,
+}: {
+  artwork: Artwork | null;
+  onClose: () => void;
+}) {
+  const [displayArtwork, setDisplayArtwork] = useState<Artwork | null>(artwork);
+  const [shouldRender, setShouldRender] = useState(Boolean(artwork));
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    if (artwork) {
+      setDisplayArtwork(artwork);
+      setShouldRender(true);
+      return;
+    }
+
+    setVisible(false);
+    const timeout = window.setTimeout(() => {
+      setShouldRender(false);
+      setDisplayArtwork(null);
+    }, 360);
+
+    return () => window.clearTimeout(timeout);
+  }, [artwork]);
+
+  useEffect(() => {
+    if (!shouldRender) {
+      return;
+    }
+
+    const timeout = window.setTimeout(() => setVisible(Boolean(artwork)), 20);
+    return () => window.clearTimeout(timeout);
+  }, [artwork, shouldRender]);
+
+  useEffect(() => {
+    if (!shouldRender) {
+      return;
+    }
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [shouldRender, onClose]);
+
+  if (!shouldRender || !displayArtwork) {
+    return null;
+  }
+
+  return (
+    <div
+      className={`fixed inset-0 z-50 flex items-center justify-center bg-ink/72 px-4 py-6 backdrop-blur-md transition-opacity duration-300 ease-out dark:bg-black/82 ${
+        visible ? "opacity-100" : "opacity-0"
+      }`}
+      role="presentation"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) {
+          onClose();
+        }
+      }}
+    >
+      <article
+        className={`max-h-[92vh] w-full max-w-6xl overflow-y-auto rounded-[18px] bg-chalk outline-none transition-all duration-300 ease-out dark:bg-[#191a1f] dark:shadow-[0_34px_110px_rgba(0,0,0,0.72),0_0_48px_rgba(255,255,255,0.06)] ${
+          visible ? "scale-100 opacity-100" : "scale-[0.98] opacity-0"
+        }`}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="artwork-title"
+        tabIndex={-1}
+      >
+        <div className="grid min-h-[min(46rem,86vh)] lg:grid-cols-[1.15fr_0.85fr]">
+          <div className="grid min-h-[22rem] place-items-center bg-[#202124] p-4 dark:bg-[#202124] md:min-h-[34rem] md:p-6 lg:min-h-0">
+            <img
+              src={artworkImageFor(displayArtwork, 1400, 1800)}
+              alt=""
+              className="h-full max-h-[78vh] w-full rounded-[14px] bg-[#202124] object-contain dark:bg-[#202124]"
+            />
+          </div>
+          <div className="p-6 md:p-10">
+            <div className="mb-8 flex items-start justify-between gap-4">
+              <div>
+                <h3 id="artwork-title" className="text-4xl font-semibold leading-[1.08] tracking-[-0.01em] md:text-6xl">
+                  {displayArtwork.title}
+                </h3>
+                <p className="mt-4 text-sm font-medium text-muted dark:text-white/60">
+                  {displayArtwork.medium} · {displayArtwork.year}
+                </p>
+              </div>
+              <button
+                type="button"
+                className="shrink-0 rounded-full bg-[#d2d2d7]/70 p-3 text-ink transition-all duration-300 hover:rotate-90 hover:bg-[#d2d2d7] active:scale-95 dark:bg-[#2a2b32] dark:text-white dark:shadow-[0_10px_28px_rgba(0,0,0,0.36)] dark:hover:bg-[#343640]"
+                aria-label="Close artwork details"
+                onClick={onClose}
+                autoFocus
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <p className="text-[17px] leading-[1.47] text-ink/75 dark:text-white/80">{displayArtwork.description}</p>
+            <div className="mt-10 flex flex-wrap gap-2">
+              {displayArtwork.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="rounded-full bg-white/75 px-4 py-2 text-sm font-medium text-ink/70 dark:bg-[#24252b] dark:text-white/75 dark:shadow-[0_12px_32px_rgba(0,0,0,0.30)]"
+                >
+                  {tag}
+                </span>
+              ))}
             </div>
           </div>
         </div>

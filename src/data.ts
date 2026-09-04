@@ -11,6 +11,19 @@ export type Project = {
   liveUrl?: string;
 };
 
+export type Artwork = {
+  id: string;
+  title: string;
+  medium: string;
+  year: string;
+  summary: string;
+  description: string;
+  tags: string[];
+  imageSeed: string;
+  imageUrl?: string;
+  aspect: "portrait" | "landscape" | "square" | "tall";
+};
+
 export const profile = {
   name: "Devanand Asai",
   role: "Developer focused on clean, practical digital products.",
@@ -82,5 +95,80 @@ export const projects: Project[] = [
       "Readable visual system for long study sessions.",
     ],
     imageSeed: "learning-platform-minimal",
+  },
+];
+
+export const artworks: Artwork[] = [
+  {
+    id: "watchful-eye-study",
+    title: "Watchful Eye Study",
+    medium: "Graphite sketch",
+    year: "2026",
+    summary: "A close study of texture, shadow, and tension in a single framed moment.",
+    description:
+      "Built around tight pencil marks and dense contrast, this piece focuses on expression through cropping and surface detail.",
+    tags: ["Sketching", "Graphite", "Character"],
+    imageSeed: "graphite-eye-hands-study",
+    aspect: "tall",
+  },
+  {
+    id: "hanging-houses",
+    title: "Hanging Houses",
+    medium: "Concept art",
+    year: "2026",
+    summary: "Layered architectural forms designed as a compact fantasy environment.",
+    description:
+      "A worldbuilding piece exploring stacked homes, wood structures, and readable silhouettes for a game-ready space.",
+    tags: ["Environment", "Architecture", "Worldbuilding"],
+    imageSeed: "fantasy-hanging-houses-concept",
+    aspect: "landscape",
+  },
+  {
+    id: "okinawa-poster",
+    title: "Okinawa Poster",
+    medium: "Digital poster",
+    year: "2025",
+    summary: "A bold poster-style image using graphic shape, flat colour, and travel-inspired composition.",
+    description:
+      "This poster leans into clean colour blocks and simplified natural forms, balancing readable typography with an illustrated focal point.",
+    tags: ["Poster", "Digital", "Graphic"],
+    imageSeed: "okinawa-poster-bonsai",
+    aspect: "portrait",
+  },
+  {
+    id: "ruined-chapel",
+    title: "Ruined Chapel",
+    medium: "Environment study",
+    year: "2025",
+    summary: "A quiet architectural scene focused on atmosphere, scale, and negative space.",
+    description:
+      "A moody environment study shaped around stone textures, winter light, and the feeling of discovering a place with history.",
+    tags: ["Environment", "Architecture", "Mood"],
+    imageSeed: "snow-ruined-chapel-art",
+    aspect: "portrait",
+  },
+  {
+    id: "mechanical-parts",
+    title: "Mechanical Parts",
+    medium: "Prop sheet",
+    year: "2025",
+    summary: "A reusable set of industrial prop details for worldbuilding and scene dressing.",
+    description:
+      "A prop exploration focused on pipes, valves, worn metal, and repeatable shapes that can support a larger environment.",
+    tags: ["Props", "Industrial", "Reference"],
+    imageSeed: "copper-pipes-prop-sheet",
+    aspect: "square",
+  },
+  {
+    id: "night-tree",
+    title: "Night Tree",
+    medium: "Digital painting",
+    year: "2025",
+    summary: "A vertical atmospheric piece built with deep contrast and a sharp silhouette.",
+    description:
+      "This study experiments with dramatic tree shapes, low light, and a narrow vertical crop to create a more cinematic frame.",
+    tags: ["Digital", "Atmosphere", "Silhouette"],
+    imageSeed: "dark-night-tree-silhouette",
+    aspect: "tall",
   },
 ];
