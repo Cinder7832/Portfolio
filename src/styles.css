@@ -5,6 +5,7 @@
 @tailwind utilities;
 
 :root {
+  --model-viewer-bg: #202124;
   color: #1d1d1f;
   background: #ffffff;
   color-scheme: light;

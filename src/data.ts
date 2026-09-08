@@ -11,6 +11,18 @@ export type Project = {
   liveUrl?: string;
 };
 
+export type ArtworkViewerConfig = {
+  preset?: "blender-studio";
+  exposure?: number;
+  cameraDistanceMultiplier?: number;
+  targetYOffset?: number;
+  modelYaw?: number;
+  keyIntensity?: number;
+  fillIntensity?: number;
+  rimIntensity?: number;
+  autoRotate?: boolean;
+};
+
 export type Artwork = {
   id: string;
   title: string;
@@ -23,6 +35,7 @@ export type Artwork = {
   imageSeed: string;
   imageUrl?: string;
   modelUrl?: string;
+  viewer?: ArtworkViewerConfig;
   aspect: "portrait" | "landscape" | "square" | "tall";
 };
 
@@ -180,29 +193,29 @@ export const artworks: Artwork[] = [
     aspect: "tall",
   },
   {
-    id: "stylised-crate-model",
-    title: "Stylised Crate Model",
+    id: "primordial-jade-winged-spear",
+    title: "Primordial Jade Winged-Spear (Genshin Impact)",
     kind: "3D",
-    medium: "Low-poly 3D model",
-    year: "2026",
-    summary: "A compact prop model focused on readable silhouette, bevels, and game-ready shape language.",
-    description:
-      "A 3D prop study for practicing clean forms, simple material separation, and a turntable-ready presentation style.",
-    tags: ["3D", "Prop", "Low-poly"],
-    imageSeed: "stylised-wooden-crate-model",
-    aspect: "square",
+    medium: "Stylized 3D model",
+    year: "2025",
+    summary: "A stylized 3D model of the Primordial Jade Winged-Spear from Genshin Impact.",
+    description: "A game-ready 3D prop with a clean wireframe and topology.",
+    tags: ["3D", "Prop", "Stylized"],
+    imageSeed: "primordial-jade-winged-spear",
+    modelUrl: "artwork/Primordial Jade Winged-Spear.glb",
+    aspect: "portrait",
   },
   {
-    id: "modular-tower-model",
-    title: "Modular Tower Model",
+    id: "blockbench-skeleton",
+    title: "Blockbench Skeleton",
     kind: "3D",
-    medium: "Environment asset",
+    medium: "Character model",
     year: "2026",
-    summary: "A vertical modular structure exploring stacked shapes, roof forms, and fantasy asset proportions.",
-    description:
-      "A model-viewer entry for environment assets. Replace the procedural preview with a real GLB file when the finished model is ready.",
-    tags: ["3D", "Environment", "Modular"],
-    imageSeed: "fantasy-modular-tower-model",
+    summary: "A character model created in Blockbench.",
+    description: "A character model created in Blockbench.",
+    tags: ["3D", "Character", "Blockbench"],
+    imageSeed: "blockbench-skeleton",
+    modelUrl: "artwork/Skeleton - Animation Version.gltf",
     aspect: "portrait",
   },
 ];

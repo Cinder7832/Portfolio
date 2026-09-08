@@ -2,8 +2,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import * as THREE from "three";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import {
   ArrowUpRight,
   Check,
@@ -20,10 +18,9 @@ import {
   Search,
   Sun,
   X,
-  ZoomIn,
-  ZoomOut,
 } from "lucide-react";
 import { Artwork, Project, artworks, profile, projects } from "./data";
+import ModelViewer from "./ModelViewer";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -50,10 +47,6 @@ const artworkAspectClass = (aspect: Artwork["aspect"]) => {
 };
 
 const artworkMediaAspectClass = (artwork: Artwork) => {
-  if (artwork.kind === "3D") {
-    return "aspect-[4/3]";
-  }
-
   return artworkAspectClass(artwork.aspect);
 };
 
@@ -67,18 +60,6 @@ const artworkImageFor = (artwork: Artwork, width = 900, height = 1200) => {
   }
 
   return `${import.meta.env.BASE_URL}${artwork.imageUrl.replace(/^\/+/, "")}`;
-};
-
-const artworkModelFor = (artwork: Artwork) => {
-  if (!artwork.modelUrl) {
-    return null;
-  }
-
-  if (/^https?:\/\//.test(artwork.modelUrl)) {
-    return artwork.modelUrl;
-  }
-
-  return `${import.meta.env.BASE_URL}${artwork.modelUrl.replace(/^\/+/, "")}`;
 };
 
 function App() {
@@ -362,7 +343,10 @@ function App() {
       <Navigation darkMode={darkMode} onToggleTheme={() => setDarkMode((value) => !value)} />
       <Hero />
       <Projects onSelect={setSelectedProject} onViewAll={() => setShowAllProjects(true)} />
-      <ArtworkSection onSelect={setSelectedArtwork} onViewAll={() => setShowAllArtwork(true)} />
+      <ArtworkSection
+        onSelect={setSelectedArtwork}
+        onViewAll={() => setShowAllArtwork(true)}
+      />
       <About />
       <Contact />
       <ProjectOverlay
@@ -596,287 +580,6 @@ function Projects({
         </div>
       </div>
     </section>
-  );
-}
-
-function ModelViewer({
-  artwork,
-  compact = false,
-}: {
-  artwork: Artwork;
-  compact?: boolean;
-}) {
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const [viewerVersion, setViewerVersion] = useState(0);
-  const zoomControlsRef = useRef<{
-    zoomIn: () => void;
-    zoomOut: () => void;
-  } | null>(null);
-
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) {
-      return;
-    }
-
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(36, 1, 0.1, 100);
-    const cameraDirection = new THREE.Vector3(3.1, 2.2, 4.2).normalize();
-    let targetDistance = 5.55;
-    const setCameraDistance = (distance: number) => {
-      targetDistance = THREE.MathUtils.clamp(distance, 2.7, 8);
-      camera.position.copy(cameraDirection).multiplyScalar(targetDistance);
-      camera.lookAt(0, 0, 0);
-    };
-    setCameraDistance(targetDistance);
-    zoomControlsRef.current = {
-      zoomIn: () => setCameraDistance(targetDistance - 0.45),
-      zoomOut: () => setCameraDistance(targetDistance + 0.45),
-    };
-
-    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setClearColor(0x000000, 0);
-    renderer.domElement.style.display = "block";
-    renderer.domElement.style.height = "100%";
-    renderer.domElement.style.inset = "0";
-    renderer.domElement.style.position = "absolute";
-    renderer.domElement.style.width = "100%";
-    renderer.domElement.style.zIndex = "1";
-    container.appendChild(renderer.domElement);
-
-    const modelGroup = new THREE.Group();
-    scene.add(modelGroup);
-
-    const ambientLight = new THREE.AmbientLight(0xffffff, 2.2);
-    scene.add(ambientLight);
-
-    const keyLight = new THREE.DirectionalLight(0xffffff, 3.8);
-    keyLight.position.set(3, 5, 4);
-    scene.add(keyLight);
-
-    const fillLight = new THREE.DirectionalLight(0xb9d2ff, 1.7);
-    fillLight.position.set(-4, 2, -2);
-    scene.add(fillLight);
-
-    const floorGeometry = new THREE.CircleGeometry(1.65, 72);
-    const floorMaterial = new THREE.MeshBasicMaterial({
-      color: 0xffffff,
-      transparent: true,
-      opacity: 0.08,
-      side: THREE.DoubleSide,
-    });
-    const floor = new THREE.Mesh(floorGeometry, floorMaterial);
-    floor.rotation.x = -Math.PI / 2;
-    floor.position.y = -1.08;
-    scene.add(floor);
-
-    let loadedModel: THREE.Object3D | null = null;
-    const modelUrl = artworkModelFor(artwork);
-
-    if (modelUrl) {
-      const loader = new GLTFLoader();
-      loader.load(modelUrl, (gltf) => {
-        loadedModel = gltf.scene;
-        const box = new THREE.Box3().setFromObject(loadedModel);
-        const size = new THREE.Vector3();
-        const center = new THREE.Vector3();
-        box.getSize(size);
-        box.getCenter(center);
-        const largestSide = Math.max(size.x, size.y, size.z) || 1;
-        loadedModel.position.sub(center);
-        loadedModel.scale.setScalar(2.35 / largestSide);
-        modelGroup.clear();
-        modelGroup.add(loadedModel);
-      });
-    }
-
-    if (!modelUrl) {
-      const baseMaterial = new THREE.MeshStandardMaterial({
-        color: artwork.id.includes("tower") ? 0x8a98a8 : 0xb87b44,
-        roughness: 0.68,
-        metalness: 0.08,
-      });
-      const accentMaterial = new THREE.MeshStandardMaterial({
-        color: artwork.id.includes("tower") ? 0xd7c3a2 : 0x3d2b1f,
-        roughness: 0.82,
-      });
-      const edgeMaterial = new THREE.MeshStandardMaterial({
-        color: 0x1f2328,
-        roughness: 0.62,
-        metalness: 0.18,
-      });
-
-      const bodyGeometry = artwork.id.includes("tower")
-        ? new THREE.CylinderGeometry(0.8, 1, 2.2, 6)
-        : new THREE.BoxGeometry(1.75, 1.25, 1.45);
-      const body = new THREE.Mesh(bodyGeometry, baseMaterial);
-      modelGroup.add(body);
-
-      if (artwork.id.includes("tower")) {
-        const roof = new THREE.Mesh(new THREE.ConeGeometry(1.05, 0.8, 6), accentMaterial);
-        roof.position.y = 1.5;
-        modelGroup.add(roof);
-
-        const bands = [-0.64, 0.1, 0.84];
-        bands.forEach((position) => {
-          const band = new THREE.Mesh(new THREE.CylinderGeometry(0.84, 0.98, 0.08, 6), edgeMaterial);
-          band.position.y = position;
-          modelGroup.add(band);
-        });
-      } else {
-        const slats = [
-          { x: 0, y: 0.68, z: 0, sx: 1.98, sy: 0.12, sz: 1.64 },
-          { x: 0, y: -0.68, z: 0, sx: 1.98, sy: 0.12, sz: 1.64 },
-          { x: -0.94, y: 0, z: 0, sx: 0.12, sy: 1.45, sz: 1.62 },
-          { x: 0.94, y: 0, z: 0, sx: 0.12, sy: 1.45, sz: 1.62 },
-        ];
-        slats.forEach((slat) => {
-          const mesh = new THREE.Mesh(new THREE.BoxGeometry(slat.sx, slat.sy, slat.sz), edgeMaterial);
-          mesh.position.set(slat.x, slat.y, slat.z);
-          modelGroup.add(mesh);
-        });
-
-        const brace = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.85, 1.62), accentMaterial);
-        brace.rotation.z = Math.PI / 4;
-        modelGroup.add(brace);
-      }
-    }
-
-    let pointerDown = false;
-    let pointerX = 0;
-    let targetRotation = 0;
-    let frameId = 0;
-    let remountTimeout = 0;
-
-    const resize = () => {
-      const rect = container.getBoundingClientRect();
-      const width = Math.max(1, rect.width);
-      const height = Math.max(1, rect.height);
-      renderer.setSize(width, height, false);
-      camera.aspect = width / height;
-      camera.updateProjectionMatrix();
-    };
-
-    const onPointerDown = (event: PointerEvent) => {
-      pointerDown = true;
-      pointerX = event.clientX;
-      container.setPointerCapture(event.pointerId);
-    };
-
-    const onPointerMove = (event: PointerEvent) => {
-      if (!pointerDown) {
-        return;
-      }
-
-      const delta = event.clientX - pointerX;
-      pointerX = event.clientX;
-      targetRotation += delta * 0.01;
-    };
-
-    const onPointerUp = (event: PointerEvent) => {
-      pointerDown = false;
-      if (container.hasPointerCapture(event.pointerId)) {
-        container.releasePointerCapture(event.pointerId);
-      }
-    };
-
-    const onWheel = (event: WheelEvent) => {
-      event.preventDefault();
-      setCameraDistance(targetDistance + event.deltaY * 0.004);
-    };
-    const onContextLost = (event: Event) => {
-      event.preventDefault();
-      window.cancelAnimationFrame(frameId);
-      window.clearTimeout(remountTimeout);
-      remountTimeout = window.setTimeout(() => {
-        setViewerVersion((version) => version + 1);
-      }, 160);
-    };
-
-    const resizeObserver = new ResizeObserver(resize);
-    resizeObserver.observe(container);
-    container.addEventListener("pointerdown", onPointerDown);
-    container.addEventListener("pointermove", onPointerMove);
-    container.addEventListener("pointerup", onPointerUp);
-    container.addEventListener("pointercancel", onPointerUp);
-    container.addEventListener("wheel", onWheel, { passive: false });
-    renderer.domElement.addEventListener("webglcontextlost", onContextLost);
-    resize();
-
-    const animate = () => {
-      targetRotation += pointerDown ? 0 : 0.006;
-      modelGroup.rotation.y += (targetRotation - modelGroup.rotation.y) * 0.08;
-      modelGroup.rotation.x = Math.sin(targetRotation * 0.35) * 0.08;
-      renderer.render(scene, camera);
-      frameId = window.requestAnimationFrame(animate);
-    };
-    animate();
-
-    return () => {
-      window.cancelAnimationFrame(frameId);
-      window.clearTimeout(remountTimeout);
-      resizeObserver.disconnect();
-      container.removeEventListener("pointerdown", onPointerDown);
-      container.removeEventListener("pointermove", onPointerMove);
-      container.removeEventListener("pointerup", onPointerUp);
-      container.removeEventListener("pointercancel", onPointerUp);
-      container.removeEventListener("wheel", onWheel);
-      renderer.domElement.removeEventListener("webglcontextlost", onContextLost);
-      zoomControlsRef.current = null;
-      renderer.dispose();
-      floorGeometry.dispose();
-      floorMaterial.dispose();
-      scene.traverse((object) => {
-        if (!(object instanceof THREE.Mesh)) {
-          return;
-        }
-
-        object.geometry.dispose();
-        const material = object.material;
-        if (Array.isArray(material)) {
-          material.forEach((item) => item.dispose());
-          return;
-        }
-
-        material.dispose();
-      });
-      loadedModel = null;
-      renderer.domElement.remove();
-    };
-  }, [artwork, viewerVersion]);
-
-  return (
-    <div
-      ref={containerRef}
-      className={`relative isolate cursor-grab overflow-hidden bg-[#202124] active:cursor-grabbing ${
-        compact ? "h-full w-full" : "h-full min-h-[22rem] max-h-[78vh] w-full rounded-[14px]"
-      }`}
-      aria-label={`${artwork.title} interactive 3D model viewer`}
-      role="img"
-    >
-      <div className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(circle_at_35%_20%,rgba(255,255,255,0.18),transparent_32%),radial-gradient(circle_at_70%_80%,rgba(118,144,180,0.18),transparent_36%)]" />
-      {!compact && (
-        <div className="absolute bottom-4 right-4 z-10 flex gap-2">
-          <button
-            type="button"
-            className="grid size-10 place-items-center rounded-full bg-white/12 text-white/82 backdrop-blur-md transition-all duration-300 hover:bg-white hover:text-ink active:scale-95"
-            aria-label="Zoom model out"
-            onClick={() => zoomControlsRef.current?.zoomOut()}
-          >
-            <ZoomOut size={18} />
-          </button>
-          <button
-            type="button"
-            className="grid size-10 place-items-center rounded-full bg-white/12 text-white/82 backdrop-blur-md transition-all duration-300 hover:bg-white hover:text-ink active:scale-95"
-            aria-label="Zoom model in"
-            onClick={() => zoomControlsRef.current?.zoomIn()}
-          >
-            <ZoomIn size={18} />
-          </button>
-        </div>
-      )}
-    </div>
   );
 }
 
@@ -1841,7 +1544,11 @@ function ArtworkOverlay({
         <div
           className="grid min-h-[min(46rem,86vh)] lg:grid-cols-[1.15fr_0.85fr]"
         >
-          <div className="relative grid min-h-[22rem] place-items-center overflow-hidden bg-[#202124] p-4 dark:bg-[#202124] md:min-h-[34rem] md:p-6 lg:min-h-0">
+          <div
+            className={`relative grid min-h-[22rem] place-items-stretch overflow-hidden bg-[var(--model-viewer-bg)] md:min-h-[34rem] lg:min-h-0 ${
+              displayArtwork.kind === "3D" ? "" : "p-4 md:p-6"
+            }`}
+          >
             {displayArtwork.kind === "3D" ? (
               <ModelViewer artwork={displayArtwork} />
             ) : (
