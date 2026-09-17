@@ -32,6 +32,10 @@
     <script>
       (function () {
         try {
+          document.documentElement.classList.add("js-intro-pending");
+          if ("scrollRestoration" in window.history) {
+            window.history.scrollRestoration = "manual";
+          }
           if (window.localStorage.getItem("theme") === "dark") {
             document.documentElement.classList.add("dark");
           }

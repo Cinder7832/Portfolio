@@ -77,6 +77,7 @@ function App() {
   });
   const lastFocusedElement = useRef<HTMLElement | null>(null);
   const hasMountedTheme = useRef(false);
+  const appRef = useRef<HTMLElement | null>(null);
   const overlayOpen = Boolean(selectedProject || showAllProjects || selectedArtwork || showAllArtwork);
   const showPreviousProject = () => {
     setSelectedProject((currentProject) => {
@@ -120,23 +121,80 @@ function App() {
   };
 
   useGSAP(() => {
-    gsap.fromTo(
-      ".site-nav",
-      { opacity: 0 },
-      { opacity: 1, duration: 0.65, ease: "power3.out" },
-    );
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const profilePhoto = document.querySelector<HTMLImageElement>(".profile-photo");
+    let introTimeline: gsap.core.Timeline | null = null;
+    let cancelled = false;
 
-    gsap.fromTo(
-      ".hero-copy > *",
-      { y: 40, opacity: 0 },
-      { y: 0, opacity: 1, duration: 0.9, stagger: 0.12, ease: "power3.out" },
-    );
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+    }
+    window.scrollTo(0, 0);
 
-    gsap.fromTo(
-      ".profile-photo",
-      { opacity: 0, scale: 0.92, rotate: -2 },
-      { opacity: 1, scale: 1, rotate: 0, duration: 0.9, delay: 0.18, ease: "power3.out" },
-    );
+    const finishIntro = () => {
+      document.documentElement.classList.remove("js-intro-pending");
+      ScrollTrigger.refresh();
+    };
+
+    if (prefersReducedMotion) {
+      gsap.set([".site-nav", ".hero-copy > *", ".profile-photo"], {
+        clearProps: "all",
+      });
+      finishIntro();
+    } else {
+      gsap.set(".site-nav", { opacity: 0 });
+      gsap.set(".hero-copy > *", { y: 34, opacity: 0, force3D: true });
+      gsap.set(".profile-photo", {
+        opacity: 0,
+        scale: 0.94,
+        rotate: -1.5,
+        transformOrigin: "50% 50%",
+        force3D: true,
+      });
+
+      const fontReady = document.fonts?.ready.catch(() => undefined) ?? Promise.resolve();
+      const profileReady =
+        profilePhoto && !profilePhoto.complete
+          ? new Promise<void>((resolve) => {
+              profilePhoto.addEventListener("load", () => resolve(), { once: true });
+              profilePhoto.addEventListener("error", () => resolve(), { once: true });
+            })
+          : (profilePhoto?.decode?.().catch(() => undefined) ?? Promise.resolve());
+
+      Promise.all([fontReady, profileReady])
+        .then(
+          () =>
+            new Promise<void>((resolve) => {
+              window.requestAnimationFrame(() => {
+                window.requestAnimationFrame(() => resolve());
+              });
+            }),
+        )
+        .then(() => {
+          if (cancelled) {
+            return;
+          }
+
+          document.documentElement.classList.remove("js-intro-pending");
+          introTimeline = gsap.timeline({
+            defaults: { ease: "power3.out" },
+            onComplete: () => ScrollTrigger.refresh(),
+          });
+
+          introTimeline
+            .to(".site-nav", { opacity: 1, duration: 0.58 }, 0)
+            .to(
+              ".hero-copy > *",
+              { y: 0, opacity: 1, duration: 0.82, stagger: 0.1, clearProps: "transform,opacity" },
+              0.08,
+            )
+            .to(
+              ".profile-photo",
+              { opacity: 1, scale: 1, rotate: 0, duration: 0.88, clearProps: "transform,opacity" },
+              0.16,
+            );
+        });
+    }
 
     gsap.utils.toArray<HTMLElement>(".reveal").forEach((element) => {
       gsap.fromTo(
@@ -241,7 +299,12 @@ function App() {
         },
       );
     });
-  });
+
+    return () => {
+      cancelled = true;
+      introTimeline?.kill();
+    };
+  }, { scope: appRef });
 
   useEffect(() => {
     if (window.location.hash) {
@@ -339,7 +402,7 @@ function App() {
   }, [selectedProject]);
 
   return (
-    <main className="w-full max-w-full overflow-x-hidden bg-canvas text-ink transition-colors duration-300 dark:bg-[#101114] dark:text-[#f5f5f7]">
+    <main ref={appRef} className="w-full max-w-full overflow-x-hidden bg-canvas text-ink transition-colors duration-300 dark:bg-[#101114] dark:text-[#f5f5f7]">
       <Navigation darkMode={darkMode} onToggleTheme={() => setDarkMode((value) => !value)} />
       <Hero />
       <Projects onSelect={setSelectedProject} onViewAll={() => setShowAllProjects(true)} />

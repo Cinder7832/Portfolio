@@ -37,6 +37,19 @@ body {
   transition: background 500ms ease, color 500ms ease;
 }
 
+html.js-intro-pending .site-nav,
+html.js-intro-pending .hero-copy > *,
+html.js-intro-pending .profile-photo {
+  opacity: 0;
+}
+
+.site-nav,
+.hero-copy > *,
+.profile-photo {
+  backface-visibility: hidden;
+  will-change: opacity, transform;
+}
+
 :root.dark body {
   background: #101114;
 }
