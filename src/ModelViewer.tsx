@@ -116,12 +116,19 @@ const createFallbackModel = (artwork: Artwork) => {
 export default function ModelViewer({
   artwork,
   compact = false,
+  motionEnabled = true,
+  onReady,
 }: {
   artwork: Artwork;
   compact?: boolean;
+  motionEnabled?: boolean;
+  onReady?: () => void;
 }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const onReadyRef = useRef(onReady);
   const [viewerVersion, setViewerVersion] = useState(0);
+
+  onReadyRef.current = onReady;
 
   useEffect(() => {
     const container = containerRef.current;
@@ -165,7 +172,7 @@ export default function ModelViewer({
     controls.dampingFactor = 0.075;
     controls.enablePan = false;
     controls.enableZoom = true;
-    controls.autoRotate = viewer.autoRotate ?? true;
+    controls.autoRotate = motionEnabled && (viewer.autoRotate ?? true);
     controls.autoRotateSpeed = -0.62;
     controls.minPolarAngle = 0.08;
     controls.maxPolarAngle = Math.PI / 2 - 0.025;
@@ -419,6 +426,7 @@ export default function ModelViewer({
       shadowCatcher.scale.setScalar(stageScale * 1.85);
     };
 
+    let modelMounted = false;
     const mountModel = (object: THREE.Object3D) => {
       object.rotation.y = THREE.MathUtils.degToRad(viewer.modelYaw ?? DEFAULT_MODEL_YAW);
       const initialBounds = new THREE.Box3().setFromObject(object);
@@ -431,6 +439,75 @@ export default function ModelViewer({
       modelGroup.add(object);
       fittedBounds = new THREE.Box3().setFromObject(object);
       frameCamera(fittedBounds, false);
+      modelMounted = true;
+      startRendering();
+    };
+
+    let frameId = 0;
+    let remountTimeout = 0;
+    let interactionStopTimeout = 0;
+    let isVisible = true;
+    let isPageVisible = document.visibilityState === "visible";
+    let isInteracting = false;
+    let readyNotified = false;
+
+    const shouldRenderContinuously = () => controls.autoRotate || isInteracting;
+
+    const renderFrame = () => {
+      frameId = 0;
+      if (disposed || !isVisible || !isPageVisible) {
+        return;
+      }
+      controls.update();
+      composer.render();
+      if (modelMounted && !readyNotified) {
+        readyNotified = true;
+        onReadyRef.current?.();
+      }
+      if (shouldRenderContinuously()) {
+        frameId = window.requestAnimationFrame(renderFrame);
+      }
+    };
+
+    const startRendering = () => {
+      if (!frameId && !disposed && isVisible && isPageVisible) {
+        frameId = window.requestAnimationFrame(renderFrame);
+      }
+    };
+
+    const stopRendering = () => {
+      if (frameId) {
+        window.cancelAnimationFrame(frameId);
+        frameId = 0;
+      }
+    };
+
+    const onInteractionStart = () => {
+      window.clearTimeout(interactionStopTimeout);
+      isInteracting = true;
+      startRendering();
+    };
+
+    const onInteractionEnd = () => {
+      window.clearTimeout(interactionStopTimeout);
+      interactionStopTimeout = window.setTimeout(() => {
+        isInteracting = false;
+      }, 420);
+    };
+
+    const onControlsChange = () => {
+      if (!shouldRenderContinuously()) {
+        composer.render();
+      }
+    };
+
+    const onVisibilityChange = () => {
+      isPageVisible = document.visibilityState === "visible";
+      if (isPageVisible) {
+        startRendering();
+      } else {
+        stopRendering();
+      }
     };
 
     const modelUrl = modelUrlFor(artwork);
@@ -455,26 +532,6 @@ export default function ModelViewer({
     } else {
       mountModel(createFallbackModel(artwork));
     }
-
-    let frameId = 0;
-    let remountTimeout = 0;
-    let isVisible = true;
-
-    const renderFrame = () => {
-      frameId = 0;
-      if (disposed || !isVisible) {
-        return;
-      }
-      controls.update();
-      composer.render();
-      frameId = window.requestAnimationFrame(renderFrame);
-    };
-
-    const startRendering = () => {
-      if (!frameId && !disposed && isVisible) {
-        frameId = window.requestAnimationFrame(renderFrame);
-      }
-    };
 
     const resize = () => {
       const rect = container.getBoundingClientRect();
@@ -507,14 +564,17 @@ export default function ModelViewer({
         isVisible = entry.isIntersecting;
         if (isVisible) {
           startRendering();
-        } else if (frameId) {
-          window.cancelAnimationFrame(frameId);
-          frameId = 0;
+        } else {
+          stopRendering();
         }
       },
       { rootMargin: "160px" },
     );
     visibilityObserver.observe(container);
+    controls.addEventListener("start", onInteractionStart);
+    controls.addEventListener("end", onInteractionEnd);
+    controls.addEventListener("change", onControlsChange);
+    document.addEventListener("visibilitychange", onVisibilityChange);
     renderer.domElement.addEventListener("webglcontextlost", onContextLost);
     resize();
     startRendering();
@@ -523,8 +583,13 @@ export default function ModelViewer({
       disposed = true;
       window.cancelAnimationFrame(frameId);
       window.clearTimeout(remountTimeout);
+      window.clearTimeout(interactionStopTimeout);
       resizeObserver.disconnect();
       visibilityObserver.disconnect();
+      controls.removeEventListener("start", onInteractionStart);
+      controls.removeEventListener("end", onInteractionEnd);
+      controls.removeEventListener("change", onControlsChange);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
       renderer.domElement.removeEventListener("webglcontextlost", onContextLost);
       controls.dispose();
       gtaoPass.dispose();
@@ -538,7 +603,7 @@ export default function ModelViewer({
       renderer.forceContextLoss();
       renderer.domElement.remove();
     };
-  }, [artwork, compact, viewerVersion]);
+  }, [artwork, compact, motionEnabled, viewerVersion]);
 
   return (
     <div
