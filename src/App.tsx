@@ -457,7 +457,7 @@ function Navigation({
   return (
     <header className="fixed left-0 right-0 top-0 z-40 px-4 pt-4 md:px-8">
         <div className="site-nav mx-auto flex w-fit items-center justify-center gap-2">
-          <nav className="flex h-[58px] w-fit items-center justify-center rounded-full bg-chalk/86 px-2 shadow-nav backdrop-blur-xl transition-colors duration-300 dark:bg-[rgba(37,38,48,0.66)] dark:shadow-[0_30px_90px_rgba(0,0,0,0.58),0_12px_34px_rgba(0,0,0,0.38),0_0_34px_rgba(255,255,255,0.06)] dark:backdrop-blur-2xl">
+          <nav className="glass-nav-surface flex h-[58px] w-fit items-center justify-center rounded-full px-2 transition-colors duration-300">
             <div className="hidden items-center gap-1 md:flex">
               {links.map(([label, href]) => (
                 <button
@@ -481,7 +481,7 @@ function Navigation({
           </nav>
           <button
             type="button"
-            className="grid size-[58px] place-items-center rounded-full bg-chalk/86 text-ink/70 shadow-nav backdrop-blur-xl transition-all duration-[250ms] hover:bg-ink hover:text-white hover:shadow-[0_16px_42px_rgba(29,29,31,0.22)] active:scale-95 dark:bg-[rgba(37,38,48,0.66)] dark:text-white/80 dark:shadow-[0_30px_90px_rgba(0,0,0,0.58),0_12px_34px_rgba(0,0,0,0.38),0_0_34px_rgba(255,255,255,0.06)] dark:backdrop-blur-2xl dark:hover:bg-white dark:hover:text-ink dark:hover:shadow-[0_18px_48px_rgba(0,0,0,0.58),0_0_34px_rgba(255,255,255,0.12)]"
+            className="glass-nav-surface grid size-[58px] place-items-center rounded-full text-ink/70 transition-all duration-[250ms] hover:bg-ink hover:text-white hover:shadow-[0_16px_42px_rgba(29,29,31,0.22)] active:scale-95 dark:text-white/80 dark:hover:bg-white dark:hover:text-ink dark:hover:shadow-[0_18px_48px_rgba(0,0,0,0.58),0_0_34px_rgba(255,255,255,0.12)]"
             aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
             aria-pressed={darkMode}
             onClick={onToggleTheme}

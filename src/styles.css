@@ -43,11 +43,25 @@ html.js-intro-pending .profile-photo {
   opacity: 0;
 }
 
-.site-nav,
 .hero-copy > *,
 .profile-photo {
   backface-visibility: hidden;
   will-change: opacity, transform;
+}
+
+.glass-nav-surface {
+  background: rgba(245, 245, 247, 0.86);
+  box-shadow: 0 22px 70px rgba(29, 29, 31, 0.18), 0 8px 24px rgba(29, 29, 31, 0.1);
+  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
+}
+
+:root.dark .glass-nav-surface {
+  background: rgba(36, 37, 43, 0.9);
+  box-shadow:
+    0 28px 88px rgba(0, 0, 0, 0.68),
+    0 12px 34px rgba(0, 0, 0, 0.46),
+    0 0 26px rgba(255, 255, 255, 0.05);
 }
 
 :root.dark body {
