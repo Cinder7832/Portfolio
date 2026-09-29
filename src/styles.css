@@ -233,7 +233,19 @@ a {
   .project-card img,
   .artwork-tile img,
   .catalog-card-image {
-    transition: none !important;
+    transition: transform 220ms cubic-bezier(0.2, 0, 0.2, 1), filter 220ms cubic-bezier(0.2, 0, 0.2, 1) !important;
+  }
+
+  .project-card,
+  .artwork-tile,
+  .catalog-card {
+    transition: transform 160ms cubic-bezier(0.2, 0, 0.2, 1), box-shadow 220ms cubic-bezier(0.2, 0, 0.2, 1);
+  }
+
+  .project-card:active,
+  .artwork-tile:active,
+  .catalog-card:active {
+    transform: scale(0.985) !important;
   }
 
   .project-card:hover img {
@@ -252,6 +264,22 @@ a {
   .group:hover .catalog-project-image,
   .group:hover .catalog-artwork-image {
     transform: none !important;
+  }
+
+  .project-card:active img {
+    filter: brightness(1) contrast(1) saturate(1) !important;
+    transform: scale(1.025) !important;
+  }
+
+  .artwork-tile:active img,
+  .group:active .catalog-artwork-image {
+    filter: brightness(1) contrast(1) saturate(1) !important;
+    transform: scale(1.03) !important;
+  }
+
+  .group:active .catalog-project-image {
+    filter: brightness(1) contrast(1) saturate(1) !important;
+    transform: scale(1.025) !important;
   }
 }
 
