@@ -542,7 +542,7 @@ function ProjectView({
   onClose: () => void;
 }) {
   return (
-    <div className="relative h-full overflow-y-auto lg:overflow-hidden">
+    <div className="detail-scrollbar relative h-full overflow-y-auto lg:overflow-hidden">
       <OverlayArrow direction="previous" onClick={() => onNavigate(-1)} label="Previous project" />
       <OverlayArrow direction="next" onClick={() => onNavigate(1)} label="Next project" />
       <div className="absolute right-4 top-4 z-30 md:right-6 md:top-6">
@@ -554,7 +554,7 @@ function ProjectView({
             <img src={imageFor(project.imageSeed)} alt="" className="h-full min-h-[20rem] w-full object-cover" />
           </div>
         </div>
-        <div ref={copyRef} className="h-full min-h-0 overflow-y-auto overscroll-contain p-6 pr-20 [scrollbar-gutter:stable] md:p-10 md:pr-24">
+        <div ref={copyRef} className="detail-scrollbar h-full min-h-0 overflow-y-auto overscroll-contain p-6 pr-20 [scrollbar-gutter:stable] md:p-10 md:pr-24">
           <h2 className="mb-8 text-4xl font-semibold leading-[1.08] tracking-[-0.01em] md:text-6xl">{project.title}</h2>
           <p className="text-[17px] leading-[1.47] text-ink/75 dark:text-white/80">{project.description}</p>
           <div className="mt-10 grid gap-3">
@@ -587,7 +587,7 @@ function ArtworkView({
   const artworkImage = artwork.kind === "2D" ? artworkImageFor(artwork, 1800, 2400) : null;
 
   return (
-    <div className="relative h-full overflow-y-auto lg:overflow-hidden">
+    <div className="detail-scrollbar relative h-full overflow-y-auto lg:overflow-hidden">
       <OverlayArrow direction="previous" onClick={() => onNavigate(-1)} label="Previous artwork" />
       <OverlayArrow direction="next" onClick={() => onNavigate(1)} label="Next artwork" />
       <div className="absolute right-4 top-4 z-30 md:right-6 md:top-6">
@@ -607,7 +607,7 @@ function ArtworkView({
                 />
                 <button
                   type="button"
-                  className="absolute bottom-4 right-4 z-10 grid size-12 place-items-center rounded-full bg-white text-ink shadow-[0_18px_44px_rgba(0,0,0,0.28)] transition-[background-color,color,box-shadow,transform] duration-300 hover:scale-[1.04] hover:bg-[#f5f5f7] active:scale-95 dark:bg-[#24252b] dark:text-white dark:shadow-[0_18px_44px_rgba(0,0,0,0.48)] dark:hover:bg-[#303139]"
+                  className="absolute left-4 top-4 z-10 grid size-11 place-items-center rounded-full bg-white text-ink shadow-[0_18px_44px_rgba(0,0,0,0.28)] transition-[background-color,color,box-shadow,transform] duration-300 hover:scale-[1.04] hover:bg-[#f5f5f7] active:scale-95 dark:bg-[#24252b] dark:text-white dark:shadow-[0_18px_44px_rgba(0,0,0,0.48)] dark:hover:bg-[#303139] md:bottom-4 md:left-auto md:right-4 md:top-auto md:size-12"
                   aria-label={`Maximise ${artwork.title}`}
                   onClick={() => setExpanded(true)}
                 >
@@ -617,7 +617,7 @@ function ArtworkView({
             )}
           </div>
         </div>
-        <div ref={copyRef} className="h-full min-h-0 overflow-y-auto overscroll-contain p-6 pr-20 [scrollbar-gutter:stable] md:p-10 md:pr-24">
+        <div ref={copyRef} className="detail-scrollbar h-full min-h-0 overflow-y-auto overscroll-contain p-6 pr-20 [scrollbar-gutter:stable] md:p-10 md:pr-24">
           <h2 className="text-4xl font-semibold leading-[1.08] tracking-[-0.01em] md:text-6xl">{artwork.title}</h2>
           <p className="mt-4 text-sm font-medium text-muted dark:text-white/60">{artwork.kind} · {artwork.medium} · {artwork.year}</p>
           <p className="mt-8 text-[17px] leading-[1.47] text-ink/75 dark:text-white/80">{artwork.description}</p>

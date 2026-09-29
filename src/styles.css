@@ -137,6 +137,17 @@ html.dark ::-webkit-scrollbar-thumb:hover {
   border-color: #101114;
 }
 
+.detail-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.detail-scrollbar::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
 button,
 a {
   -webkit-tap-highlight-color: transparent;

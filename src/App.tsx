@@ -412,19 +412,22 @@ function Navigation({
   useGSAP(() => {
     const menu = menuRef.current;
     if (!menu) return;
+    const openPadding = 24;
+    const menuHeight = menu.scrollHeight + openPadding;
 
     if (prefersReducedMotion()) {
       gsap.set(menu, {
-        height: open ? "auto" : 0,
+        height: open ? menuHeight : 0,
         paddingTop: open ? "0.75rem" : 0,
         paddingBottom: open ? "0.75rem" : 0,
         autoAlpha: open ? 1 : 0,
+        y: 0,
       });
       return;
     }
 
     const tween = gsap.to(menu, {
-      height: open ? "auto" : 0,
+      height: open ? menuHeight : 0,
       paddingTop: open ? "0.75rem" : 0,
       paddingBottom: open ? "0.75rem" : 0,
       autoAlpha: open ? 1 : 0,
@@ -694,7 +697,7 @@ function Projects({
               <button
                 key={project.id}
                 type="button"
-                className="project-card group relative h-[24rem] w-[82vw] shrink-0 snap-center overflow-hidden rounded-[18px] bg-canvas text-left shadow-[0_16px_38px_rgba(29,29,31,0.08)] outline-none transition-shadow duration-500 ease-out hover:shadow-[0_22px_52px_rgba(29,29,31,0.14)] focus-visible:ring-4 focus-visible:ring-blueFocus/35 dark:bg-[#24252b] dark:shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_34px_86px_rgba(0,0,0,0.66),0_0_42px_rgba(255,255,255,0.06)] dark:hover:shadow-[0_0_0_1px_rgba(255,255,255,0.12),0_42px_104px_rgba(0,0,0,0.78),0_0_58px_rgba(255,255,255,0.09)] sm:w-[28rem] lg:w-[38rem]"
+                className="project-card group relative h-[24rem] w-[min(24rem,calc(100%_-_2rem))] shrink-0 snap-center overflow-hidden rounded-[18px] bg-canvas text-left shadow-[0_16px_38px_rgba(29,29,31,0.08)] outline-none transition-shadow duration-500 ease-out hover:shadow-[0_22px_52px_rgba(29,29,31,0.14)] focus-visible:ring-4 focus-visible:ring-blueFocus/35 dark:bg-[#24252b] dark:shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_34px_86px_rgba(0,0,0,0.66),0_0_42px_rgba(255,255,255,0.06)] dark:hover:shadow-[0_0_0_1px_rgba(255,255,255,0.12),0_42px_104px_rgba(0,0,0,0.78),0_0_58px_rgba(255,255,255,0.09)] sm:w-[28rem] lg:w-[38rem]"
                 onClick={() => onSelect(project)}
               >
                 <img
