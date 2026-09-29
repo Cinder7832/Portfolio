@@ -687,7 +687,7 @@ function Projects({
         </div>
         <div
           ref={scrollerRef}
-          className="projects-scroller flex w-full snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-28 pt-8 [-ms-overflow-style:none] [scrollbar-width:none] md:gap-6 md:px-8 md:pb-32 xl:px-0 [&::-webkit-scrollbar]:hidden"
+          className="projects-scroller -mx-10 flex w-[calc(100%+5rem)] snap-x snap-mandatory gap-4 overflow-x-auto px-14 pb-28 pt-8 [-ms-overflow-style:none] [scrollbar-width:none] md:-mx-12 md:w-[calc(100%+6rem)] md:gap-6 md:px-20 md:pb-32 xl:-mx-16 xl:w-[calc(100%+8rem)] xl:px-16 [&::-webkit-scrollbar]:hidden"
         >
           {projects.map((project, index) => {
             return (

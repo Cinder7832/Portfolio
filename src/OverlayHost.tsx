@@ -548,14 +548,14 @@ function ProjectView({
       <div className="absolute right-4 top-4 z-30 md:right-6 md:top-6">
         <CloseButton label="Close project details" onClick={onClose} />
       </div>
-      <div className="grid min-h-full lg:h-full lg:grid-cols-[0.9fr_1.1fr]">
+      <div className="grid min-h-full lg:h-full lg:min-h-0 lg:grid-cols-[0.9fr_1.1fr]">
         <div className="relative min-h-[20rem] overflow-hidden bg-[var(--model-viewer-bg)] lg:min-h-0">
           <div ref={mediaRef} className="absolute inset-0">
             <img src={imageFor(project.imageSeed)} alt="" className="h-full min-h-[20rem] w-full object-cover brightness-[0.72] contrast-[1.1] saturate-[0.76]" />
             <div className="absolute inset-0 bg-gradient-to-t from-ink/65 to-transparent" />
           </div>
         </div>
-        <div ref={copyRef} className="p-6 pr-20 md:p-10 md:pr-24 lg:overflow-y-auto">
+        <div ref={copyRef} className="h-full min-h-0 overflow-y-auto overscroll-contain p-6 pr-20 [scrollbar-gutter:stable] md:p-10 md:pr-24">
           <h2 className="mb-8 text-4xl font-semibold leading-[1.08] tracking-[-0.01em] md:text-6xl">{project.title}</h2>
           <p className="text-[17px] leading-[1.47] text-ink/75 dark:text-white/80">{project.description}</p>
           <div className="mt-10 grid gap-3">
@@ -594,7 +594,7 @@ function ArtworkView({
       <div className="absolute right-4 top-4 z-30 md:right-6 md:top-6">
         <CloseButton label="Close artwork details" onClick={onClose} />
       </div>
-      <div className="grid min-h-full lg:h-full lg:grid-cols-[1.15fr_0.85fr]">
+      <div className="grid min-h-full lg:h-full lg:min-h-0 lg:grid-cols-[1.15fr_0.85fr]">
         <div className="relative grid min-h-[22rem] place-items-stretch overflow-hidden bg-[var(--model-viewer-bg)] md:min-h-[34rem] lg:min-h-0">
           <div ref={mediaRef} className="absolute inset-0">
             {artwork.kind === "3D" ? (
@@ -619,7 +619,7 @@ function ArtworkView({
             )}
           </div>
         </div>
-        <div ref={copyRef} className="p-6 pr-20 md:p-10 md:pr-24 lg:overflow-y-auto">
+        <div ref={copyRef} className="h-full min-h-0 overflow-y-auto overscroll-contain p-6 pr-20 [scrollbar-gutter:stable] md:p-10 md:pr-24">
           <h2 className="text-4xl font-semibold leading-[1.08] tracking-[-0.01em] md:text-6xl">{artwork.title}</h2>
           <p className="mt-4 text-sm font-medium text-muted dark:text-white/60">{artwork.kind} · {artwork.medium} · {artwork.year}</p>
           <p className="mt-8 text-[17px] leading-[1.47] text-ink/75 dark:text-white/80">{artwork.description}</p>
