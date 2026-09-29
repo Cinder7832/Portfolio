@@ -551,8 +551,7 @@ function ProjectView({
       <div className="grid min-h-full lg:h-full lg:min-h-0 lg:grid-cols-[0.9fr_1.1fr]">
         <div className="relative min-h-[20rem] overflow-hidden bg-[var(--model-viewer-bg)] lg:min-h-0">
           <div ref={mediaRef} className="absolute inset-0">
-            <img src={imageFor(project.imageSeed)} alt="" className="h-full min-h-[20rem] w-full object-cover brightness-[0.72] contrast-[1.1] saturate-[0.76]" />
-            <div className="absolute inset-0 bg-gradient-to-t from-ink/65 to-transparent" />
+            <img src={imageFor(project.imageSeed)} alt="" className="h-full min-h-[20rem] w-full object-cover" />
           </div>
         </div>
         <div ref={copyRef} className="h-full min-h-0 overflow-y-auto overscroll-contain p-6 pr-20 [scrollbar-gutter:stable] md:p-10 md:pr-24">
@@ -604,9 +603,8 @@ function ArtworkView({
                 <img
                   src={artworkImage ?? undefined}
                   alt=""
-                  className="h-full min-h-[22rem] w-full object-cover brightness-[0.72] contrast-[1.1] saturate-[0.76]"
+                  className="h-full min-h-[22rem] w-full object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-ink/65 to-transparent" />
                 <button
                   type="button"
                   className="absolute bottom-4 right-4 z-10 grid size-12 place-items-center rounded-full bg-white text-ink shadow-[0_18px_44px_rgba(0,0,0,0.28)] transition-[background-color,color,box-shadow,transform] duration-300 hover:scale-[1.04] hover:bg-[#f5f5f7] active:scale-95 dark:bg-[#24252b] dark:text-white dark:shadow-[0_18px_44px_rgba(0,0,0,0.48)] dark:hover:bg-[#303139]"
