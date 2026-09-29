@@ -252,11 +252,11 @@ export default function OverlayHost({
             0.08,
           );
       } else {
-        gsap.set(panel, { opacity: 0, y: 22, scale: 0.975 });
+        gsap.set(panel, { opacity: 0, y: 8, scale: 0.995 });
         timeline
-          .to(root, { opacity: 1, duration: MOTION.base, clearProps: "opacity" }, 0)
-          .to(panel, { opacity: 1, y: 0, scale: 1, duration: 0.42, clearProps: "transform,opacity" }, 0.04)
-          .fromTo(content, { opacity: 0 }, { opacity: 1, duration: MOTION.base, clearProps: "opacity" }, 0.1);
+          .to(root, { opacity: 1, duration: 0.18, clearProps: "opacity" }, 0)
+          .to(panel, { opacity: 1, y: 0, scale: 1, duration: 0.22, clearProps: "transform,opacity" }, 0.02)
+          .fromTo(content, { opacity: 0 }, { opacity: 1, duration: 0.16, clearProps: "opacity" }, 0.04);
       }
       panel.focus({ preventScroll: true });
       wasOpen.current = true;
@@ -414,7 +414,7 @@ export default function OverlayHost({
   const detail = isDetailState(rendered);
   const backgroundCatalog: CatalogOverlayType | null = catalog ? rendered.type : rendered.origin ?? null;
   const stackedDetail = detail && Boolean(rendered.origin);
-  const catalogPanelClass = `flex h-[88vh] w-full flex-col overflow-hidden rounded-[18px] bg-chalk outline-none transition-[opacity,transform,filter] duration-300 dark:bg-[#191a1f] dark:shadow-[0_34px_110px_rgba(0,0,0,0.72),0_0_48px_rgba(255,255,255,0.06)] ${
+  const catalogPanelClass = `flex h-[88vh] w-full flex-col overflow-hidden rounded-[18px] bg-chalk outline-none dark:bg-[#191a1f] dark:shadow-[0_34px_110px_rgba(0,0,0,0.72),0_0_48px_rgba(255,255,255,0.06)] ${
     backgroundCatalog === "all-projects" ? "max-w-6xl md:h-[46rem]" : "max-w-7xl"
   }`;
   const detailPanelClass = "h-[min(46rem,86dvh)] w-full max-w-5xl overflow-hidden rounded-[18px] bg-chalk outline-none dark:bg-[#191a1f] dark:shadow-[0_34px_110px_rgba(0,0,0,0.72),0_0_48px_rgba(255,255,255,0.06)]";
@@ -438,7 +438,7 @@ export default function OverlayHost({
       {backgroundCatalog && (
         <section
           ref={catalog ? panelRef : undefined}
-          className={`${catalogPanelClass} col-start-1 row-start-1 ${stackedDetail ? "pointer-events-none scale-[0.975] blur-md" : ""}`}
+          className={`${catalogPanelClass} col-start-1 row-start-1 ${stackedDetail ? "pointer-events-none scale-[0.975] blur-md transition-[transform,filter] duration-200" : ""}`}
           role={catalog ? "dialog" : undefined}
           aria-modal={catalog ? "true" : undefined}
           aria-hidden={stackedDetail ? "true" : undefined}
@@ -768,7 +768,7 @@ function AllProjectsView({ onChange }: { onChange: (state: OverlayState | null) 
   useLayoutEffect(() => {
     if (reducedMotion || !resultsRef.current) return;
     const targets = resultsRef.current.children;
-    const tween = gsap.fromTo(targets, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.28, stagger: 0.035, ease: MOTION.easeOut, overwrite: true });
+    const tween = gsap.fromTo(targets, { opacity: 0, y: 4 }, { opacity: 1, y: 0, duration: 0.16, stagger: 0.012, ease: MOTION.easeOut, overwrite: true });
     return () => {
       tween.kill();
     };
@@ -803,7 +803,7 @@ function AllArtworkView({ onChange }: { onChange: (state: OverlayState | null) =
 
   useLayoutEffect(() => {
     if (reducedMotion || !resultsRef.current) return;
-    const tween = gsap.fromTo(resultsRef.current.children, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.28, stagger: 0.025, ease: MOTION.easeOut, overwrite: true });
+    const tween = gsap.fromTo(resultsRef.current.children, { opacity: 0, y: 4 }, { opacity: 1, y: 0, duration: 0.16, stagger: 0.01, ease: MOTION.easeOut, overwrite: true });
     return () => {
       tween.kill();
     };

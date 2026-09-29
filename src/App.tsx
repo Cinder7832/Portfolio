@@ -659,7 +659,7 @@ function Projects({
               Games, tools, and development experiments with case studies.
             </p>
           </div>
-          <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
+          <div className="flex w-full flex-wrap items-center justify-between gap-3 sm:w-auto sm:flex-nowrap sm:justify-start">
             <div className="flex w-fit gap-1 rounded-full bg-canvas/75 p-1 shadow-[0_12px_30px_rgba(29,29,31,0.08)] backdrop-blur-xl dark:bg-[#24252b] dark:shadow-[0_18px_46px_rgba(0,0,0,0.46)]">
               <button
                 type="button"
