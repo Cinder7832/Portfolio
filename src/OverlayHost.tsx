@@ -780,7 +780,7 @@ function AllProjectsView({ onChange }: { onChange: (state: OverlayState | null) 
         <SearchField value={query} onChange={setQuery} placeholder="Search by title, category, or detail" />
         <FilterMenu label={category === "All" ? "Filter" : category} open={filterOpen} setOpen={setFilterOpen} items={["All", "Games", "Tools"]} selected={category} onSelect={(item) => setCategory(item as typeof category)} />
       </CatalogHeader>
-      <div className="flex-1 overflow-y-auto p-5 pt-3 md:p-8 md:pt-4">
+      <div className="detail-scrollbar flex-1 overflow-y-auto p-5 pt-3 md:p-8 md:pt-4">
         <div ref={resultsRef} className="grid gap-4 md:grid-cols-2">
           {filtered.map((project) => <button key={project.id} type="button" className="group grid overflow-hidden rounded-[18px] bg-canvas text-left shadow-[0_12px_30px_rgba(29,29,31,0.06)] outline-none transition-shadow duration-500 hover:shadow-[0_18px_46px_rgba(29,29,31,0.12)] focus-visible:ring-4 focus-visible:ring-blueFocus/35 dark:bg-[#24252b] sm:grid-cols-[11rem_1fr]" onClick={() => onChange({ type: "project", project, origin: "all-projects" })}><div className="h-44 overflow-hidden sm:h-full"><img src={imageFor(project.imageSeed, 900, 700)} alt="" className="h-full w-full object-cover brightness-[0.72] contrast-[1.1] saturate-[0.76] transition-[transform,filter] duration-700 ease-out group-hover:scale-[1.035] group-hover:brightness-100 group-hover:contrast-100 group-hover:saturate-100" /></div><div className="p-5"><h3 className="text-2xl font-semibold">{project.title}</h3><p className="mt-3 text-sm leading-6 text-ink/70 dark:text-white/70">{project.summary}</p></div></button>)}
         </div>
@@ -815,7 +815,7 @@ function AllArtworkView({ onChange }: { onChange: (state: OverlayState | null) =
         <SearchField value={query} onChange={setQuery} placeholder="Search artwork by title, medium, or tag" />
         <FilterMenu label={kind === "All" ? "Filter" : kind} open={filterOpen} setOpen={setFilterOpen} items={["All", "2D", "3D"]} selected={kind} onSelect={(item) => setKind(item as typeof kind)} />
       </CatalogHeader>
-      <div className="flex-1 touch-pan-y overflow-y-auto overscroll-contain p-5 pt-3 [scrollbar-gutter:stable] md:p-8 md:pt-4">
+      <div className="detail-scrollbar flex-1 touch-pan-y overflow-y-auto overscroll-contain p-5 pt-3 md:p-8 md:pt-4">
         <div ref={resultsRef} className="columns-1 gap-4 sm:columns-2 lg:columns-3 xl:columns-4">
           {filtered.map((artwork) => <button key={artwork.id} type="button" className="group mb-4 block w-full break-inside-avoid overflow-hidden rounded-[18px] bg-canvas text-left shadow-[0_12px_30px_rgba(29,29,31,0.06)] outline-none transition-shadow duration-500 hover:shadow-[0_18px_46px_rgba(29,29,31,0.12)] focus-visible:ring-4 focus-visible:ring-blueFocus/35 dark:bg-[#24252b]" onClick={() => onChange({ type: "artwork", artwork, origin: "all-artwork" })}><div className={`overflow-hidden ${artworkAspectClass(artwork)}`}>{artwork.kind === "3D" ? <DeferredModelViewer artwork={artwork} compact /> : <img src={artworkImageFor(artwork)} alt="" className="h-full w-full object-cover brightness-[0.86] contrast-[1.08] saturate-[0.82] transition-[transform,filter] duration-700 ease-out group-hover:scale-[1.045] group-hover:brightness-100 group-hover:contrast-100 group-hover:saturate-100" />}</div><div className="p-4"><div className="flex items-start justify-between gap-3"><h3 className="text-lg font-semibold">{artwork.title}</h3><span className="rounded-full bg-chalk px-2.5 py-1 text-xs font-semibold text-ink/55 dark:bg-[#30313a] dark:text-white/55">{artwork.kind}</span></div><p className="mt-1 text-sm text-ink/60 dark:text-white/60">{artwork.medium} · {artwork.year}</p></div></button>)}
         </div>
@@ -830,11 +830,21 @@ function CatalogHeader({ title, count, onClose, children }: { title: string; cou
 }
 
 function SearchField({ value, onChange, placeholder }: { value: string; onChange: (value: string) => void; placeholder: string }) {
-  return <label className="flex h-11 min-w-0 flex-1 items-center gap-3 rounded-full bg-white/90 px-5 text-ink shadow-[0_14px_34px_rgba(29,29,31,0.07)] dark:bg-[#24252b] dark:text-white"><Search size={19} className="shrink-0 opacity-50" /><input value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} className="w-full min-w-0 bg-transparent text-sm outline-none placeholder:text-ink/40 dark:placeholder:text-white/50" /></label>;
+  return (
+    <label className="flex h-12 min-h-12 w-full min-w-0 flex-none items-center gap-3 rounded-full bg-white/90 px-5 text-ink shadow-[0_14px_34px_rgba(29,29,31,0.07)] dark:bg-[#24252b] dark:text-white md:h-11 md:min-h-11 md:flex-1">
+      <Search size={20} className="shrink-0 opacity-50 md:size-[19px]" />
+      <input
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        placeholder={placeholder}
+        className="h-full w-full min-w-0 bg-transparent text-[15px] leading-none outline-none placeholder:text-ink/40 dark:placeholder:text-white/50 md:text-sm"
+      />
+    </label>
+  );
 }
 
 function FilterMenu({ label, open, setOpen, items, selected, onSelect }: { label: string; open: boolean; setOpen: (open: boolean) => void; items: string[]; selected: string; onSelect: (item: string) => void }) {
-  return <div className="relative"><button type="button" className="flex h-11 w-full items-center justify-center gap-2 rounded-full bg-canvas px-5 text-sm font-medium transition-[background-color,color,transform] duration-300 active:scale-95 dark:bg-[#24252b] dark:text-white md:w-auto" aria-expanded={open} aria-haspopup="menu" onClick={() => setOpen(!open)}><SlidersHorizontal size={17} />{label}</button>{open && <div className="filter-menu absolute right-0 top-14 z-30 w-48 rounded-[18px] bg-canvas p-2 shadow-[0_18px_48px_rgba(29,29,31,0.16)] dark:bg-[#24252b]" role="menu">{items.map((item) => <button key={item} type="button" className={`flex w-full items-center justify-between rounded-[14px] px-4 py-3 text-left text-sm font-medium transition-[background-color] duration-200 ${selected === item ? "bg-ink text-white dark:bg-white dark:text-ink" : "text-ink/70 hover:bg-chalk dark:text-white/70 dark:hover:bg-white/10"}`} role="menuitemradio" aria-checked={selected === item} onClick={() => { onSelect(item); setOpen(false); }}>{item}{selected === item && <Check size={16} className="filter-check" />}</button>)}</div>}</div>;
+  return <div className="relative w-full md:w-auto"><button type="button" className="flex h-11 w-full items-center justify-center gap-2 rounded-full bg-canvas px-5 text-sm font-medium transition-[background-color,color,transform] duration-300 active:scale-95 dark:bg-[#24252b] dark:text-white md:w-auto" aria-expanded={open} aria-haspopup="menu" onClick={() => setOpen(!open)}><SlidersHorizontal size={17} />{label}</button>{open && <div className="filter-menu absolute left-0 right-0 top-14 z-30 w-full rounded-[18px] bg-canvas p-2 shadow-[0_18px_48px_rgba(29,29,31,0.16)] dark:bg-[#24252b] md:left-auto md:w-48" role="menu">{items.map((item) => <button key={item} type="button" className={`flex w-full items-center justify-between rounded-[14px] px-4 py-3 text-left text-sm font-medium transition-[background-color] duration-200 ${selected === item ? "bg-ink text-white dark:bg-white dark:text-ink" : "text-ink/70 hover:bg-chalk dark:text-white/70 dark:hover:bg-white/10"}`} role="menuitemradio" aria-checked={selected === item} onClick={() => { onSelect(item); setOpen(false); }}>{item}{selected === item && <Check size={16} className="filter-check" />}</button>)}</div>}</div>;
 }
 
 function EmptyResults({ noun }: { noun: string }) {

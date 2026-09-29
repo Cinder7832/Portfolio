@@ -533,7 +533,7 @@ function Hero() {
           <img
             src={profilePicture}
             alt="Devanand Asai profile picture"
-            className="profile-photo aspect-square w-full rounded-full bg-canvas object-cover shadow-[0_16px_45px_rgba(29,29,31,0.12)] transition-[transform,box-shadow] duration-700 ease-out hover:scale-[1.025] hover:shadow-[0_22px_58px_rgba(29,29,31,0.16)] dark:bg-white dark:shadow-[0_0_0_1px_rgba(255,255,255,0.18),0_28px_80px_rgba(0,0,0,0.62),0_0_64px_rgba(255,255,255,0.10)] dark:hover:shadow-[0_0_0_1px_rgba(255,255,255,0.22),0_34px_96px_rgba(0,0,0,0.72),0_0_78px_rgba(255,255,255,0.13)]"
+            className="profile-photo aspect-square w-full rounded-full bg-canvas object-cover shadow-[0_16px_45px_rgba(29,29,31,0.12)] transition-shadow duration-700 ease-out hover:shadow-[0_22px_58px_rgba(29,29,31,0.16)] dark:bg-white dark:shadow-[0_0_0_1px_rgba(255,255,255,0.18),0_28px_80px_rgba(0,0,0,0.62),0_0_64px_rgba(255,255,255,0.10)] dark:hover:shadow-[0_0_0_1px_rgba(255,255,255,0.22),0_34px_96px_rgba(0,0,0,0.72),0_0_78px_rgba(255,255,255,0.13)]"
           />
         </div>
       </div>
