@@ -554,7 +554,7 @@ function ProjectView({
             <img src={imageFor(project.imageSeed)} alt="" className="h-full min-h-[20rem] w-full object-cover" />
           </div>
         </div>
-        <div ref={copyRef} className="p-6 pr-20 md:p-10 md:pr-24 lg:detail-scrollbar lg:h-full lg:min-h-0 lg:overflow-y-auto lg:overscroll-contain lg:[scrollbar-gutter:stable]">
+        <div ref={copyRef} className="detail-scrollbar p-6 pr-20 md:p-10 md:pr-24 lg:h-full lg:min-h-0 lg:overflow-y-auto lg:overscroll-contain lg:[scrollbar-gutter:stable]">
           <h2 className="mb-8 text-4xl font-semibold leading-[1.08] tracking-[-0.01em] md:text-6xl">{project.title}</h2>
           <p className="text-[17px] leading-[1.47] text-ink/75 dark:text-white/80">{project.description}</p>
           <div className="mt-10 grid gap-3">
@@ -617,7 +617,7 @@ function ArtworkView({
             )}
           </div>
         </div>
-        <div ref={copyRef} className="p-6 pr-20 md:p-10 md:pr-24 lg:detail-scrollbar lg:h-full lg:min-h-0 lg:overflow-y-auto lg:overscroll-contain lg:[scrollbar-gutter:stable]">
+        <div ref={copyRef} className="detail-scrollbar p-6 pr-20 md:p-10 md:pr-24 lg:h-full lg:min-h-0 lg:overflow-y-auto lg:overscroll-contain lg:[scrollbar-gutter:stable]">
           <h2 className="text-4xl font-semibold leading-[1.08] tracking-[-0.01em] md:text-6xl">{artwork.title}</h2>
           <p className="mt-4 text-sm font-medium text-muted dark:text-white/60">{artwork.kind} · {artwork.medium} · {artwork.year}</p>
           <p className="mt-8 text-[17px] leading-[1.47] text-ink/75 dark:text-white/80">{artwork.description}</p>
