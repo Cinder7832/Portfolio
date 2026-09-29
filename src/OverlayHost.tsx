@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import gsap from "gsap";
 import {
   ArrowUpRight,
@@ -6,6 +7,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Github,
+  Maximize2,
   Search,
   SlidersHorizontal,
   X,
@@ -268,6 +270,14 @@ export default function OverlayHost({
     const timeline = gsap.timeline({ defaults: { overwrite: true } });
 
     if (isDetailState(rendered) && mediaRef.current && copyRef.current) {
+      if (!detailSwap && panel) {
+        timeline.fromTo(
+          panel,
+          { opacity: 0, scale: 0.985 },
+          { opacity: 1, scale: 1, duration: MOTION.base, ease: MOTION.easeOut, clearProps: "transform,opacity" },
+          0,
+        );
+      }
       timeline
         .fromTo(
           mediaRef.current,
@@ -330,12 +340,30 @@ export default function OverlayHost({
   useEffect(() => {
     if (!isMounted) return;
 
+    const scrollY = window.scrollY;
+    const previousBodyPosition = document.body.style.position;
+    const previousBodyTop = document.body.style.top;
+    const previousBodyLeft = document.body.style.left;
+    const previousBodyRight = document.body.style.right;
+    const previousBodyWidth = document.body.style.width;
+
     document.documentElement.classList.add("overlay-open");
     document.body.classList.add("overlay-open");
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.left = "0";
+    document.body.style.right = "0";
+    document.body.style.width = "100%";
 
     return () => {
       document.documentElement.classList.remove("overlay-open");
       document.body.classList.remove("overlay-open");
+      document.body.style.position = previousBodyPosition;
+      document.body.style.top = previousBodyTop;
+      document.body.style.left = previousBodyLeft;
+      document.body.style.right = previousBodyRight;
+      document.body.style.width = previousBodyWidth;
+      window.scrollTo(0, scrollY);
       lastFocused.current?.focus({ preventScroll: true });
     };
   }, [isMounted]);
@@ -556,6 +584,9 @@ function ArtworkView({
   onNavigate: (offset: -1 | 1) => void;
   onClose: () => void;
 }) {
+  const [expanded, setExpanded] = useState(false);
+  const artworkImage = artwork.kind === "2D" ? artworkImageFor(artwork, 1800, 2400) : null;
+
   return (
     <div className="relative h-full overflow-y-auto lg:overflow-hidden">
       <OverlayArrow direction="previous" onClick={() => onNavigate(-1)} label="Previous artwork" />
@@ -565,8 +596,27 @@ function ArtworkView({
       </div>
       <div className="grid min-h-full lg:h-full lg:grid-cols-[1.15fr_0.85fr]">
         <div className="relative grid min-h-[22rem] place-items-stretch overflow-hidden bg-[var(--model-viewer-bg)] md:min-h-[34rem] lg:min-h-0">
-          <div ref={mediaRef} className={`absolute inset-0 ${artwork.kind === "3D" ? "" : "p-4 md:p-6"}`}>
-            {artwork.kind === "3D" ? <DeferredModelViewer artwork={artwork} /> : <img src={artworkImageFor(artwork, 1400, 1800)} alt="" className="h-full max-h-[78vh] w-full rounded-[14px] bg-[#202124] object-contain" />}
+          <div ref={mediaRef} className="absolute inset-0">
+            {artwork.kind === "3D" ? (
+              <DeferredModelViewer artwork={artwork} />
+            ) : (
+              <>
+                <img
+                  src={artworkImage ?? undefined}
+                  alt=""
+                  className="h-full min-h-[22rem] w-full object-cover brightness-[0.72] contrast-[1.1] saturate-[0.76]"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-ink/65 to-transparent" />
+                <button
+                  type="button"
+                  className="absolute bottom-4 right-4 z-10 grid size-12 place-items-center rounded-full bg-white text-ink shadow-[0_18px_44px_rgba(0,0,0,0.28)] transition-[background-color,color,box-shadow,transform] duration-300 hover:scale-[1.04] hover:bg-[#f5f5f7] active:scale-95 dark:bg-[#24252b] dark:text-white dark:shadow-[0_18px_44px_rgba(0,0,0,0.48)] dark:hover:bg-[#303139]"
+                  aria-label={`Maximise ${artwork.title}`}
+                  onClick={() => setExpanded(true)}
+                >
+                  <Maximize2 size={18} />
+                </button>
+              </>
+            )}
           </div>
         </div>
         <div ref={copyRef} className="p-6 pr-20 md:p-10 md:pr-24 lg:overflow-y-auto">
@@ -576,7 +626,122 @@ function ArtworkView({
           <div className="mt-10 flex flex-wrap gap-2">{artwork.tags.map((tag) => <span key={tag} className="rounded-full bg-white/75 px-4 py-2 text-sm font-medium text-ink/70 dark:bg-[#24252b] dark:text-white/75">{tag}</span>)}</div>
         </div>
       </div>
+      {artworkImage && (
+        <ExpandedArtworkViewer
+          open={expanded}
+          src={artworkImage}
+          title={artwork.title}
+          onClose={() => setExpanded(false)}
+        />
+      )}
     </div>
+  );
+}
+
+function ExpandedArtworkViewer({
+  open,
+  src,
+  title,
+  onClose,
+}: {
+  open: boolean;
+  src: string;
+  title: string;
+  onClose: () => void;
+}) {
+  const [present, setPresent] = useState(open);
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  const imageRef = useRef<HTMLImageElement | null>(null);
+  const reducedMotion = usePrefersReducedMotion();
+
+  useEffect(() => {
+    if (open) setPresent(true);
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      onClose();
+    };
+
+    window.addEventListener("keydown", onKeyDown, true);
+    return () => window.removeEventListener("keydown", onKeyDown, true);
+  }, [onClose, open]);
+
+  useLayoutEffect(() => {
+    if (!present) return;
+
+    const root = rootRef.current;
+    const image = imageRef.current;
+    if (!root || !image) return;
+
+    if (reducedMotion) {
+      gsap.set([root, image], { clearProps: "all" });
+      if (!open) setPresent(false);
+      return;
+    }
+
+    const timeline = gsap.timeline({
+      defaults: { overwrite: true },
+      onComplete: () => {
+        if (!open) setPresent(false);
+      },
+    });
+
+    if (open) {
+      timeline
+        .fromTo(root, { opacity: 0 }, { opacity: 1, duration: MOTION.base, ease: MOTION.easeOut }, 0)
+        .fromTo(
+          image,
+          { opacity: 0, scale: 0.985 },
+          { opacity: 1, scale: 1, duration: MOTION.base, ease: MOTION.easeOut, clearProps: "transform,opacity" },
+          0.04,
+        );
+    } else {
+      timeline
+        .to(image, { opacity: 0, scale: 0.985, duration: MOTION.fast, ease: "power2.in" }, 0)
+        .to(root, { opacity: 0, duration: MOTION.fast, ease: "power2.in" }, 0.04);
+    }
+
+    return () => {
+      timeline.kill();
+    };
+  }, [open, present, reducedMotion]);
+
+  if (!present) return null;
+
+  return createPortal(
+    <div
+      ref={rootRef}
+      className="fixed inset-0 z-[80] grid place-items-center bg-[rgba(245,245,247,0.86)] p-4 backdrop-blur-2xl dark:bg-[rgba(0,0,0,0.86)]"
+      role="dialog"
+      aria-modal="true"
+      aria-label={`${title} expanded artwork`}
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
+      <div className="pointer-events-none absolute inset-0 bg-white/10 dark:bg-[rgba(0,0,0,0.18)]" aria-hidden="true" />
+      <button
+        type="button"
+        className="absolute right-4 top-4 z-10 rounded-full bg-[rgba(29,29,31,0.72)] p-3 text-white shadow-[0_18px_44px_rgba(0,0,0,0.22)] backdrop-blur-xl transition-[background-color,transform] duration-300 hover:rotate-90 hover:bg-[rgba(29,29,31,0.86)] active:scale-95 dark:bg-white/16 dark:hover:bg-white/24 md:right-6 md:top-6"
+        aria-label="Close expanded artwork"
+        onClick={onClose}
+      >
+        <X size={21} />
+      </button>
+      <img
+        ref={imageRef}
+        src={src}
+        alt={title}
+        className="relative z-10 max-h-[92dvh] max-w-[94vw] object-contain shadow-[0_28px_90px_rgba(0,0,0,0.46)]"
+      />
+    </div>,
+    document.body,
   );
 }
 

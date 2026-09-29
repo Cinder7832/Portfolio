@@ -84,7 +84,7 @@ html.theme-changing .glass-nav-surface {
 
 html.overlay-open {
   overflow-x: hidden;
-  overflow-y: scroll;
+  overflow-y: hidden;
 }
 
 body.overlay-open {
