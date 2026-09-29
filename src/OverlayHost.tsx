@@ -542,7 +542,7 @@ function ProjectView({
   onClose: () => void;
 }) {
   return (
-    <div className="detail-scrollbar relative h-full overflow-y-auto lg:overflow-hidden">
+    <div className="detail-scrollbar relative h-full touch-pan-y overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch] lg:overflow-hidden">
       <OverlayArrow direction="previous" onClick={() => onNavigate(-1)} label="Previous project" />
       <OverlayArrow direction="next" onClick={() => onNavigate(1)} label="Next project" />
       <div className="absolute right-4 top-4 z-30 md:right-6 md:top-6">
@@ -554,7 +554,7 @@ function ProjectView({
             <img src={imageFor(project.imageSeed)} alt="" className="h-full min-h-[20rem] w-full object-cover" />
           </div>
         </div>
-        <div ref={copyRef} className="detail-scrollbar h-full min-h-0 overflow-y-auto overscroll-contain p-6 pr-20 [scrollbar-gutter:stable] md:p-10 md:pr-24">
+        <div ref={copyRef} className="p-6 pr-20 md:p-10 md:pr-24 lg:detail-scrollbar lg:h-full lg:min-h-0 lg:overflow-y-auto lg:overscroll-contain lg:[scrollbar-gutter:stable]">
           <h2 className="mb-8 text-4xl font-semibold leading-[1.08] tracking-[-0.01em] md:text-6xl">{project.title}</h2>
           <p className="text-[17px] leading-[1.47] text-ink/75 dark:text-white/80">{project.description}</p>
           <div className="mt-10 grid gap-3">
@@ -587,7 +587,7 @@ function ArtworkView({
   const artworkImage = artwork.kind === "2D" ? artworkImageFor(artwork, 1800, 2400) : null;
 
   return (
-    <div className="detail-scrollbar relative h-full overflow-y-auto lg:overflow-hidden">
+    <div className="detail-scrollbar relative h-full touch-pan-y overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch] lg:overflow-hidden">
       <OverlayArrow direction="previous" onClick={() => onNavigate(-1)} label="Previous artwork" />
       <OverlayArrow direction="next" onClick={() => onNavigate(1)} label="Next artwork" />
       <div className="absolute right-4 top-4 z-30 md:right-6 md:top-6">
@@ -617,7 +617,7 @@ function ArtworkView({
             )}
           </div>
         </div>
-        <div ref={copyRef} className="detail-scrollbar h-full min-h-0 overflow-y-auto overscroll-contain p-6 pr-20 [scrollbar-gutter:stable] md:p-10 md:pr-24">
+        <div ref={copyRef} className="p-6 pr-20 md:p-10 md:pr-24 lg:detail-scrollbar lg:h-full lg:min-h-0 lg:overflow-y-auto lg:overscroll-contain lg:[scrollbar-gutter:stable]">
           <h2 className="text-4xl font-semibold leading-[1.08] tracking-[-0.01em] md:text-6xl">{artwork.title}</h2>
           <p className="mt-4 text-sm font-medium text-muted dark:text-white/60">{artwork.kind} · {artwork.medium} · {artwork.year}</p>
           <p className="mt-8 text-[17px] leading-[1.47] text-ink/75 dark:text-white/80">{artwork.description}</p>
@@ -782,7 +782,7 @@ function AllProjectsView({ onChange }: { onChange: (state: OverlayState | null) 
       </CatalogHeader>
       <div className="detail-scrollbar flex-1 overflow-y-auto p-5 pt-3 md:p-8 md:pt-4">
         <div ref={resultsRef} className="grid gap-4 md:grid-cols-2">
-          {filtered.map((project) => <button key={project.id} type="button" className="group grid overflow-hidden rounded-[18px] bg-canvas text-left shadow-[0_12px_30px_rgba(29,29,31,0.06)] outline-none transition-shadow duration-500 hover:shadow-[0_18px_46px_rgba(29,29,31,0.12)] focus-visible:ring-4 focus-visible:ring-blueFocus/35 dark:bg-[#24252b] sm:grid-cols-[11rem_1fr]" onClick={() => onChange({ type: "project", project, origin: "all-projects" })}><div className="h-44 overflow-hidden sm:h-full"><img src={imageFor(project.imageSeed, 900, 700)} alt="" className="h-full w-full object-cover brightness-[0.72] contrast-[1.1] saturate-[0.76] transition-[transform,filter] duration-700 ease-out group-hover:scale-[1.035] group-hover:brightness-100 group-hover:contrast-100 group-hover:saturate-100" /></div><div className="p-5"><h3 className="text-2xl font-semibold">{project.title}</h3><p className="mt-3 text-sm leading-6 text-ink/70 dark:text-white/70">{project.summary}</p></div></button>)}
+          {filtered.map((project) => <button key={project.id} type="button" className="group grid overflow-hidden rounded-[18px] bg-canvas text-left shadow-[0_12px_30px_rgba(29,29,31,0.06)] outline-none transition-shadow duration-500 hover:shadow-[0_18px_46px_rgba(29,29,31,0.12)] focus-visible:ring-4 focus-visible:ring-blueFocus/35 dark:bg-[#24252b] sm:grid-cols-[11rem_1fr]" onClick={() => onChange({ type: "project", project, origin: "all-projects" })}><div className="h-44 overflow-hidden sm:h-full"><img src={imageFor(project.imageSeed, 900, 700)} alt="" className="catalog-card-image catalog-project-image h-full w-full object-cover brightness-[0.72] contrast-[1.1] saturate-[0.76] transition-[transform,filter] duration-700 ease-out group-hover:scale-[1.035] group-hover:brightness-100 group-hover:contrast-100 group-hover:saturate-100" /></div><div className="p-5"><h3 className="text-2xl font-semibold">{project.title}</h3><p className="mt-3 text-sm leading-6 text-ink/70 dark:text-white/70">{project.summary}</p></div></button>)}
         </div>
         {!filtered.length && <EmptyResults noun="projects" />}
       </div>
@@ -817,7 +817,7 @@ function AllArtworkView({ onChange }: { onChange: (state: OverlayState | null) =
       </CatalogHeader>
       <div className="detail-scrollbar flex-1 touch-pan-y overflow-y-auto overscroll-contain p-5 pt-3 md:p-8 md:pt-4">
         <div ref={resultsRef} className="columns-1 gap-4 sm:columns-2 lg:columns-3 xl:columns-4">
-          {filtered.map((artwork) => <button key={artwork.id} type="button" className="group mb-4 block w-full break-inside-avoid overflow-hidden rounded-[18px] bg-canvas text-left shadow-[0_12px_30px_rgba(29,29,31,0.06)] outline-none transition-shadow duration-500 hover:shadow-[0_18px_46px_rgba(29,29,31,0.12)] focus-visible:ring-4 focus-visible:ring-blueFocus/35 dark:bg-[#24252b]" onClick={() => onChange({ type: "artwork", artwork, origin: "all-artwork" })}><div className={`overflow-hidden ${artworkAspectClass(artwork)}`}>{artwork.kind === "3D" ? <DeferredModelViewer artwork={artwork} compact /> : <img src={artworkImageFor(artwork)} alt="" className="h-full w-full object-cover brightness-[0.86] contrast-[1.08] saturate-[0.82] transition-[transform,filter] duration-700 ease-out group-hover:scale-[1.045] group-hover:brightness-100 group-hover:contrast-100 group-hover:saturate-100" />}</div><div className="p-4"><div className="flex items-start justify-between gap-3"><h3 className="text-lg font-semibold">{artwork.title}</h3><span className="rounded-full bg-chalk px-2.5 py-1 text-xs font-semibold text-ink/55 dark:bg-[#30313a] dark:text-white/55">{artwork.kind}</span></div><p className="mt-1 text-sm text-ink/60 dark:text-white/60">{artwork.medium} · {artwork.year}</p></div></button>)}
+          {filtered.map((artwork) => <button key={artwork.id} type="button" className="group mb-4 block w-full break-inside-avoid overflow-hidden rounded-[18px] bg-canvas text-left shadow-[0_12px_30px_rgba(29,29,31,0.06)] outline-none transition-shadow duration-500 hover:shadow-[0_18px_46px_rgba(29,29,31,0.12)] focus-visible:ring-4 focus-visible:ring-blueFocus/35 dark:bg-[#24252b]" onClick={() => onChange({ type: "artwork", artwork, origin: "all-artwork" })}><div className={`overflow-hidden ${artworkAspectClass(artwork)}`}>{artwork.kind === "3D" ? <DeferredModelViewer artwork={artwork} compact /> : <img src={artworkImageFor(artwork)} alt="" className="catalog-card-image catalog-artwork-image h-full w-full object-cover brightness-[0.86] contrast-[1.08] saturate-[0.82] transition-[transform,filter] duration-700 ease-out group-hover:scale-[1.045] group-hover:brightness-100 group-hover:contrast-100 group-hover:saturate-100" />}</div><div className="p-4"><div className="flex items-start justify-between gap-3"><h3 className="text-lg font-semibold">{artwork.title}</h3><span className="rounded-full bg-chalk px-2.5 py-1 text-xs font-semibold text-ink/55 dark:bg-[#30313a] dark:text-white/55">{artwork.kind}</span></div><p className="mt-1 text-sm text-ink/60 dark:text-white/60">{artwork.medium} · {artwork.year}</p></div></button>)}
         </div>
         {!filtered.length && <EmptyResults noun="artwork" />}
       </div>

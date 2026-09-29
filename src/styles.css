@@ -229,6 +229,30 @@ a {
   .artwork-tile:hover img {
     transform: none;
   }
+
+  .project-card img,
+  .artwork-tile img,
+  .catalog-card-image {
+    transition: none !important;
+  }
+
+  .project-card:hover img {
+    filter: brightness(0.68) contrast(1.12) saturate(0.72) !important;
+  }
+
+  .artwork-tile:hover img,
+  .group:hover .catalog-artwork-image {
+    filter: brightness(0.86) contrast(1.08) saturate(0.82) !important;
+  }
+
+  .group:hover .catalog-project-image {
+    filter: brightness(0.72) contrast(1.1) saturate(0.76) !important;
+  }
+
+  .group:hover .catalog-project-image,
+  .group:hover .catalog-artwork-image {
+    transform: none !important;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
