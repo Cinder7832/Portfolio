@@ -15,11 +15,13 @@ import { artworks, projects } from "./data";
 import DeferredModelViewer from "./DeferredModelViewer";
 import { MOTION, usePrefersReducedMotion } from "./motion";
 
+type CatalogOverlayType = "all-projects" | "all-artwork";
+
 export type OverlayState =
   | { type: "all-projects" }
-  | { type: "project"; project: Project; navigationDirection?: -1 | 1 }
+  | { type: "project"; project: Project; navigationDirection?: -1 | 1; origin?: "all-projects" }
   | { type: "all-artwork" }
-  | { type: "artwork"; artwork: Artwork; navigationDirection?: -1 | 1 };
+  | { type: "artwork"; artwork: Artwork; navigationDirection?: -1 | 1; origin?: "all-artwork" };
 
 const imageFor = (seed: string, width = 1920, height = 1080) =>
   `https://picsum.photos/seed/${seed}/${width}/${height}`;
@@ -71,6 +73,8 @@ export default function OverlayHost({
   const copyRef = useRef<HTMLDivElement | null>(null);
   const wasOpen = useRef(Boolean(state));
   const lastFocused = useRef<HTMLElement | null>(null);
+  const catalogReturnFocus = useRef<HTMLElement | null>(null);
+  const skipCatalogEntrance = useRef(false);
   const reducedMotion = usePrefersReducedMotion();
 
   const navigateProject = (offset: -1 | 1) => {
@@ -81,6 +85,7 @@ export default function OverlayHost({
       type: "project",
       project: projects[(index + offset + projects.length) % projects.length],
       navigationDirection: offset,
+      origin: state?.type === "project" ? state.origin : rendered?.type === "project" ? rendered.origin : undefined,
     });
   };
 
@@ -92,7 +97,21 @@ export default function OverlayHost({
       type: "artwork",
       artwork: artworks[(index + offset + artworks.length) % artworks.length],
       navigationDirection: offset,
+      origin: state?.type === "artwork" ? state.origin : rendered?.type === "artwork" ? rendered.origin : undefined,
     });
+  };
+
+  const closeCurrentView = () => {
+    const current = state ?? rendered;
+    if (current?.type === "project" && current.origin) {
+      onChange({ type: current.origin });
+      return;
+    }
+    if (current?.type === "artwork" && current.origin) {
+      onChange({ type: current.origin });
+      return;
+    }
+    onChange(null);
   };
 
   useLayoutEffect(() => {
@@ -126,8 +145,20 @@ export default function OverlayHost({
     }
 
     if (state && rendered && overlayKey(state) !== overlayKey(rendered)) {
+      const openingFromCatalog =
+        isDetailState(state) && Boolean(state.origin) && rendered.type === state.origin;
+      const returningToCatalog =
+        isDetailState(rendered) && Boolean(rendered.origin) && state.type === rendered.origin;
+
+      if (openingFromCatalog) {
+        catalogReturnFocus.current = document.activeElement as HTMLElement;
+        setRendered(state);
+        return;
+      }
+
       const detailSwap = isSameDetailType(state, rendered);
       if (reducedMotion || (detailSwap ? !media || !copy : !content)) {
+        if (returningToCatalog) skipCatalogEntrance.current = true;
         setRendered(state);
         return;
       }
@@ -138,7 +169,18 @@ export default function OverlayHost({
         onComplete: () => setRendered(state),
       });
 
-      if (detailSwap && media && copy) {
+      if (returningToCatalog && panel) {
+        timeline.to(panel, {
+          opacity: 0,
+          duration: MOTION.fast,
+          ease: "power2.in",
+          onComplete: () => {
+            skipCatalogEntrance.current = true;
+            setRendered(state);
+            window.requestAnimationFrame(() => catalogReturnFocus.current?.focus({ preventScroll: true }));
+          },
+        });
+      } else if (detailSwap && media && copy) {
         timeline
           .to(copy, { opacity: 0, x: direction * -8, duration: MOTION.fast, ease: "power2.in" }, 0)
           .to(media, { opacity: 0, duration: MOTION.fast, ease: "power2.in" }, 0);
@@ -168,6 +210,13 @@ export default function OverlayHost({
     const content = contentRef.current;
     if (!root || !panel || !content) return;
 
+    if (skipCatalogEntrance.current && (rendered.type === "all-projects" || rendered.type === "all-artwork")) {
+      skipCatalogEntrance.current = false;
+      gsap.set([panel, content], { clearProps: "transform,opacity" });
+      panel.focus({ preventScroll: true });
+      return;
+    }
+
     if (reducedMotion) {
       if (!wasOpen.current) {
         lastFocused.current = document.activeElement as HTMLElement;
@@ -181,12 +230,32 @@ export default function OverlayHost({
     if (!wasOpen.current) {
       lastFocused.current = document.activeElement as HTMLElement;
       gsap.set(root, { opacity: 0 });
-      gsap.set(panel, { opacity: 0, y: 22, scale: 0.975 });
       const timeline = gsap.timeline({ defaults: { ease: MOTION.easeOut } });
-      timeline
-        .to(root, { opacity: 1, duration: MOTION.base, clearProps: "opacity" }, 0)
-        .to(panel, { opacity: 1, y: 0, scale: 1, duration: 0.42, clearProps: "transform,opacity" }, 0.04)
-        .fromTo(content, { opacity: 0 }, { opacity: 1, duration: MOTION.base, clearProps: "opacity" }, 0.1);
+
+      if (isDetailState(rendered) && mediaRef.current && copyRef.current) {
+        gsap.set(panel, { opacity: 0 });
+        timeline
+          .to(root, { opacity: 1, duration: MOTION.base, clearProps: "opacity" }, 0)
+          .to(panel, { opacity: 1, duration: MOTION.base, clearProps: "opacity" }, 0.04)
+          .fromTo(
+            mediaRef.current,
+            { opacity: 0 },
+            { opacity: 1, duration: MOTION.base, clearProps: "opacity" },
+            0.08,
+          )
+          .fromTo(
+            copyRef.current,
+            { opacity: 0, x: 8 },
+            { opacity: 1, x: 0, duration: MOTION.base, clearProps: "transform,opacity" },
+            0.08,
+          );
+      } else {
+        gsap.set(panel, { opacity: 0, y: 22, scale: 0.975 });
+        timeline
+          .to(root, { opacity: 1, duration: MOTION.base, clearProps: "opacity" }, 0)
+          .to(panel, { opacity: 1, y: 0, scale: 1, duration: 0.42, clearProps: "transform,opacity" }, 0.04)
+          .fromTo(content, { opacity: 0 }, { opacity: 1, duration: MOTION.base, clearProps: "opacity" }, 0.1);
+      }
       panel.focus({ preventScroll: true });
       wasOpen.current = true;
       return () => {
@@ -198,7 +267,7 @@ export default function OverlayHost({
     const direction = isDetailState(rendered) ? (rendered.navigationDirection ?? 1) : 1;
     const timeline = gsap.timeline({ defaults: { overwrite: true } });
 
-    if (detailSwap && mediaRef.current && copyRef.current) {
+    if (isDetailState(rendered) && mediaRef.current && copyRef.current) {
       timeline
         .fromTo(
           mediaRef.current,
@@ -277,7 +346,7 @@ export default function OverlayHost({
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         event.preventDefault();
-        onChange(null);
+        closeCurrentView();
         return;
       }
 
@@ -315,19 +384,20 @@ export default function OverlayHost({
 
   const catalog = rendered.type === "all-projects" || rendered.type === "all-artwork";
   const detail = isDetailState(rendered);
-  const panelClass = catalog
-    ? `flex h-[88vh] w-full flex-col overflow-hidden rounded-[18px] bg-chalk outline-none dark:bg-[#191a1f] dark:shadow-[0_34px_110px_rgba(0,0,0,0.72),0_0_48px_rgba(255,255,255,0.06)] ${
-        rendered.type === "all-projects" ? "max-w-6xl md:h-[46rem]" : "max-w-7xl"
-      }`
-    : "h-[min(46rem,86dvh)] w-full max-w-5xl overflow-hidden rounded-[18px] bg-chalk outline-none dark:bg-[#191a1f] dark:shadow-[0_34px_110px_rgba(0,0,0,0.72),0_0_48px_rgba(255,255,255,0.06)]";
+  const backgroundCatalog: CatalogOverlayType | null = catalog ? rendered.type : rendered.origin ?? null;
+  const stackedDetail = detail && Boolean(rendered.origin);
+  const catalogPanelClass = `flex h-[88vh] w-full flex-col overflow-hidden rounded-[18px] bg-chalk outline-none transition-[opacity,transform,filter] duration-300 dark:bg-[#191a1f] dark:shadow-[0_34px_110px_rgba(0,0,0,0.72),0_0_48px_rgba(255,255,255,0.06)] ${
+    backgroundCatalog === "all-projects" ? "max-w-6xl md:h-[46rem]" : "max-w-7xl"
+  }`;
+  const detailPanelClass = "h-[min(46rem,86dvh)] w-full max-w-5xl overflow-hidden rounded-[18px] bg-chalk outline-none dark:bg-[#191a1f] dark:shadow-[0_34px_110px_rgba(0,0,0,0.72),0_0_48px_rgba(255,255,255,0.06)]";
 
   return (
     <div
       ref={rootRef}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-ink/72 px-4 py-6 backdrop-blur-md dark:bg-black/82"
+      className="fixed inset-0 z-50 grid place-items-center bg-ink/72 px-4 py-6 backdrop-blur-md dark:bg-black/82"
       role="presentation"
       onMouseDown={(event) => {
-        if (event.target === event.currentTarget) onChange(null);
+        if (event.target === event.currentTarget) closeCurrentView();
       }}
     >
       {detail && (
@@ -337,25 +407,40 @@ export default function OverlayHost({
           onNext={() => rendered.type === "project" ? navigateProject(1) : navigateArtwork(1)}
         />
       )}
-      <section
-        ref={panelRef}
-        className={panelClass}
-        role="dialog"
-        aria-modal="true"
-        aria-label={overlayLabel(rendered)}
-        tabIndex={-1}
-      >
-        <div ref={contentRef} className={catalog ? "flex min-h-0 flex-1 flex-col" : "h-full"}>
-          {rendered.type === "all-projects" && <AllProjectsView onChange={onChange} />}
-          {rendered.type === "all-artwork" && <AllArtworkView onChange={onChange} />}
-          {rendered.type === "project" && (
-            <ProjectView project={rendered.project} mediaRef={mediaRef} copyRef={copyRef} onNavigate={navigateProject} onChange={onChange} />
-          )}
-          {rendered.type === "artwork" && (
-            <ArtworkView artwork={rendered.artwork} mediaRef={mediaRef} copyRef={copyRef} onNavigate={navigateArtwork} onChange={onChange} />
-          )}
-        </div>
-      </section>
+      {backgroundCatalog && (
+        <section
+          ref={catalog ? panelRef : undefined}
+          className={`${catalogPanelClass} col-start-1 row-start-1 ${stackedDetail ? "pointer-events-none scale-[0.975] blur-md" : ""}`}
+          role={catalog ? "dialog" : undefined}
+          aria-modal={catalog ? "true" : undefined}
+          aria-hidden={stackedDetail ? "true" : undefined}
+          aria-label={catalog ? overlayLabel(rendered) : undefined}
+          inert={stackedDetail ? true : undefined}
+          tabIndex={catalog ? -1 : undefined}
+        >
+          <div ref={catalog ? contentRef : undefined} className="flex min-h-0 flex-1 flex-col">
+            {backgroundCatalog === "all-projects" ? <AllProjectsView onChange={onChange} /> : <AllArtworkView onChange={onChange} />}
+          </div>
+        </section>
+      )}
+      {detail && (
+        <section
+          ref={panelRef}
+          className={`${detailPanelClass} relative z-10 col-start-1 row-start-1`}
+          role="dialog"
+          aria-modal="true"
+          aria-label={overlayLabel(rendered)}
+          tabIndex={-1}
+        >
+          <div ref={contentRef} className="h-full">
+            {rendered.type === "project" ? (
+              <ProjectView project={rendered.project} mediaRef={mediaRef} copyRef={copyRef} onNavigate={navigateProject} onClose={closeCurrentView} />
+            ) : (
+              <ArtworkView artwork={rendered.artwork} mediaRef={mediaRef} copyRef={copyRef} onNavigate={navigateArtwork} onClose={closeCurrentView} />
+            )}
+          </div>
+        </section>
+      )}
     </div>
   );
 }
@@ -389,7 +474,7 @@ function DesktopDetailNavigation({
   onNext: () => void;
 }) {
   const buttonClass =
-    "group absolute top-1/2 z-20 hidden h-12 -translate-y-1/2 items-center gap-2 rounded-full bg-white px-5 text-sm font-semibold text-ink shadow-[0_18px_44px_rgba(0,0,0,0.28)] transition-[background-color,box-shadow,transform] duration-300 ease-out hover:scale-[1.03] hover:bg-[#f5f5f7] hover:shadow-[0_22px_54px_rgba(0,0,0,0.34)] active:scale-[0.97] xl:inline-flex";
+    "group absolute top-1/2 z-20 hidden h-12 -translate-y-1/2 items-center gap-2 rounded-full border border-transparent bg-white px-5 text-sm font-semibold text-ink shadow-[0_18px_44px_rgba(0,0,0,0.28)] transition-[background-color,border-color,box-shadow,transform] duration-300 ease-out hover:scale-[1.03] hover:bg-[#f5f5f7] hover:shadow-[0_22px_54px_rgba(0,0,0,0.34)] active:scale-[0.97] dark:border-white/10 dark:bg-[#24252b] dark:text-white dark:shadow-[0_18px_44px_rgba(0,0,0,0.48)] dark:hover:bg-[#303139] dark:hover:shadow-[0_22px_54px_rgba(0,0,0,0.58)] xl:inline-flex";
 
   return (
     <>
@@ -420,20 +505,20 @@ function ProjectView({
   mediaRef,
   copyRef,
   onNavigate,
-  onChange,
+  onClose,
 }: {
   project: Project;
   mediaRef: React.RefObject<HTMLDivElement | null>;
   copyRef: React.RefObject<HTMLDivElement | null>;
   onNavigate: (offset: -1 | 1) => void;
-  onChange: (state: OverlayState | null) => void;
+  onClose: () => void;
 }) {
   return (
     <div className="relative h-full overflow-y-auto lg:overflow-hidden">
       <OverlayArrow direction="previous" onClick={() => onNavigate(-1)} label="Previous project" />
       <OverlayArrow direction="next" onClick={() => onNavigate(1)} label="Next project" />
       <div className="absolute right-4 top-4 z-30 md:right-6 md:top-6">
-        <CloseButton label="Close project details" onClick={() => onChange(null)} />
+        <CloseButton label="Close project details" onClick={onClose} />
       </div>
       <div className="grid min-h-full lg:h-full lg:grid-cols-[0.9fr_1.1fr]">
         <div className="relative min-h-[20rem] overflow-hidden bg-[var(--model-viewer-bg)] lg:min-h-0">
@@ -463,20 +548,20 @@ function ArtworkView({
   mediaRef,
   copyRef,
   onNavigate,
-  onChange,
+  onClose,
 }: {
   artwork: Artwork;
   mediaRef: React.RefObject<HTMLDivElement | null>;
   copyRef: React.RefObject<HTMLDivElement | null>;
   onNavigate: (offset: -1 | 1) => void;
-  onChange: (state: OverlayState | null) => void;
+  onClose: () => void;
 }) {
   return (
     <div className="relative h-full overflow-y-auto lg:overflow-hidden">
       <OverlayArrow direction="previous" onClick={() => onNavigate(-1)} label="Previous artwork" />
       <OverlayArrow direction="next" onClick={() => onNavigate(1)} label="Next artwork" />
       <div className="absolute right-4 top-4 z-30 md:right-6 md:top-6">
-        <CloseButton label="Close artwork details" onClick={() => onChange(null)} />
+        <CloseButton label="Close artwork details" onClick={onClose} />
       </div>
       <div className="grid min-h-full lg:h-full lg:grid-cols-[1.15fr_0.85fr]">
         <div className="relative grid min-h-[22rem] place-items-stretch overflow-hidden bg-[var(--model-viewer-bg)] md:min-h-[34rem] lg:min-h-0">
@@ -534,7 +619,7 @@ function AllProjectsView({ onChange }: { onChange: (state: OverlayState | null) 
       </CatalogHeader>
       <div className="flex-1 overflow-y-auto p-5 pt-3 md:p-8 md:pt-4">
         <div ref={resultsRef} className="grid gap-4 md:grid-cols-2">
-          {filtered.map((project) => <button key={project.id} type="button" className="group grid overflow-hidden rounded-[18px] bg-canvas text-left shadow-[0_12px_30px_rgba(29,29,31,0.06)] outline-none transition-shadow duration-500 hover:shadow-[0_18px_46px_rgba(29,29,31,0.12)] focus-visible:ring-4 focus-visible:ring-blueFocus/35 dark:bg-[#24252b] sm:grid-cols-[11rem_1fr]" onClick={() => onChange({ type: "project", project })}><div className="h-44 overflow-hidden sm:h-full"><img src={imageFor(project.imageSeed, 900, 700)} alt="" className="h-full w-full object-cover brightness-[0.72] contrast-[1.1] saturate-[0.76] transition-[transform,filter] duration-700 ease-out group-hover:scale-[1.035] group-hover:brightness-100 group-hover:contrast-100 group-hover:saturate-100" /></div><div className="p-5"><h3 className="text-2xl font-semibold">{project.title}</h3><p className="mt-3 text-sm leading-6 text-ink/70 dark:text-white/70">{project.summary}</p></div></button>)}
+          {filtered.map((project) => <button key={project.id} type="button" className="group grid overflow-hidden rounded-[18px] bg-canvas text-left shadow-[0_12px_30px_rgba(29,29,31,0.06)] outline-none transition-shadow duration-500 hover:shadow-[0_18px_46px_rgba(29,29,31,0.12)] focus-visible:ring-4 focus-visible:ring-blueFocus/35 dark:bg-[#24252b] sm:grid-cols-[11rem_1fr]" onClick={() => onChange({ type: "project", project, origin: "all-projects" })}><div className="h-44 overflow-hidden sm:h-full"><img src={imageFor(project.imageSeed, 900, 700)} alt="" className="h-full w-full object-cover brightness-[0.72] contrast-[1.1] saturate-[0.76] transition-[transform,filter] duration-700 ease-out group-hover:scale-[1.035] group-hover:brightness-100 group-hover:contrast-100 group-hover:saturate-100" /></div><div className="p-5"><h3 className="text-2xl font-semibold">{project.title}</h3><p className="mt-3 text-sm leading-6 text-ink/70 dark:text-white/70">{project.summary}</p></div></button>)}
         </div>
         {!filtered.length && <EmptyResults noun="projects" />}
       </div>
@@ -567,9 +652,9 @@ function AllArtworkView({ onChange }: { onChange: (state: OverlayState | null) =
         <SearchField value={query} onChange={setQuery} placeholder="Search artwork by title, medium, or tag" />
         <FilterMenu label={kind === "All" ? "Filter" : kind} open={filterOpen} setOpen={setFilterOpen} items={["All", "2D", "3D"]} selected={kind} onSelect={(item) => setKind(item as typeof kind)} />
       </CatalogHeader>
-      <div className="flex-1 overflow-y-auto p-5 pt-3 md:p-8 md:pt-4">
+      <div className="flex-1 touch-pan-y overflow-y-auto overscroll-contain p-5 pt-3 [scrollbar-gutter:stable] md:p-8 md:pt-4">
         <div ref={resultsRef} className="columns-1 gap-4 sm:columns-2 lg:columns-3 xl:columns-4">
-          {filtered.map((artwork) => <button key={artwork.id} type="button" className="group mb-4 block w-full break-inside-avoid overflow-hidden rounded-[18px] bg-canvas text-left shadow-[0_12px_30px_rgba(29,29,31,0.06)] outline-none transition-shadow duration-500 hover:shadow-[0_18px_46px_rgba(29,29,31,0.12)] focus-visible:ring-4 focus-visible:ring-blueFocus/35 dark:bg-[#24252b]" onClick={() => onChange({ type: "artwork", artwork })}><div className={`overflow-hidden ${artworkAspectClass(artwork)}`}>{artwork.kind === "3D" ? <DeferredModelViewer artwork={artwork} compact /> : <img src={artworkImageFor(artwork)} alt="" className="h-full w-full object-cover brightness-[0.86] contrast-[1.08] saturate-[0.82] transition-[transform,filter] duration-700 ease-out group-hover:scale-[1.045] group-hover:brightness-100 group-hover:contrast-100 group-hover:saturate-100" />}</div><div className="p-4"><div className="flex items-start justify-between gap-3"><h3 className="text-lg font-semibold">{artwork.title}</h3><span className="rounded-full bg-chalk px-2.5 py-1 text-xs font-semibold text-ink/55 dark:bg-[#30313a] dark:text-white/55">{artwork.kind}</span></div><p className="mt-1 text-sm text-ink/60 dark:text-white/60">{artwork.medium} · {artwork.year}</p></div></button>)}
+          {filtered.map((artwork) => <button key={artwork.id} type="button" className="group mb-4 block w-full break-inside-avoid overflow-hidden rounded-[18px] bg-canvas text-left shadow-[0_12px_30px_rgba(29,29,31,0.06)] outline-none transition-shadow duration-500 hover:shadow-[0_18px_46px_rgba(29,29,31,0.12)] focus-visible:ring-4 focus-visible:ring-blueFocus/35 dark:bg-[#24252b]" onClick={() => onChange({ type: "artwork", artwork, origin: "all-artwork" })}><div className={`overflow-hidden ${artworkAspectClass(artwork)}`}>{artwork.kind === "3D" ? <DeferredModelViewer artwork={artwork} compact /> : <img src={artworkImageFor(artwork)} alt="" className="h-full w-full object-cover brightness-[0.86] contrast-[1.08] saturate-[0.82] transition-[transform,filter] duration-700 ease-out group-hover:scale-[1.045] group-hover:brightness-100 group-hover:contrast-100 group-hover:saturate-100" />}</div><div className="p-4"><div className="flex items-start justify-between gap-3"><h3 className="text-lg font-semibold">{artwork.title}</h3><span className="rounded-full bg-chalk px-2.5 py-1 text-xs font-semibold text-ink/55 dark:bg-[#30313a] dark:text-white/55">{artwork.kind}</span></div><p className="mt-1 text-sm text-ink/60 dark:text-white/60">{artwork.medium} · {artwork.year}</p></div></button>)}
         </div>
         {!filtered.length && <EmptyResults noun="artwork" />}
       </div>

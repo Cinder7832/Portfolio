@@ -82,7 +82,11 @@ html.theme-changing .glass-nav-surface {
   transition-timing-function: cubic-bezier(0.2, 0, 0.2, 1) !important;
 }
 
-html.overlay-open,
+html.overlay-open {
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
+
 body.overlay-open {
   overflow: hidden;
 }
@@ -155,12 +159,14 @@ a {
   animation: filter-result-in 260ms ease-out both;
 }
 
-.model-viewer-fallback {
-  background:
-    radial-gradient(circle at 50% 42%, rgba(255, 255, 255, 0.11), transparent 34%),
-    linear-gradient(115deg, #202124 20%, #292b2f 45%, #202124 70%);
-  background-size: 100% 100%, 220% 100%;
-  animation: model-viewer-loading 1.7s ease-in-out infinite;
+.model-viewer-spinner {
+  width: 2rem;
+  height: 2rem;
+  border: 2px solid rgba(255, 255, 255, 0.18);
+  border-top-color: rgba(255, 255, 255, 0.9);
+  border-radius: 999px;
+  animation: model-viewer-spin 720ms linear infinite;
+  will-change: transform;
 }
 
 @keyframes filter-menu-in {
@@ -196,13 +202,9 @@ a {
   }
 }
 
-@keyframes model-viewer-loading {
-  0%,
-  100% {
-    background-position: center, 100% 0;
-  }
-  50% {
-    background-position: center, 0 0;
+@keyframes model-viewer-spin {
+  to {
+    transform: rotate(360deg);
   }
 }
 
@@ -228,7 +230,7 @@ a {
     transition-duration: 0.01ms !important;
   }
 
-  .model-viewer-fallback {
+  .model-viewer-spinner {
     animation: none;
   }
 }

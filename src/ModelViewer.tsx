@@ -163,6 +163,7 @@ export default function ModelViewer({
     renderer.domElement.style.height = "100%";
     renderer.domElement.style.inset = "0";
     renderer.domElement.style.position = "absolute";
+    renderer.domElement.style.pointerEvents = compact ? "none" : "auto";
     renderer.domElement.style.width = "100%";
     renderer.domElement.style.zIndex = "1";
     container.appendChild(renderer.domElement);
@@ -171,7 +172,8 @@ export default function ModelViewer({
     controls.enableDamping = true;
     controls.dampingFactor = 0.075;
     controls.enablePan = false;
-    controls.enableZoom = true;
+    controls.enableRotate = !compact;
+    controls.enableZoom = !compact;
     controls.autoRotate = motionEnabled && (viewer.autoRotate ?? true);
     controls.autoRotateSpeed = -0.62;
     controls.minPolarAngle = 0.08;
@@ -608,8 +610,10 @@ export default function ModelViewer({
   return (
     <div
       ref={containerRef}
-      className={`relative isolate cursor-grab overflow-hidden bg-[var(--model-viewer-bg)] active:cursor-grabbing ${
-        compact ? "h-full w-full" : "h-full min-h-[22rem] w-full"
+      className={`relative isolate overflow-hidden bg-[var(--model-viewer-bg)] ${
+        compact
+          ? "pointer-events-none h-full w-full"
+          : "h-full min-h-[22rem] w-full cursor-grab active:cursor-grabbing"
       }`}
       aria-label={`${artwork.title} interactive 3D model viewer`}
       role="img"

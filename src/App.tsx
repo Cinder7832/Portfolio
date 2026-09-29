@@ -499,12 +499,12 @@ function Hero() {
   return (
     <section id="home" className="relative min-h-[84vh] overflow-hidden bg-canvas px-4 pb-16 pt-28 transition-[background-color] duration-300 dark:bg-[#101114] md:px-8 md:pb-20 md:pt-32">
       <div className="relative mx-auto grid min-h-[58vh] max-w-7xl items-center gap-10 lg:grid-cols-[1fr_0.78fr]">
-        <div className="hero-copy mx-auto max-w-6xl text-center lg:mx-0 lg:text-left">
+        <div className="hero-copy order-2 mx-auto max-w-6xl text-center lg:order-none lg:mx-0 lg:text-left">
           <h1 className="max-w-6xl text-[clamp(3rem,6vw,5.4rem)] font-semibold leading-[1.03] tracking-[-0.01em]">
             Devanand Asai
           </h1>
           <p className="mx-auto mt-5 max-w-2xl text-[21px] leading-[1.25] text-ink/80 dark:text-white/80 lg:mx-0">
-            Portfolio, projects, and ways to get in touch.
+            Game Development &amp; Creative Media student at New College Swindon.
           </p>
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row lg:justify-start">
             <button
@@ -526,7 +526,7 @@ function Hero() {
             </a>
           </div>
         </div>
-        <div className="mx-auto grid w-full max-w-[22rem] place-items-center md:max-w-[26rem]">
+        <div className="order-1 mx-auto grid w-full max-w-[12rem] place-items-center sm:max-w-[16rem] md:max-w-[20rem] lg:order-none lg:max-w-[26rem]">
           <img
             src={profilePicture}
             alt="Devanand Asai profile picture"
@@ -559,6 +559,14 @@ function Projects({
       if (!cards.length) return;
 
       const maxScroll = scroller.scrollWidth - scroller.clientWidth;
+      if (scroller.scrollLeft <= 1) {
+        targetIndexRef.current = 0;
+        return;
+      }
+      if (scroller.scrollLeft >= maxScroll - 1) {
+        targetIndexRef.current = cards.length - 1;
+        return;
+      }
       targetIndexRef.current = cards.reduce((nearestIndex, card, index) => {
         const cardTarget = Math.min(
           maxScroll,
@@ -616,7 +624,16 @@ function Projects({
     const offset = direction === "left" ? -1 : 1;
     const nextIndex = Math.min(cards.length - 1, Math.max(0, targetIndexRef.current + offset));
     const target = cards[nextIndex];
-    const destination = target.offsetLeft - (scroller.clientWidth - target.offsetWidth) / 2;
+    const maxScroll = Math.max(0, scroller.scrollWidth - scroller.clientWidth);
+    const destination = Math.min(
+      maxScroll,
+      Math.max(0, target.offsetLeft - (scroller.clientWidth - target.offsetWidth) / 2),
+    );
+
+    if (nextIndex === targetIndexRef.current && Math.abs(destination - scroller.scrollLeft) < 1) {
+      programmaticScrollRef.current = false;
+      return;
+    }
 
     targetIndexRef.current = nextIndex;
     programmaticScrollRef.current = true;
@@ -630,7 +647,7 @@ function Projects({
   return (
     <section id="projects" className="projects-section overflow-hidden bg-chalk py-20 transition-[background-color] duration-300 dark:bg-[#191a1f] md:py-24">
       <div className="mx-auto max-w-7xl">
-        <div className="reveal mb-10 flex flex-col justify-between gap-6 px-4 md:flex-row md:items-end md:px-8 xl:px-0">
+        <div className="reveal mb-6 flex flex-col justify-between gap-6 px-4 md:mb-7 md:flex-row md:items-end md:px-8 xl:px-0">
           <div>
             <h2 className="max-w-4xl text-[clamp(2.3rem,5vw,4rem)] font-semibold leading-[1.08] tracking-[-0.01em]">
               Projects
@@ -670,7 +687,7 @@ function Projects({
         </div>
         <div
           ref={scrollerRef}
-          className="projects-scroller relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] flex w-screen snap-x snap-mandatory gap-4 overflow-x-auto pl-4 pr-[max(1rem,6vw)] pb-28 pt-16 [-ms-overflow-style:none] [scrollbar-width:none] md:gap-6 md:pl-8 md:pr-[max(2rem,8vw)] md:pb-32 xl:pl-[calc((100vw-80rem)/2)] [&::-webkit-scrollbar]:hidden"
+          className="projects-scroller flex w-full snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-28 pt-8 [-ms-overflow-style:none] [scrollbar-width:none] md:gap-6 md:px-8 md:pb-32 xl:px-0 [&::-webkit-scrollbar]:hidden"
         >
           {projects.map((project, index) => {
             return (
@@ -747,7 +764,7 @@ function ArtworkSection({
             >
               <div className={`overflow-hidden ${artworkMediaAspectClass(artwork)}`}>
                 {artwork.kind === "3D" ? (
-                  <DeferredModelViewer artwork={artwork} compact />
+                  <DeferredModelViewer artwork={artwork} compact keepMounted preload />
                 ) : (
                   <img
                     src={artworkImageFor(artwork, 900, 1200)}
