@@ -7,6 +7,7 @@ export type Project = {
   stack: string[];
   highlights: string[];
   imageSeed: string;
+  imageUrl?: string;
   githubUrl?: string;
   liveUrl?: string;
 };
@@ -49,20 +50,20 @@ export const profile = {
 
 export const projects: Project[] = [
   {
-    id: "ops-dashboard",
-    title: "Operations Dashboard",
-    category: "Tools",
-    summary: "A responsive analytics surface for tracking tasks, signals, and team momentum.",
+    id: "cubo",
+    title: "Cubo",
+    category: "Games",
+    summary: "A 2D Metroidvania with combat, exploration, and boss fights.",
     description:
-      "A focused dashboard concept built around quick scanning, clear hierarchy, and low-friction decision making. The interface is designed for repeated daily use rather than one-time presentation.",
-    stack: ["React", "TypeScript", "Tailwind", "Charts"],
+      "Cubo is a solo Unity project set in an abandoned crystal mine. I designed and built the connected world, movement, combat, enemies, bosses, interface, lighting, shaders, and progression systems, then kept iterating after the original submission.",
+    stack: ["Unity 6", "C#", "Aseprite", "ShaderLab", "GitHub"],
     highlights: [
-      "Dense summary cards with stable responsive sizing.",
-      "Filtering-ready data model for future API integration.",
-      "Calm interface language for operational workflows.",
+      "Ground-slam combat, sprinting, wall climbing, variable jumps, and full gamepad support with haptics.",
+      "Two multi-phase bosses with different damage loops and ability-gated progression between encounters.",
+      "Custom 2D lighting, reflected water, contextual tutorials, settings, respawning, and an optional speedrun timer.",
     ],
-    imageSeed: "developer-dashboard-workspace",
-    githubUrl: "https://github.com/Cinder7832",
+    imageSeed: "cubo-crystal-caverns",
+    imageUrl: "projects/cubo/world.png",
   },
   {
     id: "portfolio-system",

@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -10,10 +10,8 @@ import {
   Linkedin,
   Mail,
   Menu,
-  Moon,
   MoveRight,
   FileText,
-  Sun,
   X,
 } from "lucide-react";
 import { Artwork, Project, artworks, profile, projects } from "./data";
@@ -26,11 +24,18 @@ gsap.registerPlugin(ScrollTrigger);
 const imageFor = (seed: string, width = 1920, height = 1080) =>
   `https://picsum.photos/seed/${seed}/${width}/${height}`;
 
+const projectImageFor = (project: Project, width = 1920, height = 1080) => {
+  if (!project.imageUrl) return imageFor(project.imageSeed, width, height);
+  if (/^https?:\/\//.test(project.imageUrl)) return project.imageUrl;
+  return `${import.meta.env.BASE_URL}${project.imageUrl.replace(/^\/+/, "")}`;
+};
+
 const profilePicture = `${import.meta.env.BASE_URL}profile-picture.jpg`;
 const cvUrl = `${import.meta.env.BASE_URL}CV-Devanand-Asai.pdf`;
 
 let activeScrollTween: gsap.core.Tween | null = null;
 let removeScrollInterruptionListeners: (() => void) | null = null;
+let hasPlayedOpeningAnimation = false;
 
 const scrollToSection = (targetId: string) => {
   const target = document.getElementById(targetId);
@@ -100,15 +105,6 @@ const artworkImageFor = (artwork: Artwork, width = 900, height = 1200) => {
 
 function App() {
   const [overlay, setOverlay] = useState<OverlayState | null>(null);
-  const [darkMode, setDarkMode] = useState(() => {
-    if (typeof window === "undefined") {
-      return false;
-    }
-
-    const savedTheme = window.localStorage.getItem("theme");
-    return savedTheme === "dark";
-  });
-  const hasMountedTheme = useRef(false);
   const appRef = useRef<HTMLElement | null>(null);
 
   useGSAP(() => {
@@ -134,6 +130,13 @@ function App() {
     });
 
     media.add("(prefers-reduced-motion: no-preference)", () => {
+      if (hasPlayedOpeningAnimation) {
+        document.documentElement.classList.remove("js-intro-pending");
+        gsap.set([".site-nav", ".hero-copy > *", ".profile-photo"], { clearProps: "all" });
+        return;
+      }
+
+      hasPlayedOpeningAnimation = true;
       gsap.set(".site-nav", { opacity: 0 });
       gsap.set(".hero-copy > *", { y: 28, opacity: 0, force3D: true, willChange: "transform,opacity" });
       gsap.set(".profile-photo", {
@@ -203,22 +206,6 @@ function App() {
         }),
       });
 
-      const projectCards = gsap.utils.toArray<HTMLElement>(".project-card");
-      gsap.set(projectCards, { opacity: 0, y: 24 });
-      ScrollTrigger.create({
-        trigger: ".projects-scroller",
-        start: "top 86%",
-        once: true,
-        onEnter: () => gsap.to(projectCards, {
-          opacity: 1,
-          y: 0,
-          duration: 0.64,
-          stagger: 0.055,
-          ease: MOTION.easeOut,
-          clearProps: "transform,opacity",
-        }),
-      });
-
       const artworkTiles = gsap.utils.toArray<HTMLElement>(".artwork-tile");
       gsap.set(artworkTiles, { opacity: 0, y: 24, scale: 0.975 });
       ScrollTrigger.batch(artworkTiles, {
@@ -251,44 +238,6 @@ function App() {
         },
       });
 
-      const aboutWords = gsap.utils.toArray<HTMLElement>(".about-word");
-      if (aboutWords.length) {
-        gsap.set(aboutWords, { opacity: 0.14 });
-        gsap.to(aboutWords, {
-          opacity: 1,
-          stagger: 0.045,
-          ease: "none",
-          scrollTrigger: {
-            trigger: ".about-copy",
-            start: "top 82%",
-            end: "bottom 52%",
-            scrub: true,
-            invalidateOnRefresh: true,
-          },
-        });
-      }
-    });
-
-    media.add("(min-width: 768px) and (prefers-reduced-motion: no-preference)", () => {
-      const cards = gsap.utils.toArray<HTMLElement>(".about-stack-card");
-      cards.forEach((card, index) => {
-        gsap.fromTo(card, {
-          y: 26 + index * 20,
-          scale: 1 - index * 0.018,
-          zIndex: cards.length - index,
-        }, {
-          y: 0,
-          scale: 1,
-          ease: "none",
-          scrollTrigger: {
-            trigger: ".about-stack",
-            start: "top 82%",
-            end: "bottom 55%",
-            scrub: 0.6,
-            invalidateOnRefresh: true,
-          },
-        });
-      });
     });
 
     const scheduleRefresh = () => {
@@ -315,31 +264,6 @@ function App() {
       window.history.replaceState(null, "", window.location.pathname);
     }
   }, []);
-
-  useLayoutEffect(() => {
-    const shouldAnimateTheme = hasMountedTheme.current;
-    hasMountedTheme.current = true;
-
-    if (shouldAnimateTheme) {
-      document.documentElement.classList.add("theme-changing");
-    }
-
-    document.documentElement.classList.toggle("dark", darkMode);
-    window.localStorage.setItem("theme", darkMode ? "dark" : "light");
-
-    if (!shouldAnimateTheme) {
-      return;
-    }
-
-    const timeout = window.setTimeout(() => {
-      document.documentElement.classList.remove("theme-changing");
-    }, 320);
-
-    return () => {
-      window.clearTimeout(timeout);
-      document.documentElement.classList.remove("theme-changing");
-    };
-  }, [darkMode]);
 
   useEffect(() => {
     let scrollTimeout = 0;
@@ -374,8 +298,8 @@ function App() {
   }, []);
 
   return (
-    <main ref={appRef} className="w-full max-w-full overflow-x-hidden bg-canvas text-ink transition-[background-color] duration-300 dark:bg-[#101114] dark:text-[#f5f5f7]">
-      <Navigation darkMode={darkMode} onToggleTheme={() => setDarkMode((value) => !value)} />
+    <main ref={appRef} className="w-full max-w-full overflow-x-hidden bg-canvas text-ink transition-[background-color] duration-300">
+      <Navigation />
       <Hero />
       <Projects
         onSelect={(project) => setOverlay({ type: "project", project })}
@@ -392,13 +316,7 @@ function App() {
   );
 }
 
-function Navigation({
-  darkMode,
-  onToggleTheme,
-}: {
-  darkMode: boolean;
-  onToggleTheme: () => void;
-}) {
+function Navigation() {
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const links = [
@@ -448,7 +366,7 @@ function Navigation({
                 <button
                   key={label}
                   type="button"
-                  className="rounded-full px-5 py-2.5 text-sm font-medium text-ink/70 transition-[background-color,color,box-shadow,transform] duration-[250ms] ease-out hover:bg-ink hover:text-white hover:shadow-[0_8px_24px_rgba(29,29,31,0.14)] active:scale-95 dark:text-white/80 dark:hover:bg-white dark:hover:text-ink dark:hover:shadow-[0_12px_30px_rgba(255,255,255,0.18)]"
+              className="rounded-full px-5 py-2.5 text-sm font-medium text-ink/70 transition-[background-color,color,box-shadow,transform] duration-[250ms] ease-out hover:bg-ink hover:text-white hover:shadow-[0_10px_28px_rgba(29,29,31,0.24)] active:scale-95 dark:text-white/80 dark:hover:bg-white dark:hover:text-ink dark:hover:shadow-[0_12px_30px_rgba(255,255,255,0.18)]"
                   onClick={() => scrollToSection(href)}
                 >
                   {label}
@@ -464,15 +382,6 @@ function Navigation({
               {open ? <X size={19} /> : <Menu size={19} />}
             </button>
           </nav>
-          <button
-            type="button"
-            className="glass-nav-surface grid size-[58px] place-items-center rounded-full text-ink/70 transition-[background-color,color,box-shadow,transform] duration-[250ms] hover:bg-ink hover:text-white hover:shadow-[0_16px_42px_rgba(29,29,31,0.22)] active:scale-95 dark:text-white/80 dark:hover:bg-white dark:hover:text-ink dark:hover:shadow-[0_18px_48px_rgba(0,0,0,0.58),0_0_34px_rgba(255,255,255,0.12)]"
-            aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
-            aria-pressed={darkMode}
-            onClick={onToggleTheme}
-          >
-            {darkMode ? <Sun size={19} /> : <Moon size={19} />}
-          </button>
         </div>
         <div
           ref={menuRef}
@@ -512,20 +421,20 @@ function Hero() {
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row lg:justify-start">
             <button
               type="button"
-              className="group inline-flex items-center justify-center gap-2 rounded-full bg-ink px-[22px] py-[11px] text-[17px] font-medium text-white transition-[background-color,color,box-shadow,transform] duration-300 hover:bg-black hover:shadow-[0_14px_34px_rgba(29,29,31,0.18)] active:scale-95 dark:bg-white dark:text-ink dark:hover:bg-white/90 dark:hover:shadow-[0_14px_34px_rgba(255,255,255,0.12)]"
+              className="group inline-flex items-center justify-center gap-2 rounded-full bg-ink px-[22px] py-[11px] text-[17px] font-medium text-white transition-[background-color,color,box-shadow,transform] duration-300 hover:bg-black hover:shadow-[0_16px_38px_rgba(29,29,31,0.28)] active:scale-95 dark:bg-white dark:text-ink dark:hover:bg-white/90 dark:hover:shadow-[0_14px_34px_rgba(255,255,255,0.12)]"
               onClick={() => scrollToSection("projects")}
             >
               View projects
-              <MoveRight size={18} className="transition-transform duration-300 group-hover:translate-x-1" />
+              <MoveRight size={18} />
             </button>
             <a
               href={profile.linkedin}
               target="_blank"
               rel="noreferrer"
-              className="group inline-flex items-center justify-center gap-2 rounded-full bg-transparent px-[22px] py-[11px] text-[17px] font-medium text-ink transition-[background-color,color,box-shadow,transform] duration-300 hover:bg-chalk hover:shadow-[0_12px_30px_rgba(29,29,31,0.10)] active:scale-95 dark:text-white dark:hover:bg-white/10 dark:hover:shadow-[0_18px_48px_rgba(0,0,0,0.42)]"
+              className="group inline-flex items-center justify-center gap-2 rounded-full bg-transparent px-[22px] py-[11px] text-[17px] font-medium text-ink transition-[background-color,color,box-shadow,transform] duration-300 hover:bg-chalk hover:shadow-[0_14px_34px_rgba(29,29,31,0.18)] active:scale-95 dark:text-white dark:hover:bg-white/10 dark:hover:shadow-[0_18px_48px_rgba(0,0,0,0.42)]"
             >
               LinkedIn
-              <ArrowUpRight size={18} className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+              <ArrowUpRight size={18} />
             </a>
           </div>
         </div>
@@ -533,7 +442,7 @@ function Hero() {
           <img
             src={profilePicture}
             alt="Devanand Asai profile picture"
-            className="profile-photo aspect-square w-full rounded-full bg-canvas object-cover shadow-[0_16px_45px_rgba(29,29,31,0.12)] transition-shadow duration-700 ease-out hover:shadow-[0_22px_58px_rgba(29,29,31,0.16)] dark:bg-white dark:shadow-[0_0_0_1px_rgba(255,255,255,0.18),0_28px_80px_rgba(0,0,0,0.62),0_0_64px_rgba(255,255,255,0.10)] dark:hover:shadow-[0_0_0_1px_rgba(255,255,255,0.22),0_34px_96px_rgba(0,0,0,0.72),0_0_78px_rgba(255,255,255,0.13)]"
+            className="profile-photo aspect-square w-full rounded-full bg-canvas object-cover shadow-[0_18px_50px_rgba(29,29,31,0.22)] transition-shadow duration-700 ease-out hover:shadow-[0_24px_62px_rgba(29,29,31,0.3)] dark:bg-white dark:shadow-[0_0_0_1px_rgba(255,255,255,0.18),0_28px_80px_rgba(0,0,0,0.62),0_0_64px_rgba(255,255,255,0.10)] dark:hover:shadow-[0_0_0_1px_rgba(255,255,255,0.22),0_34px_96px_rgba(0,0,0,0.72),0_0_78px_rgba(255,255,255,0.13)]"
           />
         </div>
       </div>
@@ -648,7 +557,7 @@ function Projects({
   };
 
   return (
-    <section id="projects" className="projects-section overflow-hidden bg-chalk py-20 transition-[background-color] duration-300 dark:bg-[#191a1f] md:py-24">
+    <section id="projects" className="projects-section overflow-hidden bg-[#d8d8dc] py-20 transition-[background-color] duration-300 dark:bg-[#191a1f] md:py-24">
       <div className="mx-auto max-w-7xl">
         <div className="reveal mb-6 flex flex-col justify-between gap-6 px-4 md:mb-7 md:flex-row md:items-end md:px-8 xl:px-0">
           <div>
@@ -660,14 +569,14 @@ function Projects({
             </p>
           </div>
           <div className="flex w-full flex-wrap items-center justify-between gap-3 sm:w-auto sm:flex-nowrap sm:justify-start">
-            <div className="flex w-fit gap-1 rounded-full bg-canvas/75 p-1 shadow-[0_12px_30px_rgba(29,29,31,0.08)] backdrop-blur-xl dark:bg-[#24252b] dark:shadow-[0_18px_46px_rgba(0,0,0,0.46)]">
+            <div className="flex w-fit gap-1 rounded-full bg-canvas/75 p-1 shadow-[0_14px_34px_rgba(29,29,31,0.18)] backdrop-blur-xl dark:bg-[#24252b] dark:shadow-[0_18px_46px_rgba(0,0,0,0.46)]">
               <button
                 type="button"
                 className="group grid size-10 place-items-center rounded-full text-ink/72 transition-[background-color,color,transform] duration-300 hover:bg-ink hover:text-white active:scale-95 dark:text-white/75 dark:hover:bg-white dark:hover:text-ink"
                 aria-label="Scroll projects left"
                 onClick={() => scrollProjects("left")}
               >
-                <ChevronLeft size={20} className="transition-transform duration-300 group-hover:-translate-x-0.5" />
+                <ChevronLeft size={20} />
               </button>
               <button
                 type="button"
@@ -675,7 +584,7 @@ function Projects({
                 aria-label="Scroll projects right"
                 onClick={() => scrollProjects("right")}
               >
-                <ChevronRight size={20} className="transition-transform duration-300 group-hover:translate-x-0.5" />
+                <ChevronRight size={20} />
               </button>
             </div>
             <button
@@ -684,7 +593,7 @@ function Projects({
               onClick={onViewAll}
             >
               View all
-              <ArrowUpRight size={17} className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+              <ArrowUpRight size={17} />
             </button>
           </div>
         </div>
@@ -697,11 +606,11 @@ function Projects({
               <button
                 key={project.id}
                 type="button"
-                className="project-card group relative h-[24rem] w-[min(24rem,calc(100%_-_2rem))] shrink-0 snap-center overflow-hidden rounded-[18px] bg-canvas text-left shadow-[0_16px_38px_rgba(29,29,31,0.08)] outline-none transition-shadow duration-500 ease-out hover:shadow-[0_22px_52px_rgba(29,29,31,0.14)] focus-visible:ring-4 focus-visible:ring-blueFocus/35 dark:bg-[#24252b] dark:shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_34px_86px_rgba(0,0,0,0.66),0_0_42px_rgba(255,255,255,0.06)] dark:hover:shadow-[0_0_0_1px_rgba(255,255,255,0.12),0_42px_104px_rgba(0,0,0,0.78),0_0_58px_rgba(255,255,255,0.09)] sm:w-[28rem] lg:w-[38rem]"
+                className="project-card group relative h-[24rem] w-[min(24rem,calc(100%_-_2rem))] shrink-0 snap-center overflow-hidden rounded-[18px] bg-canvas text-left shadow-[0_18px_44px_rgba(29,29,31,0.2)] outline-none transition-shadow duration-500 ease-out hover:shadow-[0_24px_58px_rgba(29,29,31,0.3)] focus-visible:ring-4 focus-visible:ring-blueFocus/35 dark:bg-[#24252b] dark:shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_34px_86px_rgba(0,0,0,0.66),0_0_42px_rgba(255,255,255,0.06)] dark:hover:shadow-[0_0_0_1px_rgba(255,255,255,0.12),0_42px_104px_rgba(0,0,0,0.78),0_0_58px_rgba(255,255,255,0.09)] sm:w-[28rem] lg:w-[38rem]"
                 onClick={() => onSelect(project)}
               >
                 <img
-                  src={imageFor(project.imageSeed)}
+                  src={projectImageFor(project)}
                   alt=""
                   className="h-full w-full object-cover brightness-[0.68] contrast-[1.12] saturate-[0.72] transition duration-700 ease-out group-hover:scale-[1.035] group-hover:brightness-100 group-hover:contrast-100 group-hover:saturate-100"
                 />
@@ -752,7 +661,7 @@ function ArtworkSection({
             onClick={onViewAll}
           >
             View all
-            <ArrowUpRight size={17} className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+            <ArrowUpRight size={17} />
           </button>
         </div>
 
@@ -761,7 +670,7 @@ function ArtworkSection({
             <button
               key={artwork.id}
               type="button"
-              className="artwork-tile group mb-4 block w-full break-inside-avoid overflow-hidden rounded-[18px] bg-chalk text-left shadow-[0_16px_38px_rgba(29,29,31,0.08)] outline-none transition-[transform,box-shadow] duration-500 ease-out hover:-translate-y-1 hover:shadow-[0_22px_52px_rgba(29,29,31,0.14)] focus-visible:ring-4 focus-visible:ring-blueFocus/35 dark:bg-[#1c1d23] dark:shadow-[0_24px_70px_rgba(0,0,0,0.56)] dark:hover:shadow-[0_30px_86px_rgba(0,0,0,0.7)]"
+              className="artwork-tile group mb-4 block w-full break-inside-avoid overflow-hidden rounded-[18px] bg-chalk text-left shadow-[0_18px_44px_rgba(29,29,31,0.2)] outline-none transition-[transform,box-shadow] duration-500 ease-out hover:-translate-y-1 hover:shadow-[0_24px_58px_rgba(29,29,31,0.3)] focus-visible:ring-4 focus-visible:ring-blueFocus/35 dark:bg-[#1c1d23] dark:shadow-[0_24px_70px_rgba(0,0,0,0.56)] dark:hover:shadow-[0_30px_86px_rgba(0,0,0,0.7)]"
               style={{ animationDelay: `${index * 45}ms` }}
               onClick={() => onSelect(artwork)}
             >
@@ -817,36 +726,30 @@ function About() {
           <h2 className="text-[clamp(2.4rem,5vw,4.5rem)] font-semibold leading-[1.03] tracking-[-0.01em]">
             About me
           </h2>
-          <div className="about-copy mx-auto mt-7 max-w-2xl space-y-5 text-[17px] leading-[1.47] text-ink/75 dark:text-white/80">
-            <p aria-label={introduction}>
-              {introduction.split(" ").map((word, index) => (
-                <span key={`${word}-${index}`} className="about-word inline-block" aria-hidden="true">
-                  {word}{index < introduction.split(" ").length - 1 ? "\u00a0" : ""}
-                </span>
-              ))}
-            </p>
+          <div className="mx-auto mt-7 max-w-2xl space-y-5 text-[17px] leading-[1.47] text-ink/80 dark:text-white/80">
+            <p>{introduction}</p>
           </div>
           <div className="about-stack mx-auto mt-10 grid max-w-2xl gap-6">
-            <div className="about-stack-card rounded-[18px] bg-chalk p-5 shadow-[0_12px_30px_rgba(29,29,31,0.04)] transition-[background-color,box-shadow] duration-300 dark:bg-[#1c1d23] dark:shadow-[0_22px_60px_rgba(0,0,0,0.46)]">
-              <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-muted dark:text-white/60">Skills</h3>
+            <div className="about-stack-card rounded-[18px] bg-[#dcdce1] p-5 dark:bg-[#1c1d23]">
+              <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-muted">Skills</h3>
               <div className="mt-4 flex flex-wrap justify-center gap-2">
                 {skills.map((skill) => (
                   <span
                     key={skill}
-                    className="rounded-full bg-canvas px-4 py-2 text-sm font-medium text-ink transition-[background-color] duration-300 dark:bg-[#30313a] dark:text-white/80"
+                    className="rounded-full bg-white px-4 py-2 text-sm font-medium text-ink dark:bg-[#30313a] dark:text-white/80"
                   >
                     {skill}
                   </span>
                 ))}
               </div>
             </div>
-            <div className="about-stack-card rounded-[18px] bg-chalk p-5 shadow-[0_12px_30px_rgba(29,29,31,0.04)] transition-[background-color,box-shadow] duration-300 dark:bg-[#1c1d23] dark:shadow-[0_22px_60px_rgba(0,0,0,0.46)]">
-              <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-muted dark:text-white/60">Tools</h3>
+            <div className="about-stack-card rounded-[18px] bg-[#dcdce1] p-5 dark:bg-[#1c1d23]">
+              <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-muted">Tools</h3>
               <div className="mt-4 flex flex-wrap justify-center gap-2">
                 {tools.map((tool) => (
                   <span
                     key={tool}
-                    className="rounded-full bg-canvas px-4 py-2 text-sm font-medium text-ink transition-[background-color] duration-300 dark:bg-[#30313a] dark:text-white/80"
+                    className="rounded-full bg-white px-4 py-2 text-sm font-medium text-ink dark:bg-[#30313a] dark:text-white/80"
                   >
                     {tool}
                   </span>
