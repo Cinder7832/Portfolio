@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
   ArrowUpRight,
   ChevronLeft,
@@ -14,12 +13,10 @@ import {
   FileText,
   X,
 } from "lucide-react";
-import { Artwork, Project, artworks, profile, projects } from "./data";
+import { Artwork, Project, artworks, profile, publishedProjects as projects } from "./data";
 import DeferredModelViewer from "./DeferredModelViewer";
 import OverlayHost, { type OverlayState } from "./OverlayHost";
 import { MOTION, prefersReducedMotion } from "./motion";
-
-gsap.registerPlugin(ScrollTrigger);
 
 const imageFor = (seed: string, width = 1920, height = 1080) =>
   `https://picsum.photos/seed/${seed}/${width}/${height}`;
@@ -35,7 +32,6 @@ const cvUrl = `${import.meta.env.BASE_URL}CV-Devanand-Asai.pdf`;
 
 let activeScrollTween: gsap.core.Tween | null = null;
 let removeScrollInterruptionListeners: (() => void) | null = null;
-let hasPlayedOpeningAnimation = false;
 
 const scrollToSection = (targetId: string) => {
   const target = document.getElementById(targetId);
@@ -106,158 +102,6 @@ const artworkImageFor = (artwork: Artwork, width = 900, height = 1200) => {
 function App() {
   const [overlay, setOverlay] = useState<OverlayState | null>(null);
   const appRef = useRef<HTMLElement | null>(null);
-
-  useGSAP(() => {
-    const profilePhoto = document.querySelector<HTMLImageElement>(".profile-photo");
-    let introTimeline: gsap.core.Timeline | null = null;
-    let cancelled = false;
-    let refreshCall: gsap.core.Tween | null = null;
-    const media = gsap.matchMedia();
-
-    const finishIntro = () => {
-      document.documentElement.classList.remove("js-intro-pending");
-      gsap.set([".site-nav", ".hero-copy > *", ".profile-photo"], {
-        clearProps: "willChange",
-      });
-      ScrollTrigger.refresh();
-    };
-
-    media.add("(prefers-reduced-motion: reduce)", () => {
-      gsap.set([".site-nav", ".hero-copy > *", ".profile-photo"], {
-        clearProps: "all",
-      });
-      finishIntro();
-    });
-
-    media.add("(prefers-reduced-motion: no-preference)", () => {
-      if (hasPlayedOpeningAnimation) {
-        document.documentElement.classList.remove("js-intro-pending");
-        gsap.set([".site-nav", ".hero-copy > *", ".profile-photo"], { clearProps: "all" });
-        return;
-      }
-
-      hasPlayedOpeningAnimation = true;
-      gsap.set(".site-nav", { opacity: 0 });
-      gsap.set(".hero-copy > *", { y: 28, opacity: 0, force3D: true, willChange: "transform,opacity" });
-      gsap.set(".profile-photo", {
-        opacity: 0,
-        scale: 0.94,
-        rotate: -1.5,
-        transformOrigin: "50% 50%",
-        force3D: true,
-        willChange: "transform,opacity",
-      });
-
-      const fontReady = document.fonts?.ready.catch(() => undefined) ?? Promise.resolve();
-      const profileReady =
-        profilePhoto && !profilePhoto.complete
-          ? new Promise<void>((resolve) => {
-              profilePhoto.addEventListener("load", () => resolve(), { once: true });
-              profilePhoto.addEventListener("error", () => resolve(), { once: true });
-            })
-          : (profilePhoto?.decode?.().catch(() => undefined) ?? Promise.resolve());
-
-      const readinessTimeout = new Promise<void>((resolve) => window.setTimeout(resolve, 1600));
-
-      Promise.race([Promise.all([fontReady, profileReady]).then(() => undefined), readinessTimeout])
-        .then(
-          () =>
-            new Promise<void>((resolve) => {
-              window.requestAnimationFrame(() => {
-                window.requestAnimationFrame(() => resolve());
-              });
-            }),
-        )
-        .then(() => {
-          if (cancelled) {
-            return;
-          }
-
-          document.documentElement.classList.remove("js-intro-pending");
-          introTimeline = gsap.timeline({
-            defaults: { ease: MOTION.easeOut },
-            onComplete: finishIntro,
-          });
-
-          introTimeline
-            .to(".site-nav", { opacity: 1, duration: 0.52, clearProps: "opacity" }, 0)
-            .to(
-              ".hero-copy > *",
-              { y: 0, opacity: 1, duration: 0.76, stagger: 0.09, clearProps: "transform,opacity,willChange" },
-              0.08,
-            )
-            .to(
-              ".profile-photo",
-              { opacity: 1, scale: 1, rotate: 0, duration: 0.86, clearProps: "transform,opacity,willChange" },
-              0.16,
-            );
-        });
-      gsap.set(".reveal", { opacity: 0, y: 22 });
-      ScrollTrigger.batch(".reveal", {
-        start: "top 86%",
-        once: true,
-        onEnter: (batch) => gsap.to(batch, {
-          opacity: 1,
-          y: 0,
-          duration: 0.68,
-          stagger: 0.08,
-          ease: MOTION.easeOut,
-          clearProps: "transform,opacity",
-        }),
-      });
-
-      const artworkTiles = gsap.utils.toArray<HTMLElement>(".artwork-tile");
-      gsap.set(artworkTiles, { opacity: 0, y: 24, scale: 0.975 });
-      ScrollTrigger.batch(artworkTiles, {
-        start: "top 90%",
-        once: true,
-        onEnter: (batch) => gsap.to(batch, {
-          opacity: 1,
-          y: 0,
-          scale: 1,
-          duration: 0.64,
-          stagger: 0.055,
-          ease: MOTION.easeOut,
-          clearProps: "transform,opacity",
-        }),
-      });
-
-      gsap.fromTo(".projects-section", {
-        borderTopLeftRadius: "44px",
-        borderTopRightRadius: "44px",
-      }, {
-        borderTopLeftRadius: "0px",
-        borderTopRightRadius: "0px",
-        ease: "none",
-        scrollTrigger: {
-          trigger: ".projects-section",
-          start: "top 92%",
-          end: "top 18%",
-          scrub: 0.5,
-          invalidateOnRefresh: true,
-        },
-      });
-
-    });
-
-    const scheduleRefresh = () => {
-      refreshCall?.kill();
-      refreshCall = gsap.delayedCall(0.12, () => ScrollTrigger.refresh());
-    };
-    const resizeObserver = new ResizeObserver(scheduleRefresh);
-    if (appRef.current) resizeObserver.observe(appRef.current);
-    window.addEventListener("load", scheduleRefresh, { once: true });
-
-    return () => {
-      cancelled = true;
-      introTimeline?.kill();
-      refreshCall?.kill();
-      resizeObserver.disconnect();
-      window.removeEventListener("load", scheduleRefresh);
-      media.revert();
-      document.documentElement.classList.remove("js-intro-pending");
-    };
-  }, { scope: appRef });
 
   useEffect(() => {
     if (window.location.hash) {
@@ -358,8 +202,8 @@ function Navigation() {
   }, { dependencies: [open], scope: menuRef });
 
   return (
-    <header className="fixed left-0 right-0 top-0 z-40 px-4 pt-4 md:px-8">
-        <div className="site-nav mx-auto flex w-fit items-center justify-center gap-2">
+    <header className="pointer-events-none fixed left-0 right-0 top-0 z-40 px-4 pt-4 md:px-8">
+        <div className="site-nav pointer-events-auto mx-auto flex w-fit items-center justify-center gap-2">
           <nav className="glass-nav-surface flex h-[58px] w-fit items-center justify-center rounded-full px-2 transition-[background-color,box-shadow] duration-300">
             <div className="hidden items-center gap-1 md:flex">
               {links.map(([label, href]) => (
@@ -375,7 +219,7 @@ function Navigation() {
             </div>
             <button
               type="button"
-              className="rounded-full px-3 py-2 text-ink transition-transform duration-300 hover:scale-105 active:scale-95 dark:text-white md:hidden"
+              className="icon-button-motion grid size-10 place-items-center rounded-full text-ink dark:text-white md:hidden"
               aria-label={open ? "Close navigation" : "Open navigation"}
               onClick={() => setOpen((value) => !value)}
             >
@@ -385,14 +229,14 @@ function Navigation() {
         </div>
         <div
           ref={menuRef}
-          className="invisible mx-auto mt-2 grid h-0 max-w-6xl gap-1 overflow-hidden rounded-3xl bg-chalk/95 px-3 opacity-0 shadow-soft backdrop-blur-xl transition-[background-color,box-shadow] duration-300 dark:bg-[#24252b]/95 dark:shadow-[0_26px_80px_rgba(0,0,0,0.55)] md:hidden"
+          className="pointer-events-auto invisible mx-auto mt-2 grid h-0 max-w-6xl gap-1 overflow-hidden rounded-3xl bg-chalk/95 px-3 opacity-0 shadow-soft backdrop-blur-xl transition-[background-color,box-shadow] duration-300 dark:bg-[#24252b]/95 dark:shadow-[0_26px_80px_rgba(0,0,0,0.55)] md:hidden"
           aria-hidden={!open}
         >
           {links.map(([label, href]) => (
             <button
               key={label}
               type="button"
-              className="rounded-2xl px-4 py-3 text-sm text-ink/75 transition-[background-color,color,padding] duration-[250ms] hover:bg-canvas hover:pl-5 dark:text-white/80 dark:hover:bg-white/12"
+              className="rounded-2xl px-4 py-3 text-sm text-ink/75 transition-colors duration-[250ms] hover:bg-canvas dark:text-white/80 dark:hover:bg-white/12"
               tabIndex={open ? 0 : -1}
               onClick={() => {
                 scrollToSection(href);
@@ -410,7 +254,7 @@ function Navigation() {
 function Hero() {
   return (
     <section id="home" className="relative min-h-[84vh] overflow-hidden bg-canvas px-4 pb-16 pt-28 transition-[background-color] duration-300 dark:bg-[#101114] md:px-8 md:pb-20 md:pt-32">
-      <div className="relative mx-auto grid min-h-[58vh] max-w-7xl items-center gap-10 lg:grid-cols-[1fr_0.78fr]">
+      <div className="hero-content relative mx-auto grid min-h-[58vh] max-w-7xl items-center gap-10 lg:grid-cols-[1fr_0.78fr]">
         <div className="hero-copy order-2 mx-auto max-w-6xl text-center lg:order-none lg:mx-0 lg:text-left">
           <h1 className="max-w-6xl text-[clamp(3rem,6vw,5.4rem)] font-semibold leading-[1.03] tracking-[-0.01em]">
             Devanand Asai
@@ -442,6 +286,9 @@ function Hero() {
           <img
             src={profilePicture}
             alt="Devanand Asai profile picture"
+            decoding="sync"
+            fetchPriority="high"
+            loading="eager"
             className="profile-photo aspect-square w-full rounded-full bg-canvas object-cover shadow-[0_18px_50px_rgba(29,29,31,0.22)] transition-shadow duration-700 ease-out hover:shadow-[0_24px_62px_rgba(29,29,31,0.3)] dark:bg-white dark:shadow-[0_0_0_1px_rgba(255,255,255,0.18),0_28px_80px_rgba(0,0,0,0.62),0_0_64px_rgba(255,255,255,0.10)] dark:hover:shadow-[0_0_0_1px_rgba(255,255,255,0.22),0_34px_96px_rgba(0,0,0,0.72),0_0_78px_rgba(255,255,255,0.13)]"
           />
         </div>
@@ -557,7 +404,7 @@ function Projects({
   };
 
   return (
-    <section id="projects" className="projects-section overflow-hidden bg-[#d8d8dc] py-20 transition-[background-color] duration-300 dark:bg-[#191a1f] md:py-24">
+    <section id="projects" className="projects-section overflow-hidden bg-[#f0f0f3] py-20 transition-[background-color] duration-300 dark:bg-[#191a1f] md:py-24">
       <div className="mx-auto max-w-7xl">
         <div className="reveal mb-6 flex flex-col justify-between gap-6 px-4 md:mb-7 md:flex-row md:items-end md:px-8 xl:px-0">
           <div>
@@ -572,7 +419,7 @@ function Projects({
             <div className="flex w-fit gap-1 rounded-full bg-canvas/75 p-1 shadow-[0_14px_34px_rgba(29,29,31,0.18)] backdrop-blur-xl dark:bg-[#24252b] dark:shadow-[0_18px_46px_rgba(0,0,0,0.46)]">
               <button
                 type="button"
-                className="group grid size-10 place-items-center rounded-full text-ink/72 transition-[background-color,color,transform] duration-300 hover:bg-ink hover:text-white active:scale-95 dark:text-white/75 dark:hover:bg-white dark:hover:text-ink"
+                className="icon-button-motion group grid size-10 place-items-center rounded-full text-ink/72 hover:bg-ink hover:text-white dark:text-white/75 dark:hover:bg-white dark:hover:text-ink"
                 aria-label="Scroll projects left"
                 onClick={() => scrollProjects("left")}
               >
@@ -580,7 +427,7 @@ function Projects({
               </button>
               <button
                 type="button"
-                className="group grid size-10 place-items-center rounded-full text-ink/72 transition-[background-color,color,transform] duration-300 hover:bg-ink hover:text-white active:scale-95 dark:text-white/75 dark:hover:bg-white dark:hover:text-ink"
+                className="icon-button-motion group grid size-10 place-items-center rounded-full text-ink/72 hover:bg-ink hover:text-white dark:text-white/75 dark:hover:bg-white dark:hover:text-ink"
                 aria-label="Scroll projects right"
                 onClick={() => scrollProjects("right")}
               >
@@ -612,9 +459,9 @@ function Projects({
                 <img
                   src={projectImageFor(project)}
                   alt=""
-                  className="h-full w-full object-cover brightness-[0.68] contrast-[1.12] saturate-[0.72] transition duration-700 ease-out group-hover:scale-[1.035] group-hover:brightness-100 group-hover:contrast-100 group-hover:saturate-100"
+                  className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.035]"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/42 to-transparent transition-opacity duration-500 group-hover:opacity-92" />
+                <div className="absolute inset-0 bg-gradient-to-t from-ink/70 via-ink/18 to-transparent transition-opacity duration-500 group-hover:opacity-90" />
                 <div className="pointer-events-none absolute inset-y-0 left-[-55%] w-1/2 -skew-x-12 bg-white/14 opacity-0 blur-sm transition-[left,opacity] duration-700 ease-out group-hover:left-[115%] group-hover:opacity-100" />
                 <div className="absolute inset-x-0 bottom-0 p-6 text-white transition-transform duration-500 ease-out group-hover:-translate-y-1">
                   <h3 className="text-2xl font-semibold tracking-[-0.01em]">{project.title}</h3>
@@ -665,34 +512,36 @@ function ArtworkSection({
           </button>
         </div>
 
-        <div className="columns-1 gap-4 sm:columns-2 lg:columns-3">
+        <div className="isolate columns-1 gap-4 sm:columns-2 lg:columns-3">
           {featuredArtworks.map((artwork, index) => (
             <button
               key={artwork.id}
               type="button"
-              className="artwork-tile group mb-4 block w-full break-inside-avoid overflow-hidden rounded-[18px] bg-chalk text-left shadow-[0_18px_44px_rgba(29,29,31,0.2)] outline-none transition-[transform,box-shadow] duration-500 ease-out hover:-translate-y-1 hover:shadow-[0_24px_58px_rgba(29,29,31,0.3)] focus-visible:ring-4 focus-visible:ring-blueFocus/35 dark:bg-[#1c1d23] dark:shadow-[0_24px_70px_rgba(0,0,0,0.56)] dark:hover:shadow-[0_30px_86px_rgba(0,0,0,0.7)]"
+              className="artwork-tile group relative mb-4 block w-full break-inside-avoid text-left outline-none focus-visible:ring-4 focus-visible:ring-blueFocus/35 before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:rounded-[18px] before:content-[''] before:shadow-[0_18px_44px_rgba(29,29,31,0.2)] before:transition-shadow before:duration-500 hover:before:shadow-[0_24px_58px_rgba(29,29,31,0.3)] dark:before:shadow-[0_24px_70px_rgba(0,0,0,0.56)] dark:hover:before:shadow-[0_30px_86px_rgba(0,0,0,0.7)]"
               style={{ animationDelay: `${index * 45}ms` }}
               onClick={() => onSelect(artwork)}
             >
-              <div className={`overflow-hidden ${artworkMediaAspectClass(artwork)}`}>
-                {artwork.kind === "3D" ? (
-                  <DeferredModelViewer artwork={artwork} compact keepMounted preload />
-                ) : (
-                  <img
-                    src={artworkImageFor(artwork, 900, 1200)}
-                    alt=""
-                    className="h-full w-full object-cover brightness-[0.86] contrast-[1.08] saturate-[0.82] transition duration-700 ease-out group-hover:scale-[1.045] group-hover:brightness-100 group-hover:contrast-100 group-hover:saturate-100"
-                  />
-                )}
-              </div>
-              <div className="p-5">
-                <div className="flex items-start justify-between gap-4">
-                  <h3 className="text-xl font-semibold tracking-[-0.01em]">{artwork.title}</h3>
-                  <span className="mt-0.5 shrink-0 rounded-full bg-canvas px-3 py-1 text-xs font-semibold text-ink/55 dark:bg-[#30313a] dark:text-white/55">
-                    {artwork.kind}
-                  </span>
+              <div className="overflow-hidden rounded-[18px] bg-chalk dark:bg-[#1c1d23]">
+                <div className={`overflow-hidden ${artworkMediaAspectClass(artwork)}`}>
+                  {artwork.kind === "3D" ? (
+                    <DeferredModelViewer artwork={artwork} compact keepMounted preload />
+                  ) : (
+                    <img
+                      src={artworkImageFor(artwork, 900, 1200)}
+                      alt=""
+                      className="h-full w-full object-cover brightness-[0.86] contrast-[1.08] saturate-[0.82] transition-transform duration-700 ease-out group-hover:scale-[1.045]"
+                    />
+                  )}
                 </div>
-                <p className="mt-2 text-sm leading-6 text-ink/65 dark:text-white/65">{artwork.summary}</p>
+                <div className="p-5">
+                  <div className="flex items-start justify-between gap-4">
+                    <h3 className="text-xl font-semibold tracking-[-0.01em]">{artwork.title}</h3>
+                    <span className="mt-0.5 shrink-0 rounded-full bg-canvas px-3 py-1 text-xs font-semibold text-ink/55 dark:bg-[#30313a] dark:text-white/55">
+                      {artwork.kind}
+                    </span>
+                  </div>
+                  <p className="mt-2 text-sm leading-6 text-ink/65 dark:text-white/65">{artwork.summary}</p>
+                </div>
               </div>
             </button>
           ))}
@@ -730,7 +579,7 @@ function About() {
             <p>{introduction}</p>
           </div>
           <div className="about-stack mx-auto mt-10 grid max-w-2xl gap-6">
-            <div className="about-stack-card rounded-[18px] bg-[#dcdce1] p-5 dark:bg-[#1c1d23]">
+            <div className="about-stack-card rounded-[18px] bg-[#f1f1f4] p-5 dark:bg-[#1c1d23]">
               <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-muted">Skills</h3>
               <div className="mt-4 flex flex-wrap justify-center gap-2">
                 {skills.map((skill) => (
@@ -743,7 +592,7 @@ function About() {
                 ))}
               </div>
             </div>
-            <div className="about-stack-card rounded-[18px] bg-[#dcdce1] p-5 dark:bg-[#1c1d23]">
+            <div className="about-stack-card rounded-[18px] bg-[#f1f1f4] p-5 dark:bg-[#1c1d23]">
               <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-muted">Tools</h3>
               <div className="mt-4 flex flex-wrap justify-center gap-2">
                 {tools.map((tool) => (

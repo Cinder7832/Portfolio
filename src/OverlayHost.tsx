@@ -14,9 +14,12 @@ import {
   X,
 } from "lucide-react";
 import type { Artwork, Project } from "./data";
-import { artworks, projects } from "./data";
+import { artworks, publishedProjects as projects } from "./data";
 import DeferredModelViewer from "./DeferredModelViewer";
 import { MOTION, usePrefersReducedMotion } from "./motion";
+import CaseStudyShell from "./case-studies/CaseStudyShell";
+import { caseStudyDefinitions } from "./case-studies/definitions";
+import ChangelogAccordion from "./case-studies/ChangelogAccordion";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -43,6 +46,7 @@ const projectImageFor = (project: Project, width = 1920, height = 1080) => {
 };
 
 const cuboImage = (name: string) => `${import.meta.env.BASE_URL}projects/cubo/${name}`;
+const everdewImage = (name: string) => `${import.meta.env.BASE_URL}projects/everdew/${name}`;
 
 const artworkImageFor = (artwork: Artwork, width = 900, height = 1200) => {
   if (!artwork.imageUrl) {
@@ -69,9 +73,6 @@ const overlayKey = (state: OverlayState) => {
 
 const isDetailState = (state: OverlayState): state is Extract<OverlayState, { type: "project" | "artwork" }> =>
   state.type === "project" || state.type === "artwork";
-
-const isSameDetailType = (next: OverlayState, current: OverlayState) =>
-  isDetailState(next) && isDetailState(current) && next.type === current.type;
 
 const focusableSelector =
   'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])';
@@ -107,18 +108,6 @@ export default function OverlayHost({
     });
   };
 
-  const navigateArtwork = (offset: -1 | 1) => {
-    const current = state?.type === "artwork" ? state.artwork : rendered?.type === "artwork" ? rendered.artwork : null;
-    if (!current) return;
-    const index = artworks.findIndex((artwork) => artwork.id === current.id);
-    onChange({
-      type: "artwork",
-      artwork: artworks[(index + offset + artworks.length) % artworks.length],
-      navigationDirection: offset,
-      origin: state?.type === "artwork" ? state.origin : rendered?.type === "artwork" ? rendered.origin : undefined,
-    });
-  };
-
   const closeCurrentView = () => {
     const current = state ?? rendered;
     if (current?.type === "project" && current.origin) {
@@ -135,9 +124,6 @@ export default function OverlayHost({
   useLayoutEffect(() => {
     const root = rootRef.current;
     const panel = panelRef.current;
-    const content = contentRef.current;
-    const media = mediaRef.current;
-    const copy = copyRef.current;
 
     if (state && !rendered) {
       setRendered(state);
@@ -154,8 +140,7 @@ export default function OverlayHost({
         defaults: { overwrite: true },
         onComplete: () => setRendered(null),
       });
-      timeline
-        .to([content ?? panel, panel, root], { opacity: 0, duration: OVERLAY_MOTION.fade, ease: OVERLAY_MOTION.ease }, 0);
+      timeline.to([panel, root].filter(Boolean), { opacity: 0, duration: OVERLAY_MOTION.fade, ease: OVERLAY_MOTION.ease }, 0);
       return () => {
         timeline.kill();
       };
@@ -173,43 +158,26 @@ export default function OverlayHost({
         return;
       }
 
-      const detailSwap = isSameDetailType(state, rendered);
-      if (reducedMotion || (detailSwap ? !media || !copy : !content)) {
+      if (reducedMotion || !panel) {
         if (returningToCatalog) skipCatalogEntrance.current = true;
         setRendered(state);
         return;
       }
 
-      const direction = isDetailState(state) ? (state.navigationDirection ?? 1) : 1;
       const timeline = gsap.timeline({
         defaults: { overwrite: true },
-        onComplete: () => setRendered(state),
+        onComplete: () => {
+          if (returningToCatalog) {
+            skipCatalogEntrance.current = true;
+          }
+          setRendered(state);
+          if (returningToCatalog) {
+            window.requestAnimationFrame(() => catalogReturnFocus.current?.focus({ preventScroll: true }));
+          }
+        },
       });
 
-      if (returningToCatalog && panel) {
-        timeline
-          .to(content ?? panel, { opacity: 0, duration: OVERLAY_MOTION.fade, ease: OVERLAY_MOTION.ease }, 0)
-          .to(panel, {
-            opacity: 0,
-            duration: OVERLAY_MOTION.fade,
-            ease: OVERLAY_MOTION.ease,
-            onComplete: () => {
-            skipCatalogEntrance.current = true;
-            setRendered(state);
-            window.requestAnimationFrame(() => catalogReturnFocus.current?.focus({ preventScroll: true }));
-            },
-          }, 0.03);
-      } else if (detailSwap && media && copy) {
-        timeline
-          .to(copy, { opacity: 0, duration: OVERLAY_MOTION.fade, ease: OVERLAY_MOTION.ease }, 0)
-          .to(media, { opacity: 0, duration: OVERLAY_MOTION.fade, ease: OVERLAY_MOTION.ease }, 0);
-      } else if (content) {
-        timeline.to(content, {
-          opacity: 0,
-          duration: OVERLAY_MOTION.fade,
-          ease: OVERLAY_MOTION.ease,
-        });
-      }
+      timeline.to(panel, { opacity: 0, duration: OVERLAY_MOTION.fade, ease: OVERLAY_MOTION.ease });
 
       return () => {
         timeline.kill();
@@ -239,7 +207,7 @@ export default function OverlayHost({
       if (!wasOpen.current) {
         lastFocused.current = document.activeElement as HTMLElement;
       }
-      gsap.set([root, panel, content, mediaRef.current, copyRef.current].filter(Boolean), { clearProps: "all" });
+      gsap.set([root, panel, content].filter(Boolean), { clearProps: "all" });
       panel.focus({ preventScroll: true });
       wasOpen.current = true;
       return;
@@ -247,33 +215,11 @@ export default function OverlayHost({
 
     if (!wasOpen.current) {
       lastFocused.current = document.activeElement as HTMLElement;
-      gsap.set(root, { opacity: 0 });
+      gsap.set([root, panel], { opacity: 0 });
       const timeline = gsap.timeline({ defaults: { ease: OVERLAY_MOTION.ease } });
-
-      if (isDetailState(rendered) && mediaRef.current && copyRef.current) {
-        gsap.set([panel, mediaRef.current, copyRef.current], { opacity: 0 });
-        timeline
-          .to(root, { opacity: 1, duration: OVERLAY_MOTION.fade, clearProps: "opacity" }, 0)
-          .to(panel, { opacity: 1, duration: OVERLAY_MOTION.fade, clearProps: "opacity" }, 0)
-          .fromTo(
-            mediaRef.current,
-            { opacity: 0 },
-            { opacity: 1, duration: OVERLAY_MOTION.fade, clearProps: "opacity" },
-            0,
-          )
-          .fromTo(
-            copyRef.current,
-            { opacity: 0 },
-            { opacity: 1, duration: OVERLAY_MOTION.fade, clearProps: "opacity" },
-            0,
-          );
-      } else {
-        gsap.set([panel, content], { opacity: 0 });
-        timeline
-          .to(root, { opacity: 1, duration: OVERLAY_MOTION.fade, clearProps: "opacity" }, 0)
-          .to(panel, { opacity: 1, duration: OVERLAY_MOTION.fade, clearProps: "opacity" }, 0)
-          .to(content, { opacity: 1, duration: OVERLAY_MOTION.fade, clearProps: "opacity" }, 0);
-      }
+      timeline
+        .to(root, { opacity: 1, duration: OVERLAY_MOTION.fade, clearProps: "opacity" }, 0)
+        .to(panel, { opacity: 1, duration: OVERLAY_MOTION.fade, clearProps: "opacity" }, 0);
       panel.focus({ preventScroll: true });
       wasOpen.current = true;
       return () => {
@@ -281,46 +227,12 @@ export default function OverlayHost({
       };
     }
 
-    const detailSwap = isDetailState(rendered) && Boolean(rendered.navigationDirection);
-    const direction = isDetailState(rendered) ? (rendered.navigationDirection ?? 1) : 1;
-    const timeline = gsap.timeline({ defaults: { overwrite: true } });
-
-    if (isDetailState(rendered) && mediaRef.current && copyRef.current) {
-      if (!detailSwap && panel) {
-        timeline.fromTo(
-          panel,
-          { opacity: 0 },
-          { opacity: 1, duration: OVERLAY_MOTION.fade, ease: OVERLAY_MOTION.ease, clearProps: "opacity" },
-          0,
-        );
-      }
-      timeline
-        .fromTo(
-          mediaRef.current,
-          { opacity: 0 },
-          { opacity: 1, duration: OVERLAY_MOTION.fade, ease: OVERLAY_MOTION.ease, clearProps: "opacity" },
-          0,
-        )
-        .fromTo(
-          copyRef.current,
-          { opacity: 0 },
-          { opacity: 1, duration: OVERLAY_MOTION.fade, ease: OVERLAY_MOTION.ease, clearProps: "opacity" },
-          0,
-        );
-    } else {
-      timeline.fromTo(
-        content,
-        { opacity: 0, y: -8 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: MOTION.base,
-          ease: MOTION.easeOut,
-          clearProps: "transform,opacity",
-        },
-      );
-    }
-    if (!detailSwap) panel.focus({ preventScroll: true });
+    const timeline = gsap.fromTo(
+      panel,
+      { opacity: 0 },
+      { opacity: 1, duration: OVERLAY_MOTION.fade, ease: OVERLAY_MOTION.ease, clearProps: "opacity" },
+    );
+    panel.focus({ preventScroll: true });
     return () => {
       timeline.kill();
     };
@@ -394,14 +306,6 @@ export default function OverlayHost({
         return;
       }
 
-      if (rendered.type === "project" && (event.key === "ArrowLeft" || event.key === "ArrowRight")) {
-        navigateProject(event.key === "ArrowLeft" ? -1 : 1);
-      }
-
-      if (rendered.type === "artwork" && (event.key === "ArrowLeft" || event.key === "ArrowRight")) {
-        navigateArtwork(event.key === "ArrowLeft" ? -1 : 1);
-      }
-
       if (event.key !== "Tab" || !panelRef.current) return;
       const focusable = Array.from(panelRef.current.querySelectorAll<HTMLElement>(focusableSelector));
       if (!focusable.length) {
@@ -430,11 +334,14 @@ export default function OverlayHost({
   const detail = isDetailState(rendered);
   const backgroundCatalog: CatalogOverlayType | null = catalog ? rendered.type : rendered.origin ?? null;
   const stackedDetail = detail && Boolean(rendered.origin);
+  const returningToCatalog =
+    (rendered.type === "project" && rendered.origin === "all-projects" && state?.type === "all-projects") ||
+    (rendered.type === "artwork" && rendered.origin === "all-artwork" && state?.type === "all-artwork");
   const catalogPanelClass = `flex h-[88vh] w-full flex-col overflow-hidden rounded-[18px] bg-chalk shadow-[0_28px_80px_rgba(29,29,31,0.28)] outline-none dark:bg-[#191a1f] dark:shadow-[0_34px_110px_rgba(0,0,0,0.72),0_0_48px_rgba(255,255,255,0.06)] ${
     backgroundCatalog === "all-projects" ? "max-w-6xl md:h-[46rem]" : "max-w-7xl"
   }`;
-  const cuboDetail = rendered.type === "project" && rendered.project.id === "cubo";
-  const detailPanelClass = `${cuboDetail ? "h-[92dvh] max-w-7xl" : "h-[min(46rem,86dvh)] max-w-5xl"} w-full overflow-hidden rounded-[18px] bg-chalk shadow-[0_28px_80px_rgba(29,29,31,0.28)] outline-none dark:bg-[#191a1f] dark:shadow-[0_34px_110px_rgba(0,0,0,0.72),0_0_48px_rgba(255,255,255,0.06)]`;
+  const immersiveProjectDetail = rendered.type === "project" && ["cubo", "everdew"].includes(rendered.project.id);
+  const detailPanelClass = `${immersiveProjectDetail ? "h-[92dvh] max-w-7xl" : "h-[min(46rem,86dvh)] max-w-5xl"} w-full overflow-hidden rounded-[18px] bg-chalk shadow-[0_28px_80px_rgba(29,29,31,0.28)] outline-none dark:bg-[#191a1f] dark:shadow-[0_34px_110px_rgba(0,0,0,0.72),0_0_48px_rgba(255,255,255,0.06)]`;
 
   return (
     <div
@@ -445,17 +352,10 @@ export default function OverlayHost({
         if (event.target === event.currentTarget) closeCurrentView();
       }}
     >
-      {detail && !cuboDetail && (
-        <DesktopDetailNavigation
-          noun={rendered.type === "project" ? "project" : "artwork"}
-          onPrevious={() => rendered.type === "project" ? navigateProject(-1) : navigateArtwork(-1)}
-          onNext={() => rendered.type === "project" ? navigateProject(1) : navigateArtwork(1)}
-        />
-      )}
       {backgroundCatalog && (
         <section
           ref={catalog ? panelRef : undefined}
-          className={`${catalogPanelClass} col-start-1 row-start-1 ${stackedDetail ? "pointer-events-none scale-[0.975] blur-md transition-[transform,filter] duration-200" : ""}`}
+          className={`${catalogPanelClass} col-start-1 row-start-1 transition-[filter] duration-300 ${stackedDetail ? "pointer-events-none" : ""} ${stackedDetail && !returningToCatalog ? "blur-md" : ""}`}
           role={catalog ? "dialog" : undefined}
           aria-modal={catalog ? "true" : undefined}
           aria-hidden={stackedDetail ? "true" : undefined}
@@ -481,7 +381,7 @@ export default function OverlayHost({
             {rendered.type === "project" ? (
               <ProjectView project={rendered.project} mediaRef={mediaRef} copyRef={copyRef} onNavigate={navigateProject} onClose={closeCurrentView} />
             ) : (
-              <ArtworkView artwork={rendered.artwork} mediaRef={mediaRef} copyRef={copyRef} onNavigate={navigateArtwork} onClose={closeCurrentView} />
+              <ArtworkView artwork={rendered.artwork} mediaRef={mediaRef} copyRef={copyRef} onClose={closeCurrentView} />
             )}
           </div>
         </section>
@@ -500,7 +400,7 @@ function CloseButton({ onClick, label }: { onClick: () => void; label: string })
   return (
     <button
       type="button"
-      className="shrink-0 rounded-full bg-[#d2d2d7]/70 p-3 text-ink transition-[background-color,color,transform] duration-300 hover:rotate-90 hover:bg-[#d2d2d7] active:scale-95 dark:bg-[#2a2b32] dark:text-white dark:hover:bg-[#343640]"
+      className="icon-button-motion grid size-11 shrink-0 place-items-center rounded-full bg-[#d2d2d7]/70 text-ink hover:bg-[#d2d2d7] dark:bg-[#2a2b32] dark:text-white dark:hover:bg-[#343640]"
       aria-label={label}
       onClick={onClick}
     >
@@ -509,39 +409,16 @@ function CloseButton({ onClick, label }: { onClick: () => void; label: string })
   );
 }
 
-function DesktopDetailNavigation({
-  noun,
-  onPrevious,
-  onNext,
-}: {
-  noun: "project" | "artwork";
-  onPrevious: () => void;
-  onNext: () => void;
-}) {
-  const buttonClass =
-    "group absolute top-1/2 z-20 hidden h-12 -translate-y-1/2 items-center gap-2 rounded-full border border-transparent bg-white px-5 text-sm font-semibold text-ink shadow-[0_18px_44px_rgba(0,0,0,0.28)] transition-[background-color,border-color,box-shadow,transform] duration-300 ease-out hover:scale-[1.03] hover:bg-[#f5f5f7] hover:shadow-[0_22px_54px_rgba(0,0,0,0.34)] active:scale-[0.97] dark:border-white/10 dark:bg-[#24252b] dark:text-white dark:shadow-[0_18px_44px_rgba(0,0,0,0.48)] dark:hover:bg-[#303139] dark:hover:shadow-[0_22px_54px_rgba(0,0,0,0.58)] xl:inline-flex";
-
+function BackButton({ onClick, label, light = false }: { onClick: () => void; label: string; light?: boolean }) {
   return (
-    <>
-      <button
-        type="button"
-        className={`${buttonClass} left-4 2xl:left-10`}
-        aria-label={`Previous ${noun}`}
-        onClick={onPrevious}
-      >
-        <ChevronLeft size={18} />
-        Back
-      </button>
-      <button
-        type="button"
-        className={`${buttonClass} right-4 2xl:right-10`}
-        aria-label={`Next ${noun}`}
-        onClick={onNext}
-      >
-        Next
-        <ChevronRight size={18} />
-      </button>
-    </>
+    <button
+      type="button"
+      className={`icon-button-motion grid size-11 shrink-0 place-items-center rounded-full text-ink ${light ? "bg-white hover:bg-white/85" : "bg-[#d2d2d7]/70 hover:bg-[#d2d2d7] dark:bg-[#2a2b32] dark:text-white dark:hover:bg-[#343640]"}`}
+      aria-label={label}
+      onClick={onClick}
+    >
+      <ChevronLeft size={20} />
+    </button>
   );
 }
 
@@ -562,12 +439,14 @@ function ProjectView({
     return <CuboProjectView onNavigate={onNavigate} onClose={onClose} />;
   }
 
+  if (project.id === "everdew") {
+    return <EverdewProjectView onNavigate={onNavigate} onClose={onClose} />;
+  }
+
   return (
     <div className="detail-scrollbar relative h-full touch-pan-y overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch] lg:overflow-hidden">
-      <OverlayArrow direction="previous" onClick={() => onNavigate(-1)} label="Previous project" />
-      <OverlayArrow direction="next" onClick={() => onNavigate(1)} label="Next project" />
       <div className="absolute right-4 top-4 z-30 md:right-6 md:top-6">
-        <CloseButton label="Close project details" onClick={onClose} />
+        <BackButton label="Back to projects" onClick={onClose} />
       </div>
       <div className="grid min-h-full lg:h-full lg:min-h-0 lg:grid-cols-[0.9fr_1.1fr]">
         <div className="relative min-h-[20rem] overflow-hidden bg-[var(--model-viewer-bg)] lg:min-h-0">
@@ -595,13 +474,11 @@ function ArtworkView({
   artwork,
   mediaRef,
   copyRef,
-  onNavigate,
   onClose,
 }: {
   artwork: Artwork;
   mediaRef: React.RefObject<HTMLDivElement | null>;
   copyRef: React.RefObject<HTMLDivElement | null>;
-  onNavigate: (offset: -1 | 1) => void;
   onClose: () => void;
 }) {
   const [expanded, setExpanded] = useState(false);
@@ -609,10 +486,8 @@ function ArtworkView({
 
   return (
     <div className="detail-scrollbar relative h-full touch-pan-y overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch] lg:overflow-hidden">
-      <OverlayArrow direction="previous" onClick={() => onNavigate(-1)} label="Previous artwork" />
-      <OverlayArrow direction="next" onClick={() => onNavigate(1)} label="Next artwork" />
       <div className="absolute right-4 top-4 z-30 md:right-6 md:top-6">
-        <CloseButton label="Close artwork details" onClick={onClose} />
+        <BackButton label="Back to artwork" onClick={onClose} />
       </div>
       <div className="grid min-h-full lg:h-full lg:min-h-0 lg:grid-cols-[1.15fr_0.85fr]">
         <div className="relative grid min-h-[22rem] place-items-stretch overflow-hidden bg-[var(--model-viewer-bg)] md:min-h-[34rem] lg:min-h-0">
@@ -628,7 +503,7 @@ function ArtworkView({
                 />
                 <button
                   type="button"
-                  className="absolute left-4 top-4 z-10 grid size-11 place-items-center rounded-full bg-white text-ink shadow-[0_18px_44px_rgba(0,0,0,0.28)] transition-[background-color,color,box-shadow,transform] duration-300 hover:scale-[1.04] hover:bg-[#f5f5f7] active:scale-95 dark:bg-[#24252b] dark:text-white dark:shadow-[0_18px_44px_rgba(0,0,0,0.48)] dark:hover:bg-[#303139] md:bottom-4 md:left-auto md:right-4 md:top-auto md:size-12"
+                  className="icon-button-motion absolute left-4 top-4 z-10 grid size-11 place-items-center rounded-full bg-white text-ink shadow-[0_18px_44px_rgba(0,0,0,0.28)] hover:bg-[#f5f5f7] dark:bg-[#24252b] dark:text-white dark:shadow-[0_18px_44px_rgba(0,0,0,0.48)] dark:hover:bg-[#303139] md:bottom-4 md:left-auto md:right-4 md:top-auto md:size-12"
                   aria-label={`Maximise ${artwork.title}`}
                   onClick={() => setExpanded(true)}
                 >
@@ -646,7 +521,7 @@ function ArtworkView({
         </div>
       </div>
       {artworkImage && (
-        <ExpandedArtworkViewer
+        <ExpandedImageViewer
           open={expanded}
           src={artworkImage}
           title={artwork.title}
@@ -657,7 +532,7 @@ function ArtworkView({
   );
 }
 
-function ExpandedArtworkViewer({
+function ExpandedImageViewer({
   open,
   src,
   title,
@@ -739,7 +614,7 @@ function ExpandedArtworkViewer({
       className="fixed inset-0 z-[80] grid place-items-center bg-[rgba(245,245,247,0.86)] p-4 backdrop-blur-2xl dark:bg-[rgba(0,0,0,0.86)]"
       role="dialog"
       aria-modal="true"
-      aria-label={`${title} expanded artwork`}
+      aria-label={`${title} expanded image`}
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
@@ -747,8 +622,8 @@ function ExpandedArtworkViewer({
       <div className="pointer-events-none absolute inset-0 bg-white/10 dark:bg-[rgba(0,0,0,0.18)]" aria-hidden="true" />
       <button
         type="button"
-        className="absolute right-4 top-4 z-10 rounded-full bg-[rgba(29,29,31,0.72)] p-3 text-white shadow-[0_18px_44px_rgba(0,0,0,0.22)] backdrop-blur-xl transition-[background-color,transform] duration-300 hover:rotate-90 hover:bg-[rgba(29,29,31,0.86)] active:scale-95 dark:bg-white/16 dark:hover:bg-white/24 md:right-6 md:top-6"
-        aria-label="Close expanded artwork"
+        className="icon-button-motion absolute right-4 top-4 z-10 grid size-11 place-items-center rounded-full bg-[rgba(29,29,31,0.72)] text-white shadow-[0_18px_44px_rgba(0,0,0,0.22)] backdrop-blur-xl hover:bg-[rgba(29,29,31,0.86)] dark:bg-white/16 dark:hover:bg-white/24 md:right-6 md:top-6"
+        aria-label="Close expanded image"
         onClick={onClose}
       >
         <X size={21} />
@@ -761,17 +636,6 @@ function ExpandedArtworkViewer({
       />
     </div>,
     document.body,
-  );
-}
-
-function OverlayArrow({ direction, onClick, label }: { direction: "previous" | "next"; onClick: () => void; label: string }) {
-  const previous = direction === "previous";
-  return (
-    <div className={`pointer-events-none absolute inset-y-0 z-20 flex items-center px-2 md:px-5 xl:hidden ${previous ? "left-0 bg-gradient-to-r from-ink/34 to-transparent" : "right-0 bg-gradient-to-l from-ink/34 to-transparent"}`}>
-      <button type="button" className="pointer-events-auto grid size-11 place-items-center rounded-full bg-white text-ink shadow-[0_18px_44px_rgba(0,0,0,0.24)] transition-[background-color,color,transform] duration-300 hover:scale-105 hover:bg-ink hover:text-white active:scale-95 dark:bg-ink dark:text-white dark:hover:bg-white dark:hover:text-ink" aria-label={label} onClick={onClick}>
-        {previous ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
-      </button>
-    </div>
   );
 }
 
@@ -803,7 +667,7 @@ function AllProjectsView({ onChange }: { onChange: (state: OverlayState | null) 
       </CatalogHeader>
       <div className="detail-scrollbar flex-1 overflow-y-auto p-5 pt-3 md:p-8 md:pt-4">
         <div ref={resultsRef} className="grid gap-4 md:grid-cols-2">
-          {filtered.map((project) => <button key={project.id} type="button" className="catalog-card group grid overflow-hidden rounded-[18px] bg-canvas text-left shadow-[0_10px_28px_rgba(29,29,31,0.16)] outline-none transition-shadow duration-500 hover:shadow-[0_16px_40px_rgba(29,29,31,0.24)] focus-visible:ring-4 focus-visible:ring-blueFocus/35 dark:bg-[#24252b] sm:grid-cols-[11rem_1fr]" onClick={() => onChange({ type: "project", project, origin: "all-projects" })}><div className="h-44 overflow-hidden sm:h-full"><img src={projectImageFor(project, 900, 700)} alt="" className="catalog-card-image catalog-project-image h-full w-full object-cover brightness-[0.72] contrast-[1.1] saturate-[0.76] transition-[transform,filter] duration-700 ease-out group-hover:scale-[1.035] group-hover:brightness-100 group-hover:contrast-100 group-hover:saturate-100" /></div><div className="p-5"><h3 className="text-2xl font-semibold">{project.title}</h3><p className="mt-3 text-sm leading-6 text-ink/70 dark:text-white/70">{project.summary}</p></div></button>)}
+          {filtered.map((project) => <button key={project.id} type="button" className="catalog-card group grid overflow-hidden rounded-[18px] bg-canvas text-left shadow-[0_10px_28px_rgba(29,29,31,0.16)] outline-none transition-shadow duration-500 hover:shadow-[0_16px_40px_rgba(29,29,31,0.24)] focus-visible:ring-4 focus-visible:ring-blueFocus/35 dark:bg-[#24252b] sm:h-48 sm:grid-cols-[11rem_1fr]" onClick={() => onChange({ type: "project", project, origin: "all-projects" })}><div className="h-44 overflow-hidden sm:h-full"><img src={projectImageFor(project, 900, 700)} alt="" className="catalog-card-image catalog-project-image h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.035]" /></div><div className="p-5"><h3 className="text-2xl font-semibold">{project.title}</h3><p className="mt-3 text-sm leading-6 text-ink/70 dark:text-white/70">{project.summary}</p></div></button>)}
         </div>
         {!filtered.length && <EmptyResults noun="projects" />}
       </div>
@@ -822,6 +686,13 @@ function AllArtworkView({ onChange }: { onChange: (state: OverlayState | null) =
     return text.includes(query.trim().toLowerCase()) && (kind === "All" || artwork.kind === kind);
   }), [kind, query]);
 
+  useEffect(
+    () => () => {
+      window.dispatchEvent(new Event("artwork-model-cache-clear"));
+    },
+    [],
+  );
+
   useLayoutEffect(() => {
     if (reducedMotion || !resultsRef.current) return;
     const tween = gsap.fromTo(resultsRef.current.children, { opacity: 0, y: 4 }, { opacity: 1, y: 0, duration: 0.16, stagger: 0.01, ease: MOTION.easeOut, overwrite: true });
@@ -838,7 +709,7 @@ function AllArtworkView({ onChange }: { onChange: (state: OverlayState | null) =
       </CatalogHeader>
       <div className="detail-scrollbar flex-1 touch-pan-y overflow-y-auto overscroll-contain p-5 pt-3 md:p-8 md:pt-4">
         <div ref={resultsRef} className="columns-1 gap-4 sm:columns-2 lg:columns-3 xl:columns-4">
-          {filtered.map((artwork) => <button key={artwork.id} type="button" className="catalog-card group mb-4 block w-full break-inside-avoid overflow-hidden rounded-[18px] bg-canvas text-left shadow-[0_10px_28px_rgba(29,29,31,0.16)] outline-none transition-shadow duration-500 hover:shadow-[0_16px_40px_rgba(29,29,31,0.24)] focus-visible:ring-4 focus-visible:ring-blueFocus/35 dark:bg-[#24252b]" onClick={() => onChange({ type: "artwork", artwork, origin: "all-artwork" })}><div className={`overflow-hidden ${artworkAspectClass(artwork)}`}>{artwork.kind === "3D" ? <DeferredModelViewer artwork={artwork} compact /> : <img src={artworkImageFor(artwork)} alt="" className="catalog-card-image catalog-artwork-image h-full w-full object-cover brightness-[0.86] contrast-[1.08] saturate-[0.82] transition-[transform,filter] duration-700 ease-out group-hover:scale-[1.045] group-hover:brightness-100 group-hover:contrast-100 group-hover:saturate-100" />}</div><div className="p-4"><div className="flex items-start justify-between gap-3"><h3 className="text-lg font-semibold">{artwork.title}</h3><span className="rounded-full bg-chalk px-2.5 py-1 text-xs font-semibold text-ink/55 dark:bg-[#30313a] dark:text-white/55">{artwork.kind}</span></div><p className="mt-1 text-sm text-ink/60 dark:text-white/60">{artwork.medium} · {artwork.year}</p></div></button>)}
+          {filtered.map((artwork) => <button key={artwork.id} type="button" className="catalog-card group mb-4 block w-full break-inside-avoid overflow-hidden rounded-[18px] bg-canvas text-left shadow-[0_10px_28px_rgba(29,29,31,0.16)] outline-none transition-shadow duration-500 hover:shadow-[0_16px_40px_rgba(29,29,31,0.24)] focus-visible:ring-4 focus-visible:ring-blueFocus/35 dark:bg-[#24252b]" onClick={() => onChange({ type: "artwork", artwork, origin: "all-artwork" })}><div className={`overflow-hidden ${artworkAspectClass(artwork)}`}>{artwork.kind === "3D" ? <DeferredModelViewer artwork={artwork} compact keepMounted /> : <img src={artworkImageFor(artwork)} alt="" className="catalog-card-image catalog-artwork-image h-full w-full object-cover brightness-[0.86] contrast-[1.08] saturate-[0.82] transition-transform duration-700 ease-out group-hover:scale-[1.045]" />}</div><div className="p-4"><div className="flex items-start justify-between gap-3"><h3 className="text-lg font-semibold">{artwork.title}</h3><span className="rounded-full bg-chalk px-2.5 py-1 text-xs font-semibold text-ink/55 dark:bg-[#30313a] dark:text-white/55">{artwork.kind}</span></div><p className="mt-1 text-sm text-ink/60 dark:text-white/60">{artwork.medium} · {artwork.year}</p></div></button>)}
         </div>
         {!filtered.length && <EmptyResults noun="artwork" />}
       </div>
@@ -864,6 +735,289 @@ function SearchField({ value, onChange, placeholder }: { value: string; onChange
   );
 }
 
+function CaseStudyShowcaseImage({
+  src,
+  alt,
+  title,
+}: {
+  src: string;
+  alt: string;
+  title: string;
+}) {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <>
+      <div className="relative">
+        <img src={src} alt={alt} className="aspect-[16/10] w-full object-cover" />
+        <button
+          type="button"
+          className="icon-button-motion absolute bottom-4 right-4 z-10 grid size-11 place-items-center rounded-full bg-white text-ink shadow-[0_18px_44px_rgba(0,0,0,0.28)] hover:bg-[#f5f5f7]"
+          aria-label={`Expand ${title}`}
+          onClick={() => setExpanded(true)}
+        >
+          <Maximize2 size={18} />
+        </button>
+      </div>
+      <ExpandedImageViewer open={expanded} src={src} title={title} onClose={() => setExpanded(false)} />
+    </>
+  );
+}
+
+const everdewReleases = [
+  { version: "0.4.2", date: "5 March 2026", title: "Small Adjustments and Fixes", body: ["- Fixed animals respawning after loading a save", "- Improved top down sprite sorting", "- Restored the survival time for pigs, cows, and sheep without food to five days", "- Restored tooltips for seed buttons"] },
+  { version: "0.4.1", date: "16 February 2026", title: "Time & Save Fixes", body: ["- Fixed saved time of day", "- Fixed the day counter advancing at midnight", "- Fixed day and night lighting when loading a save", "- Fixed inconsistent clock speeds", "- Fixed shop stock resetting after loading a save", "- Disabled the fade image raycast during loading", "- Removed some nighttime scene lights"] },
+  { version: "0.4.0", date: "4 February 2026", title: "Save & Load Update", body: ["- Added save and load", "- Added options to the main menu", "- Updated interface colours", "- Removed tooltips because of an interface issue"] },
+  { version: "0.3.4", date: "19 January 2026", title: "Small additions and fixes", body: ["- Added fullscreen toggle to the pause menu", "- Added resolution dropdown to the pause menu", "- Updated the main-menu-to-game transition"] },
+  { version: "0.3.3", date: "11 January 2026", title: "Hotfix 3", body: ["- Changed shop details to display shop stock instead of the shop owner", "- Updated shop detail visuals", "- Fixed the colours of Butter's sell interface"] },
+  { version: "0.3.2", date: "11 January 2026", title: "Hotfix 2", body: ["- Fixed perk information display", "- Fixed a typo in Margaine's shop interface"] },
+  { version: "0.3.1", date: "11 January 2026", title: "Hotfix 1", body: ["- Removed test items from the inventory"] },
+  { version: "0.3.0", date: "11 January 2026", title: "Third release", body: ["- Added volume slider to pause menu", "- Added Drag Fertilising perk", "- Added perk information", "- Fixed a shop collider", "- Added item deselection after inactivity", "- Adjusted fertiliser drops from animals", "- Fixed a shop name", "- Various bug fixes and quality-of-life changes"] },
+  { version: "0.2.1", date: "9 January 2026", title: "Hotfix", body: ["- Fixed shop restocking after purchase"] },
+  { version: "0.2.0", date: "9 January 2026", title: "Second release", body: ["- Added stock limits and restocking", "- Added new Craig spawn points", "- Added shop names and opening hours", "- Added infected crops, composter, and Golden Fertilizer", "- Added interaction outlines", "- Added back buttons to menus", "- Added lofi toggle to pause menu", "- Added interaction range to barrels", "- Various bug fixes and quality-of-life changes"] },
+  { version: "0.1.0", date: "3 January 2026", title: "First release", body: ["- Added the core gameplay loop"] },
+];
+
+const everdewSystems = [
+  ["Farming", "Till plots, plant crops, wait through the day cycle, then harvest and sell. Drag actions later made repeated planting, harvesting, and fertilising faster."],
+  ["Economy", "The original 10,000-gold goal proved too easy in playtests. The team raised the challenge and retuned growth times, prices, stock, and restocking."],
+  ["Animals", "Fed animals produce eggs or fertiliser. Unfed animals become soul sprites that can be sold at night."],
+  ["Perks", "Upgrades use ScriptableObjects. They include drag farming, animal access, more field tiles, faster crop growth, and bonus systems."],
+  ["Time", "A day and night cycle changes NPC availability. A statue lets players skip the night, and the cost dropped from 50 gold to 1 after testing."],
+  ["Interface", "The interface covers shops, inventory, dialogue, tutorials, perks, display settings, audio, and the main menu."],
+];
+
+function EverdewProjectView({
+  onNavigate,
+  onClose,
+}: {
+  onNavigate: (offset: -1 | 1) => void;
+  onClose: () => void;
+}) {
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  const showcaseRef = useRef<HTMLDivElement | null>(null);
+  const gameplayCaptureRef = useRef<HTMLDivElement | null>(null);
+  const [openChangelogVersion, setOpenChangelogVersion] = useState<string | null>(null);
+  const reducedMotion = usePrefersReducedMotion();
+
+  const story = "Everdew was made by a four person team for a three week game jam based on the theme A New Path. I worked on the base environment, game design, programming, and interface. The first version used top down 3D graphics. Problems importing Blockbench models led the team to change to pixel art. We also replaced several large scripts with smaller systems. The submitted build included a farming and economy loop, and development continued after the jam.";
+
+  const scrollShowcase = (direction: -1 | 1) => {
+    const showcase = showcaseRef.current;
+    if (!showcase) return;
+    showcase.scrollBy({
+      left: direction * Math.min(showcase.clientWidth * 0.82, 620),
+      behavior: reducedMotion ? "auto" : "smooth",
+    });
+  };
+
+  const scrollGameplayCaptures = (direction: -1 | 1) => {
+    const captures = gameplayCaptureRef.current;
+    if (!captures) return;
+    captures.scrollBy({
+      left: direction * Math.min(captures.clientWidth * 0.82, 620),
+      behavior: reducedMotion ? "auto" : "smooth",
+    });
+  };
+
+  return (
+    <CaseStudyShell
+      definition={caseStudyDefinitions.everdew}
+      scrollRef={rootRef}
+      onClose={onClose}
+      className="bg-[#11140d] text-[#f5f4e9]"
+    >
+      <header className="relative min-h-[calc(100vh-77px)] overflow-hidden bg-[#11140d]">
+        <img src={everdewImage("farm-village.png")} alt="Everdew's farm and village" className="absolute inset-0 h-full w-full scale-[1.02] object-cover object-[68%_center]" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/64 to-black/28" aria-hidden="true" />
+        <div className="relative z-10 flex min-h-[calc(100dvh-77px)] items-center px-5 py-20 md:px-10 lg:px-[max(3rem,7vw)]">
+          <div className="max-w-6xl">
+            <h2 className="max-w-6xl whitespace-nowrap text-[clamp(3.5rem,18vw,11rem)] font-semibold leading-[0.82] tracking-[-0.075em] text-[#eef6c8]">Everdew</h2>
+            <p className="mt-8 max-w-xl text-xl leading-8 text-white/72 md:text-2xl md:leading-9">A top down pixel farming game made during a three week game jam.</p>
+            <div className="mt-10 flex flex-wrap gap-3">
+              <a href="https://cinder7832.itch.io/everdew" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-full bg-[#d5f36a] px-6 py-3 font-semibold text-[#11140d] transition-transform hover:scale-[1.03] active:scale-95">Play the game <ArrowUpRight size={18} /></a>
+            </div>
+          </div>
+        </div>
+      </header>
+
+        <section id="showcase" data-case-study-chapter className="scroll-mt-16 bg-[#1d2612] py-14 md:py-20">
+          <div className="mx-auto max-w-7xl px-5 md:px-8">
+            <div className="mb-8 flex flex-col justify-between gap-3 md:mb-10 md:flex-row md:items-end">
+              <div>
+                <h3 className="text-4xl font-semibold tracking-[-0.045em] md:text-6xl">Showcase</h3>
+                <p className="mt-3 max-w-xl text-base leading-7 text-white/60">Gameplay footage, screenshots of the farm, gameplay systems, and interface.</p>
+              </div>
+              <div className="flex w-fit gap-1 rounded-full bg-white p-1 text-ink shadow-[0_14px_34px_rgba(0,0,0,0.24)]">
+                <button type="button" className="icon-button-motion grid size-10 place-items-center rounded-full text-ink/72 hover:bg-ink hover:text-white" aria-label="Show previous showcase item" onClick={() => scrollShowcase(-1)}><ChevronLeft size={20} /></button>
+                <button type="button" className="icon-button-motion grid size-10 place-items-center rounded-full text-ink/72 hover:bg-ink hover:text-white" aria-label="Show next showcase item" onClick={() => scrollShowcase(1)}><ChevronRight size={20} /></button>
+              </div>
+            </div>
+          </div>
+          <div className="px-5 md:px-8">
+            <div ref={showcaseRef} className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-3 md:gap-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              <div className="w-[min(82vw,43rem)] shrink-0 snap-start overflow-hidden rounded-[22px] bg-black">
+                <video className="aspect-[16/10] w-full object-cover" controls preload="metadata" poster={everdewImage("main-menu.png")} aria-label="Everdew gameplay video">
+                  <source src={everdewImage("gameplay.mp4")} type="video/mp4" />
+                </video>
+              </div>
+              {[
+                ["farm-village.png", "Farm and village"],
+                ["farming-ui.png", "Farming interface"],
+                ["shop-ui.png", "Shop interface"],
+                ["animal-pen.png", "Animal pen"],
+                ["perks-ui.png", "Perk interface"],
+              ].map(([image, title]) => (
+                <figure key={image} className="w-[min(82vw,43rem)] shrink-0 snap-start overflow-hidden rounded-[22px] bg-[#11140d]">
+                  <CaseStudyShowcaseImage src={everdewImage(image)} alt={title} title={title} />
+                </figure>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="overview" data-case-study-chapter className="scroll-mt-16 mx-auto max-w-7xl px-5 py-32 md:px-8 md:py-44">
+          <h3 className="text-4xl font-semibold tracking-[-0.04em] md:text-6xl">Overview</h3>
+          <p className="mt-7 max-w-3xl text-lg leading-8 text-white/68">
+            {story}
+          </p>
+          <div className="mt-24 grid gap-10 border-t border-white/12 pt-12 md:grid-cols-2 lg:grid-cols-4">
+            <article><h4 className="text-xl font-semibold text-[#d5f36a]">Devanand Asai</h4><p className="mt-3 leading-7 text-white/62">Base environment, game design, programming, and UI design.</p></article>
+            <article><h4 className="text-xl font-semibold">Riley</h4><p className="mt-3 leading-7 text-white/62">Programming, interactions, and interface systems.</p></article>
+            <article><h4 className="text-xl font-semibold">Hiro</h4><p className="mt-3 leading-7 text-white/62">Asset design and environment production.</p></article>
+            <article><h4 className="text-xl font-semibold">Johan</h4><p className="mt-3 leading-7 text-white/62">Sprites, production support, documentation, and marketing.</p></article>
+          </div>
+        </section>
+
+        <section id="research" data-case-study-chapter className="scroll-mt-16 bg-[#17200f] px-5 py-32 text-white md:px-8 md:py-44">
+          <div className="mx-auto max-w-7xl">
+            <h3 className="max-w-6xl text-5xl font-semibold leading-[0.98] tracking-[-0.055em] md:text-8xl">Research</h3>
+            <p className="mt-12 max-w-4xl text-2xl leading-[1.45] text-white/76 md:text-4xl">The team compared the 3D and pixel art pipelines, tested the economy, and reviewed publishing options before finalising the production approach.</p>
+            <div className="mt-20 grid grid-flow-dense gap-4 md:grid-cols-12">
+              <article className="rounded-[26px] bg-[#eef0d9] p-8 text-[#17200f] md:col-span-6"><h4 className="text-2xl font-semibold">Visual pipeline</h4><p className="mt-4 leading-8 text-[#17200f]/68">Blockbench models did not import reliably, so the team compared the cost of repairing the 3D workflow with moving to a shared pixel art pipeline in Aseprite.</p></article>
+              <article className="rounded-[26px] bg-[#d5f36a] p-8 text-[#11140d] md:col-span-6"><h4 className="text-2xl font-semibold">Economy testing</h4><p className="mt-4 leading-8 text-[#11140d]/68">Playtests showed that the original 10,000-gold target was too easy. Growth times, prices, stock, restocking, and the nighttime skip cost were retuned.</p></article>
+              <article className="rounded-[26px] border border-white/14 bg-white/5 p-8 md:col-span-12"><h4 className="text-2xl font-semibold">Publishing review</h4><p className="mt-4 max-w-3xl leading-8 text-white/62">Raw Fury, Team17, Curve Games, and Critical Reflex were reviewed against the game’s art direction, farming loop, timed economy, and animal-soul system.</p></article>
+            </div>
+          </div>
+        </section>
+
+        <section id="experience" data-case-study-chapter className="scroll-mt-16 bg-[#eef0d9] px-5 py-32 text-[#17200f] md:px-8 md:py-44">
+          <div className="mx-auto max-w-7xl">
+            <div className="max-w-5xl">
+              <h3 className="text-[clamp(3rem,7vw,7rem)] font-semibold leading-[0.95] tracking-[-0.06em]">Gameplay</h3>
+              <p className="mt-8 max-w-3xl text-lg leading-8 text-[#17200f]/68">The player manages a run-down farm over 30 in-game days. Crops earn money, and money is used for upgrades that increase farming output.</p>
+            </div>
+            <div className="mt-20 grid grid-flow-dense grid-cols-1 gap-4 md:grid-cols-12">
+              <article className="relative min-h-[34rem] overflow-hidden rounded-[28px] bg-[#35451d] md:col-span-8"><img src={everdewImage("farming-ui.png")} alt="Farming tools and inventory in Everdew" className="absolute inset-0 h-full w-full object-cover" /><div className="absolute inset-0 bg-gradient-to-t from-black/82 via-black/10 to-transparent" /><div className="absolute inset-x-0 bottom-0 p-7 text-white md:p-10"><h4 className="text-3xl font-semibold">Farming</h4><p className="mt-3 max-w-xl leading-7 text-white/72">Tools and crop states show which actions are available on each field tile.</p></div></article>
+              <article className="flex min-h-[34rem] flex-col overflow-hidden rounded-[28px] bg-[#17200f] text-white md:col-span-4"><div className="overflow-hidden"><img src={everdewImage("perks-ui.png")} alt="Everdew perks interface" className="aspect-[16/10] w-full object-cover" /></div><div className="flex flex-1 flex-col justify-end p-7"><h4 className="text-3xl font-semibold">Perk system</h4><p className="mt-3 leading-7 text-white/62">Perks use ScriptableObjects so new upgrades can be added without changing the main system.</p></div></article>
+              {everdewSystems.slice(0, 3).map(([title, copy], index) => <article key={title} className={`rounded-[28px] p-7 md:col-span-4 ${index === 1 ? "bg-[#b8d5a5]" : "bg-white"}`}><h4 className="text-2xl font-semibold">{title}</h4><p className="mt-4 leading-7 text-[#17200f]/68">{copy}</p></article>)}
+              <article className="overflow-hidden rounded-[28px] bg-[#283518] md:col-span-6"><img src={everdewImage("shop-ui.png")} alt="Everdew shop interface" className="aspect-[16/10] w-full object-cover" /><div className="p-7 text-white"><h4 className="text-2xl font-semibold">Shops and inventory</h4><p className="mt-3 leading-7 text-white/62">The original shop and inventory integration was replaced with systems that use shared item data.</p></div></article>
+              <article className="overflow-hidden rounded-[28px] bg-[#283518] md:col-span-6"><img src={everdewImage("animal-pen.png")} alt="Animals and the nighttime statue in Everdew" className="aspect-[16/10] w-full object-cover" /><div className="p-7 text-white"><h4 className="text-2xl font-semibold">Animals</h4><p className="mt-3 leading-7 text-white/62">Fed animals produce items. Unfed animals become soul sprites that can be sold at night.</p></div></article>
+            </div>
+            <div className="mt-16 flex justify-end">
+              <div className="flex w-fit gap-1 rounded-full bg-[#17200f] p-1 text-white shadow-[0_14px_34px_rgba(23,32,15,0.2)]">
+                <button type="button" className="icon-button-motion grid size-10 place-items-center rounded-full text-white/72 hover:bg-white hover:text-[#17200f]" aria-label="Show previous gameplay capture" onClick={() => scrollGameplayCaptures(-1)}><ChevronLeft size={20} /></button>
+                <button type="button" className="icon-button-motion grid size-10 place-items-center rounded-full text-white/72 hover:bg-white hover:text-[#17200f]" aria-label="Show next gameplay capture" onClick={() => scrollGameplayCaptures(1)}><ChevronRight size={20} /></button>
+              </div>
+            </div>
+            <div ref={gameplayCaptureRef} className="mt-4 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {[["npc-dialogue.png", "NPC conversations"], ["animal-soul.png", "Animal soul sprite"], ["main-menu.png", "Main menu"], ["farm-field.png", "Farm and field layout"]].map(([image, title]) => <figure key={image} className="w-[min(82vw,35rem)] shrink-0 snap-start overflow-hidden rounded-[24px] bg-[#17200f]"><div className="overflow-hidden"><img src={everdewImage(image)} alt={title} className="aspect-[16/10] w-full object-cover" /></div><figcaption className="p-5 text-lg font-semibold text-white">{title}</figcaption></figure>)}
+            </div>
+          </div>
+        </section>
+
+        <section id="process" data-case-study-chapter className="scroll-mt-16 mx-auto max-w-7xl px-5 py-32 md:px-8 md:py-44">
+          <div className="mb-16 max-w-3xl"><h3 className="text-5xl font-semibold tracking-[-0.055em] md:text-8xl">Process</h3><p className="mt-7 text-lg leading-8 text-white/60">The project changed from a 3D prototype to a pixel art game. The inventory and shop systems were then rewritten.</p></div>
+          <div className="space-y-10">
+            <article className="grid min-h-[32rem] overflow-hidden rounded-[30px] bg-[#252c1c] shadow-[0_34px_90px_rgba(0,0,0,0.45)] lg:grid-cols-2"><img src={everdewImage("prototype-3d.png")} alt="The original top down 3D Everdew prototype" className="h-full min-h-[24rem] w-full object-cover" /><div className="flex flex-col justify-end p-8 md:p-12"><h4 className="text-4xl font-semibold md:text-6xl">3D prototype</h4><p className="mt-6 max-w-xl text-lg leading-8 text-white/62">The first version used a top down 3D controller. Blockbench models did not import reliably, so the team stopped using the 3D pipeline.</p></div></article>
+            <article className="grid min-h-[32rem] overflow-hidden rounded-[30px] bg-[#6b7d31] shadow-[0_34px_90px_rgba(0,0,0,0.48)] lg:grid-cols-2"><div className="order-2 flex flex-col justify-end p-8 md:p-12 lg:order-1"><h4 className="text-4xl font-semibold md:text-6xl">Pixel-art version</h4><p className="mt-6 max-w-xl text-lg leading-8 text-white/75">The team changed to pixel art and worked remotely in Aseprite. Cainos' Pixel Art Top Down Basic pack was used as the starting environment asset set.</p></div><img src={everdewImage("early-environment.png")} alt="Early pixel environment for Everdew" className="order-1 h-full min-h-[24rem] w-full object-cover lg:order-2" /></article>
+            <article className="grid min-h-[32rem] overflow-hidden rounded-[30px] bg-[#d5f36a] text-[#11140d] shadow-[0_34px_90px_rgba(0,0,0,0.5)] lg:grid-cols-2"><img src={everdewImage("inventory-ui.png")} alt="Inventory system running in Everdew" className="h-full min-h-[24rem] w-full object-cover" /><div className="flex flex-col justify-end p-8 md:p-12"><h4 className="text-4xl font-semibold md:text-6xl">System rewrite</h4><p className="mt-6 max-w-xl text-lg leading-8 text-[#11140d]/68">Inventory and shop data did not sort or communicate correctly. Riley and I replaced the integration and divided large scripts into smaller components. Animals, perks, NPCs, and saving were added to those systems later.</p></div></article>
+          </div>
+        </section>
+
+        <section id="extras" data-case-study-chapter className="scroll-mt-16 bg-[#202717] px-5 pt-32 text-white md:px-8 md:pt-44">
+          <div className="mx-auto max-w-7xl border-b border-white/12 pb-16 md:pb-20">
+            <h3 className="text-5xl font-semibold tracking-[-0.055em] md:text-8xl">Extras</h3>
+            <p className="mt-7 max-w-2xl text-lg leading-8 text-white/60">Supporting material covering production management and promotion.</p>
+          </div>
+        </section>
+
+        <section id="everdew-management" className="bg-[#eef0d9] px-5 py-32 text-[#17200f] md:px-8 md:py-44">
+          <div className="mx-auto max-w-7xl">
+            <div className="grid gap-16 lg:grid-cols-[0.72fr_1.28fr] lg:items-center"><div><h3 className="text-5xl font-semibold tracking-[-0.055em] md:text-7xl">Project management</h3><p className="mt-7 text-lg leading-8 text-[#17200f]/65">The team assigned production roles, planned tasks in Trello, and used GitHub and Unity Version Control. vFolders 2 and vHierarchy 2 were used to organise the Unity project.</p></div><div className="grid gap-4 sm:grid-cols-2"><img src={everdewImage("trello-board.png")} alt="Everdew Trello planning board" width="1920" height="1032" className="aspect-[80/43] w-full rounded-[22px] object-cover shadow-xl sm:col-span-2" /><img src={everdewImage("organized-assets.png")} alt="Organised Everdew Unity project folders" width="1920" height="1020" className="aspect-[32/17] w-full rounded-[22px] object-cover shadow-xl" /><img src={everdewImage("organized-hierarchy.png")} alt="Organised Everdew Unity hierarchy" width="1920" height="1020" className="aspect-[32/17] w-full rounded-[22px] object-cover shadow-xl" /><img src={everdewImage("unity-collab.png")} alt="Everdew Unity Version Control history" width="1920" height="1020" className="aspect-[32/17] w-full rounded-[22px] object-cover shadow-xl" /><img src={everdewImage("github-repo.png")} alt="Everdew GitHub repository" width="1920" height="1020" className="aspect-[32/17] w-full rounded-[22px] object-cover shadow-xl" /></div></div>
+            <div className="mt-24 grid gap-4 md:grid-cols-2 lg:grid-cols-4">{[["code-shop.png", "Shop data"], ["code-inventory.png", "Inventory flow"], ["code-npc.png", "NPC behaviour"], ["code-perks.png", "Perk system"]].map(([image, title]) => <figure key={image} className="overflow-hidden rounded-[20px] bg-[#17200f]"><div className="overflow-hidden"><img src={everdewImage(image)} alt={`${title} code from Everdew`} className="aspect-[4/3] w-full object-cover" /></div><figcaption className="p-5 font-semibold text-white">{title}</figcaption></figure>)}</div>
+          </div>
+        </section>
+
+        <section id="everdew-promotion" className="mx-auto max-w-7xl px-5 py-32 md:px-8 md:py-44">
+          <div className="grid gap-16 lg:grid-cols-[0.8fr_1.2fr] lg:items-center"><img src={everdewImage("poster.jpeg")} alt="Everdew game jam poster with QR code" width="595" height="842" className="mx-auto aspect-[595/842] w-full max-w-[32rem] rounded-[24px] object-cover shadow-[0_30px_90px_rgba(0,0,0,0.5)]" /><div><h3 className="text-5xl font-semibold tracking-[-0.055em] md:text-7xl">Promotion</h3><p className="mt-7 text-lg leading-8 text-white/62">The poster uses the game's green palette, pixel font, logo, PEGI 7 rating, and a QR code for the itch.io page.</p><div className="mt-12 grid gap-8 border-t border-white/12 pt-10 sm:grid-cols-2"><article><h4 className="text-xl font-semibold">Raw Fury</h4><p className="mt-3 leading-7 text-white/58">Reviewed because its catalogue includes independent games with defined art direction.</p></article><article><h4 className="text-xl font-semibold">Team17</h4><p className="mt-3 leading-7 text-white/58">Reviewed because its catalogue includes independent games with broad platform support.</p></article><article><h4 className="text-xl font-semibold">Curve Games</h4><p className="mt-3 leading-7 text-white/58">Reviewed because its catalogue includes games built around repeatable systems and progression.</p></article><article><h4 className="text-xl font-semibold">Critical Reflex</h4><p className="mt-3 leading-7 text-white/58">Reviewed because its catalogue includes games with unconventional mechanical systems.</p></article></div></div></div>
+        </section>
+
+        <EverdewChangelog openVersion={openChangelogVersion} onToggle={setOpenChangelogVersion} />
+
+        <section id="reflection" data-case-study-chapter className="scroll-mt-16 relative overflow-hidden bg-[#d5f36a] px-5 py-32 text-center text-[#11140d] md:px-8 md:py-44"><img src={everdewImage("farm-street.png")} alt="" className="absolute inset-0 h-full w-full object-cover opacity-20" /><div className="absolute inset-0 bg-[#d5f36a]/85" /><div className="relative mx-auto max-w-4xl"><h3 className="text-5xl font-semibold tracking-[-0.06em] md:text-8xl">Reflection</h3><p className="mx-auto mt-8 max-w-2xl text-lg leading-8 text-[#11140d]/85">The four person team completed the main game loop in about two weeks of active development. The work identified problems in the original interface structure, shared data, and script boundaries. AI assistance was used for parts of the scripting. A future project should implement more of this logic without assistance.</p></div></section>
+    </CaseStudyShell>
+  );
+}
+
+function EverdewChangelog({
+  openVersion,
+  onToggle,
+}: {
+  openVersion: string | null;
+  onToggle: (version: string | null) => void;
+}) {
+  return (
+    <ChangelogAccordion
+      entries={everdewReleases}
+      openVersion={openVersion}
+      onToggle={onToggle}
+      idPrefix="everdew"
+      description="Release notes for Everdew."
+    />
+  );
+
+  /* Kept unreachable temporarily so the in-progress case-study work remains recoverable in the dirty worktree.
+  return (
+    <section id="changelog" data-case-study-chapter className="scroll-mt-16 mx-auto max-w-7xl px-5 py-32 md:px-8 md:py-44">
+      <div className="max-w-4xl">
+        <h3 className="text-5xl font-semibold tracking-[-0.055em] md:text-8xl">Changelog</h3>
+        <p className="mt-7 text-lg leading-8 text-white/60">Release notes for Everdew.</p>
+      </div>
+      <div className="mt-16 divide-y divide-white/12 border-y border-white/12">
+        {everdewReleases.map((entry) => {
+          const isOpen = openVersion === entry.version;
+
+          return (
+            <article key={entry.version} className="py-6">
+              <button
+                type="button"
+                aria-expanded={isOpen}
+                aria-controls={`everdew-changelog-${entry.version}`}
+                onClick={() => onToggle(isOpen ? null : entry.version)}
+                className="flex w-full cursor-pointer flex-wrap items-center justify-between gap-x-8 gap-y-2 text-left"
+              >
+                <span className="text-2xl font-semibold">v{entry.version}</span>
+                <span className="flex-1 text-lg text-white/70 md:text-right">{entry.title}</span>
+                <span className="text-sm text-white/45">{entry.date}</span>
+                <span aria-hidden="true" className={`text-2xl leading-none text-white/55 transition-transform duration-300 ${isOpen ? "rotate-45" : "rotate-0"}`}>+</span>
+              </button>
+              <div id={`everdew-changelog-${entry.version}`} className={`cubo-changelog-panel ${isOpen ? "is-open" : ""}`}>
+                <div className="min-h-0 overflow-hidden">
+                  <div className="cubo-changelog-content mt-7 grid max-w-4xl gap-2 border-l border-white/60 pl-5 text-[0.98rem] leading-7 text-white/64">
+                    {entry.body.map((line, index) => <p key={`${entry.version}-${index}`} className="relative pl-5 before:absolute before:left-0 before:content-['â€¢']">{line.slice(2)}</p>)}
+                  </div>
+                </div>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  );
+  */
+}
+
 const cuboChangelog = [
   { version: "0.4.0", date: "28 May 2026", title: "Save & Load, Breeze Client Splash & Stability Fixes", body: ["Headline Features:", "- Added a save and load system with 4 save slots that players can manage", "- Updated the Main Menu with load game functionality and confirmation dialogs for save management", "- Added a new boot splash screen for Breeze Client", "- Time-Dialled now requires stamina", "- Implemented Parry Stun for Grump Rock", "- Fixed fullscreen crashes when tabbing out of the game", "Gameplay & Combat:", "- Removed the parry circle for Shackled Bomber", "- Added hit flash to Shackled Bomber, which was missing in previous versions", "- Added Duk to one of the chests", "Quality of Life:", "- Press Escape in UI menus to go back", "- Made the pause menu slide transition faster to match the main menu", "- Refined tutorial prompts to use PlayerPrefs for one time display logic to work with the save and load system", "- Improved navigation settings for Main Menu and Pause Menu UI elements", "- Added controller volume repeat delay, repeat rate, and step settings for improved audio control", "Focus & Display:", "- Added application focus management to the Main Menu and Pause Menu to prevent input when the game is not in focus", "- Updated cursor visibility and lock state based on focus changes", "- The game now runs in the background", "- Resolution is only applied from saved preferences when explicitly set by the user", "- First launch now uses the system default resolution when no saved preference exists", "Visual & World:", "- Adjusted local positions of game objects for better alignment", "- Modified tilemap indices and sprite references for improved visual consistency", "- Updated the sprite for lost gold", "- Enhanced dropped Tinted Gold with settling mechanics and bobbing for better visual feedback", "Bug Fixes:", "- Fixed a bug where lost gold could not be picked up"] },
   { version: "0.3.0", date: "17 April 2026", title: "Controller Support, Gameplay Tweaks & Visual Improvements", body: ["Headline Feature:", "- Added keyboard and controller support for easier menu navigation", "Quality of Life:", "- Moved the location of the Grump Rock Cooler", "- Decreased Spear Guard health", "- Changed the elevator logic so that it starts when the player is on it", "Visual Consistency Fixes:", "- Added more corner tiles that were missed on the map", "- Changed the size of buttons in the Main Menu", "- Revamped the look of the starting area", "Bug Fix:", "- Fixed a bug which caused the game to crash when switching tabs"] },
@@ -882,16 +1036,16 @@ const cuboChangelog = [
   { version: "0.1.0", date: "3 January 2026", title: "Test Build", body: ["- Under Development"] },
 ];
 
-const cuboBrief = "I planned Cubo as a 2D Metroidvania and Souls-like set in an abandoned crystal mine. The original brief called for one uninterrupted world, a tutorial embedded into the map, a ground-slam attack instead of a conventional sword slash, fast traversal, two bosses, several enemy types, chests, and enough environmental detail to make the cave feel inhabited and old.";
+const cuboBrief = "I planned Cubo as a 2D Metroidvania with Souls style combat, set in an abandoned crystal mine. The original brief specified one uninterrupted world, a tutorial inside the map, a ground slam attack, fast traversal, two bosses, several enemy types, chests, and environmental detail.";
 
 const cuboSystems = [
   {
     title: "Input and movement",
-    copy: "The first controller used Unity's legacy Input Manager. I rebuilt it with the New Input System when controller support and more complex actions became difficult to scale. The final movement set includes variable jump height, aerial ground slam, dash, stamina-based sprinting, wall climbing, gamepad support, and controller rumble.",
+    copy: "The first controller used Unity's legacy Input Manager. I rebuilt it with the New Input System when controller support and more complex actions became difficult to scale. The final movement set includes variable jump height, aerial ground slam, dash, sprinting that uses stamina, wall climbing, gamepad support, and controller rumble.",
   },
   {
     title: "Combat and player feedback",
-    copy: "Ground slam is the main attack and connects traversal directly to combat. Hits trigger a white damage-flash shader, while player damage uses screen shake and a red screen flash. The wider feedback loop includes a smooth health bar, stamina, floating damage numbers, respawn fades, temporary invulnerability during Soul Charge, and tuned knockback and stun timing.",
+    copy: "Ground slam is the main attack and connects traversal directly to combat. Hits trigger a white damage flash shader, while player damage uses screen shake and a red screen flash. The feedback system includes a smooth health bar, stamina, floating damage numbers, respawn fades, temporary invulnerability during Soul Charge, and adjusted knockback and stun timing.",
   },
   {
     title: "World interactions",
@@ -919,6 +1073,23 @@ const cuboFlow = [
   ["Completion", "After the second phase, the player claims the Power Supply and returns it to the tutorial-area generator to finish the level."],
 ];
 
+function CuboResearchSection() {
+  return (
+    <section id="research" data-case-study-chapter className="scroll-mt-16 bg-[#f0e9df] px-5 py-32 text-[#1c1613] md:px-8 md:py-44">
+      <div className="mx-auto max-w-7xl">
+        <h3 className="max-w-6xl text-5xl font-semibold leading-[0.98] tracking-[-0.055em] md:text-8xl">Research</h3>
+        <p className="mt-14 max-w-5xl text-2xl leading-[1.45] tracking-[-0.02em] text-[#1c1613] md:text-4xl">{cuboBrief}</p>
+        <div className="mt-24 grid grid-flow-dense gap-12 border-t border-[#1c1613]/18 pt-12 md:grid-cols-2 lg:grid-cols-4">
+          <article><h4 className="text-xl font-semibold">Metroidvania foundations</h4><p className="mt-4 leading-7 text-[#1c1613]/66">Research into Metroid focused the project on non-linear exploration, backtracking, power-up gating, and allowing the player to discover their own route and pace. The world uses environment and mechanical progression instead of relying on cutscenes or long dialogue.</p></article>
+          <article><h4 className="text-xl font-semibold">Hollow Knight</h4><p className="mt-4 leading-7 text-[#1c1613]/66">The reference review covered environmental continuity, enemy integration, indirect narrative delivery, and boss attacks that respond to specific player abilities.</p></article>
+          <article><h4 className="text-xl font-semibold">Celeste and Rayman</h4><p className="mt-4 leading-7 text-[#1c1613]/66">Celeste informed platform readability and the simplified player geometry. Rayman Legends informed the use of layered environments and warm foreground accents against dark backgrounds.</p></article>
+          <article><h4 className="text-xl font-semibold">Boss references</h4><p className="mt-4 leading-7 text-[#1c1613]/66">Grump Rock began with Elden Ring's rolling boulder enemy in mind. Shackled Bomber combines Touhou-style projectile pressure with the collect-and-fire rhythm of Soul Essence and Soul Charge, inspired by Critical.</p></article>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function CuboProjectView({
   onNavigate,
   onClose,
@@ -927,72 +1098,26 @@ function CuboProjectView({
   onClose: () => void;
 }) {
   const rootRef = useRef<HTMLDivElement | null>(null);
+  const showcaseRef = useRef<HTMLDivElement | null>(null);
   const [openChangelogVersion, setOpenChangelogVersion] = useState<string | null>(null);
   const reducedMotion = usePrefersReducedMotion();
 
-  useLayoutEffect(() => {
-    const root = rootRef.current;
-    if (!root || reducedMotion) return;
-
-    const context = gsap.context(() => {
-      gsap.utils.toArray<HTMLElement>(".cubo-scroll-image").forEach((target) => {
-        gsap.timeline({
-          scrollTrigger: {
-            trigger: target,
-            scroller: root,
-            start: "top 92%",
-            end: "bottom 12%",
-            scrub: 0.6,
-          },
-        })
-          .fromTo(target, { scale: 0.88, opacity: 0.38, filter: "brightness(0.65)" }, { scale: 1, opacity: 1, filter: "brightness(1)", duration: 0.58 })
-          .to(target, { opacity: 0.24, filter: "brightness(0.55)", duration: 0.42 });
-      });
-
-      const revealWords = gsap.utils.toArray<HTMLElement>(".cubo-reveal-copy span");
-      if (revealWords.length) {
-        gsap.fromTo(revealWords, { opacity: 0.12 }, {
-          opacity: 1,
-          stagger: 0.025,
-          ease: "none",
-          scrollTrigger: {
-            trigger: ".cubo-reveal-copy",
-            scroller: root,
-            start: "top 82%",
-            end: "bottom 42%",
-            scrub: 0.5,
-          },
-        });
-      }
-
-    }, root);
-
-    ScrollTrigger.refresh();
-    return () => context.revert();
-  }, [reducedMotion]);
-
-  const scrollToStory = () => {
-    const root = rootRef.current;
-    const story = root?.querySelector<HTMLElement>(".cubo-story");
-    if (!root || !story) return;
-    const destination = story.getBoundingClientRect().top - root.getBoundingClientRect().top + root.scrollTop - 72;
-    if (reducedMotion) {
-      root.scrollTo({ top: destination, behavior: "auto" });
-      return;
-    }
-    gsap.to(root, { scrollTop: destination, duration: 0.95, ease: MOTION.easeInOut, overwrite: true });
+  const scrollShowcase = (direction: -1 | 1) => {
+    const showcase = showcaseRef.current;
+    if (!showcase) return;
+    showcase.scrollBy({
+      left: direction * Math.min(showcase.clientWidth * 0.82, 620),
+      behavior: reducedMotion ? "auto" : "smooth",
+    });
   };
 
   return (
-    <div ref={rootRef} className="detail-scrollbar relative h-full overflow-x-hidden overflow-y-auto bg-[#0b0909] font-['Outfit'] text-white">
-      <nav className="sticky top-0 z-40 flex items-center justify-between border-b border-white/10 bg-[#0b0909]/82 px-5 py-4 backdrop-blur-xl md:px-8">
-        <button type="button" onClick={scrollToStory} className="text-sm font-semibold tracking-[-0.01em] text-white transition-opacity hover:opacity-70">Cubo case study</button>
-        <div className="flex items-center gap-3">
-          <button type="button" onClick={scrollToStory} className="hidden text-sm text-white/62 transition-colors hover:text-white sm:block">Development story</button>
-          <CloseButton label="Close Cubo project details" onClick={onClose} />
-        </div>
-      </nav>
-
+    <CaseStudyShell
+      definition={caseStudyDefinitions.cubo}
+      scrollRef={rootRef}
+      onClose={onClose}
+      className="bg-[#0b0909] text-white"
+    >
       <header className="relative grid min-h-[36rem] place-items-center overflow-hidden px-6 py-20 text-center md:min-h-[40rem]">
         <img src={cuboImage("world.png")} alt="Cubo exploring the abandoned crystal mine" className="absolute inset-0 h-full w-full scale-105 object-cover opacity-70" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_48%,rgba(157,53,21,0.08),rgba(11,9,9,0.42)_42%,#0b0909_86%)]" />
@@ -1004,11 +1129,55 @@ function CuboProjectView({
         </div>
       </header>
 
-      <main className="w-full">
-        <section className="mx-auto max-w-7xl px-5 py-32 md:px-8 md:py-44">
+        <section id="showcase" data-case-study-chapter className="scroll-mt-16 bg-[#12100f] py-14 md:py-20">
+          <div className="mx-auto max-w-7xl px-5 md:px-8">
+            <div className="mb-8 flex flex-col justify-between gap-3 md:mb-10 md:flex-row md:items-end">
+              <div>
+                <h3 className="text-4xl font-semibold tracking-[-0.045em] md:text-6xl">Showcase</h3>
+                <p className="mt-3 max-w-xl text-base leading-7 text-white/60">Screenshots of the world, gameplay areas, and interface.</p>
+              </div>
+              <div className="flex w-fit gap-1 rounded-full bg-white p-1 text-ink shadow-[0_14px_34px_rgba(0,0,0,0.24)]">
+                <button type="button" className="icon-button-motion group grid size-10 place-items-center rounded-full text-ink/72 hover:bg-ink hover:text-white" aria-label="Show previous showcase item" onClick={() => scrollShowcase(-1)}><ChevronLeft size={20} /></button>
+                <button type="button" className="icon-button-motion group grid size-10 place-items-center rounded-full text-ink/72 hover:bg-ink hover:text-white" aria-label="Show next showcase item" onClick={() => scrollShowcase(1)}><ChevronRight size={20} /></button>
+              </div>
+            </div>
+          </div>
+          <div className="px-5 md:px-8">
+            <div ref={showcaseRef} className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-3 md:gap-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {[
+                ["world2.png", "Crystal mine", "A wider view of the layered cave world."],
+                ["exploration.png", "Exploration", "Traversal, vertical routes, and the ground slam in context."],
+                ["grump-rock.png", "Grump Rock", "The first boss encounter built around slam timing."],
+                ["pause-menu.png", "Pause menu", "An in-game interface capture from the playable build."],
+              ].map(([image, title]) => (
+                <figure key={image} className="w-[min(82vw,43rem)] shrink-0 snap-start overflow-hidden rounded-[22px] bg-[#1a1716]">
+                  <CaseStudyShowcaseImage src={cuboImage(image)} alt={title} title={title} />
+                </figure>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="overview" data-case-study-chapter className="scroll-mt-16 mx-auto max-w-7xl px-5 py-32 md:px-8 md:py-44">
+          <div className="grid gap-14 lg:grid-cols-[0.72fr_1.28fr] lg:items-start">
+            <div>
+              <h3 className="text-5xl font-semibold tracking-[-0.05em] md:text-7xl">Overview</h3>
+              <p className="mt-7 text-lg leading-8 text-white/60">Cubo is a solo Unity project built around movement, exploration, and two staged boss encounters inside one connected mine.</p>
+            </div>
+            <div className="grid grid-flow-dense gap-4 sm:grid-cols-2">
+              <article className="rounded-[24px] bg-[#181515] p-7"><h4 className="text-2xl font-semibold">Role</h4><p className="mt-4 leading-7 text-white/62">Game design, programming, level design, interface design, and asset production.</p></article>
+              <article className="rounded-[24px] bg-[#21120e] p-7"><h4 className="text-2xl font-semibold">Tools</h4><p className="mt-4 leading-7 text-white/62">Unity 6, C#, Aseprite, ShaderLab, and GitHub.</p></article>
+              <article className="rounded-[24px] bg-[#d95f27] p-7 text-[#1b0d08] sm:col-span-2"><h4 className="text-2xl font-semibold">Scope</h4><p className="mt-4 max-w-3xl leading-7 text-[#1b0d08]/76">The playable build includes a connected level, movement and combat systems, two bosses, progression gates, interface settings, lighting, and release tracking.</p></article>
+            </div>
+          </div>
+        </section>
+
+        <CuboResearchSection />
+
+        <section id="experience" data-case-study-chapter className="scroll-mt-16 mx-auto max-w-7xl px-5 py-32 md:px-8 md:py-44">
           <div className="mb-14 max-w-4xl">
             <h3 className="text-4xl font-semibold tracking-[-0.045em] md:text-7xl">Gameplay</h3>
-            <p className="mt-7 max-w-2xl text-lg leading-8 text-white/62">The ground slam shaped traversal, regular enemies, and the first boss. The rest of the game expands from that simple physical idea.</p>
+            <p className="mt-7 max-w-2xl text-lg leading-8 text-white/62">The ground slam is used for traversal, regular enemies, and the first boss. Other systems extend that central action.</p>
           </div>
           <div className="grid grid-flow-dense gap-0 overflow-hidden rounded-[24px] md:grid-cols-4 md:grid-rows-2">
             <article className="relative min-h-[34rem] overflow-hidden md:col-span-2 md:row-span-2">
@@ -1016,32 +1185,15 @@ function CuboProjectView({
               <div className="absolute inset-0 bg-gradient-to-t from-black/86 via-black/10 to-transparent" />
               <div className="absolute inset-x-0 bottom-0 p-7 md:p-9"><h4 className="text-3xl font-semibold">Ground slam combat</h4><p className="mt-3 max-w-lg leading-7 text-white/70">Jump, reach the apex, then drive downward to damage enemies, break the rhythm of a chase, or meet Grump Rock head-on.</p></div>
             </article>
-            <article className="min-h-[17rem] bg-[#21120e] p-7 md:col-span-2 md:p-9"><h4 className="text-3xl font-semibold">Movement</h4><p className="mt-4 max-w-xl leading-7 text-white/65">Variable jumps, dashing, wall climbing, and controller rumble established the core feel. Sprinting later replaced the ground dash so players could evade the second boss more reliably.</p></article>
-            <article className="min-h-[17rem] bg-[#d95f27] p-7 text-[#1b0d08] md:p-9"><h4 className="text-2xl font-semibold">Atmosphere</h4><p className="mt-4 leading-7 text-[#1b0d08]/76">Global Light 2D, warm spotlights, vignette, animated candles, fireflies, and reflected water give the mine its visual identity.</p></article>
+            <article className="min-h-[17rem] bg-[#21120e] p-7 md:col-span-2 md:p-9"><h4 className="text-3xl font-semibold">Movement</h4><p className="mt-4 max-w-xl leading-7 text-white/65">The movement set includes variable jumps, dashing, wall climbing, and controller rumble. Sprinting later replaced the ground dash so players could evade the second boss more reliably.</p></article>
+            <article className="min-h-[17rem] bg-[#d95f27] p-7 text-[#1b0d08] md:p-9"><h4 className="text-2xl font-semibold">Atmosphere</h4><p className="mt-4 leading-7 text-[#1b0d08]/76">Global Light 2D, spotlights, vignette, animated candles, fireflies, and reflected water define the mine's visual treatment.</p></article>
             <article className="min-h-[17rem] bg-[#181515] p-7 md:p-9"><h4 className="text-2xl font-semibold">Player systems</h4><p className="mt-4 leading-7 text-white/62">Health, stamina, respawning, i-frames, damage numbers, tutorial triggers, settings, and optional speedrun timing support the full loop.</p></article>
           </div>
         </section>
 
-        <section className="bg-[#f0e9df] px-5 py-32 text-[#1c1613] md:px-8 md:py-44">
+        <section id="process" data-case-study-chapter className="scroll-mt-16 bg-[#151110] px-5 py-32 md:px-8 md:py-44">
           <div className="mx-auto max-w-7xl">
-            <h3 className="max-w-6xl text-5xl font-semibold leading-[0.98] tracking-[-0.055em] md:text-8xl">
-              Research
-            </h3>
-            <p className="cubo-reveal-copy mt-14 max-w-5xl text-2xl leading-[1.45] tracking-[-0.02em] text-[#1c1613] md:text-4xl">
-              {cuboBrief.split(" ").map((word, index) => <span key={`${word}-${index}`}>{word} </span>)}
-            </p>
-            <div className="mt-24 grid gap-12 border-t border-[#1c1613]/18 pt-12 md:grid-cols-2 lg:grid-cols-4">
-              <article><h4 className="text-xl font-semibold">Metroidvania foundations</h4><p className="mt-4 leading-7 text-[#1c1613]/66">Research into Metroid focused the project on non-linear exploration, backtracking, power-up gating, and allowing the player to discover their own route and pace. The world uses environment and mechanical progression instead of relying on cutscenes or long dialogue.</p></article>
-              <article><h4 className="text-xl font-semibold">Hollow Knight</h4><p className="mt-4 leading-7 text-[#1c1613]/66">The strongest influence was its cohesive, moody world, the way player and enemy designs feel part of the same place, environmental storytelling, and bosses that reward specific attacks or abilities.</p></article>
-              <article><h4 className="text-xl font-semibold">Celeste and Rayman</h4><p className="mt-4 leading-7 text-[#1c1613]/66">Celeste informed clean platform readability and supported the decision to simplify the player into a geometric cube. Rayman Legends influenced layered environmental detail and bright, warm accents against dark surroundings.</p></article>
-              <article><h4 className="text-xl font-semibold">Boss references</h4><p className="mt-4 leading-7 text-[#1c1613]/66">Grump Rock began with Elden Ring's rolling boulder enemy in mind. Shackled Bomber combines Touhou-style projectile pressure with the collect-and-fire rhythm of Soul Essence and Soul Charge, inspired by Critical.</p></article>
-            </div>
-          </div>
-        </section>
-
-        <section className="bg-[#151110] px-5 py-32 md:px-8 md:py-44">
-          <div className="mx-auto max-w-7xl">
-            <div className="max-w-5xl"><h3 className="text-5xl font-semibold tracking-[-0.05em] md:text-8xl">Systems</h3><p className="mt-7 max-w-3xl text-lg leading-8 text-white/60">Cubo grew from a movement prototype into a complete playable loop. These are the systems documented across the build.</p></div>
+            <div className="max-w-5xl"><h3 className="text-5xl font-semibold tracking-[-0.05em] md:text-8xl">Process</h3><p className="mt-7 max-w-3xl text-lg leading-8 text-white/60">Cubo began as a movement prototype. The following systems were added to produce the playable build.</p></div>
             <div className="mt-20 border-y border-white/12">
               {cuboSystems.map((system, index) => (
                 <article key={system.title} className="grid gap-4 border-b border-white/12 py-9 last:border-b-0 md:grid-cols-[0.7fr_1.3fr] md:gap-16 md:py-12">
@@ -1055,37 +1207,24 @@ function CuboProjectView({
         </section>
 
         <section className="mx-auto max-w-7xl px-5 py-32 md:px-8 md:py-44">
-          <div className="grid gap-16 lg:grid-cols-[0.78fr_1.22fr] lg:gap-24">
-            <div><h3 className="text-5xl font-semibold tracking-[-0.05em] md:text-7xl">Engineering</h3><p className="mt-7 text-lg leading-8 text-white/60">Several systems changed because the first solution was too restrictive, too complex, or failed under real play.</p></div>
-            <div className="space-y-14">
+          <div>
+            <div className="max-w-3xl"><h3 className="text-5xl font-semibold tracking-[-0.05em] md:text-7xl">Engineering</h3><p className="mt-7 text-lg leading-8 text-white/60">Several systems changed because the first solution was too restrictive, too complex, or failed under real play.</p></div>
+            <div className="mt-16 grid gap-14 lg:grid-cols-2 lg:gap-x-16 lg:gap-y-20">
               <article><h4 className="text-2xl font-semibold">Input system</h4><p className="mt-4 leading-8 text-white/62">The legacy Input Manager worked for basic movement but became difficult once controller support, rumble, variable jump height, ground slam, and dashing shared the same controller. Moving to the New Input System gave each action a cleaner input path and made keyboard and gamepad behaviour consistent.</p></article>
               <article><h4 className="text-2xl font-semibold">Elevator system</h4><p className="mt-4 leading-8 text-white/62">An elevator tutorial produced a system that was more complex than this level needed and caused errors when customised. I replaced it with a smaller modular script. The lever can call the platform from the opposite floor, and the reset logic returns it when idle. ChatGPT helped produce and refine this targeted implementation.</p></article>
-              <article><h4 className="text-2xl font-semibold">Projectile debugging</h4><p className="mt-4 leading-8 text-white/62">Shackled Bomber's dynamite targeting produced repeated errors. Debug logs narrowed the issue to the projectile logic, and the fix was tested in the arena rather than treated as an isolated script change. The same practical workflow supported the damage-flash shader and other feedback scripts.</p></article>
-              <article><h4 className="text-2xl font-semibold">Playtesting</h4><p className="mt-4 leading-8 text-white/62">Playtesting showed that the original ground dash did not give players enough control to avoid repeated dynamite. A stamina-based sprint replaced it on the ground. Soul Charge also gained temporary invulnerability so a successful attack could not be cancelled by unavoidable contact during its animation.</p></article>
+              <article><h4 className="text-2xl font-semibold">Projectile debugging</h4><p className="mt-4 leading-8 text-white/62">Shackled Bomber's dynamite targeting produced repeated errors. Debug logs narrowed the issue to the projectile logic, and the fix was tested in the arena. The same workflow was used for the damage flash shader and other feedback scripts.</p></article>
+              <article><h4 className="text-2xl font-semibold">Playtesting</h4><p className="mt-4 leading-8 text-white/62">Playtesting showed that the original ground dash did not give players enough control to avoid repeated dynamite. A sprint that uses stamina replaced it on the ground. Soul Charge also gained temporary invulnerability so contact during its animation did not cancel a successful attack.</p></article>
             </div>
           </div>
         </section>
 
-        <section className="mx-auto max-w-7xl px-5 py-32 md:px-8 md:py-44">
-          <div className="grid gap-14 lg:grid-cols-[0.72fr_1.28fr] lg:items-end">
-            <div><h3 className="text-5xl font-semibold tracking-[-0.05em] md:text-7xl">Art and assets</h3><p className="mt-7 text-lg leading-8 text-white/60">I made the game assets in Aseprite and used the visual constraints to keep production realistic while still building a distinct cave.</p></div>
-            <div className="cubo-scroll-image overflow-hidden rounded-[24px]"><img src={cuboImage("world.png")} alt="Cubo's layered mine environment with crystals, lanterns, and mining structures" className="w-full object-cover" /></div>
-          </div>
-          <div className="mt-20 grid gap-x-14 gap-y-16 border-t border-white/12 pt-12 md:grid-cols-2">
-            <article><h4 className="text-2xl font-semibold">Player design</h4><p className="mt-4 leading-7 text-white/62">Early player sprites were more complex, but detailed frame-by-frame animation would have consumed too much of the schedule. I changed the player to a simple cube so I could iterate on movement states quickly, keep the silhouette readable, and spend more time on mechanics and level design.</p></article>
-            <article><h4 className="text-2xl font-semibold">Environment assets</h4><p className="mt-4 leading-7 text-white/62">The cave was assembled from a rocky ground tileset plus foliage, crystals, crates, minecarts, platforms, railings, lanterns, candles, mining equipment, and smaller dressing assets. Reusable tilemaps let those pieces form one large connected level.</p></article>
-            <article><h4 className="text-2xl font-semibold">Lighting and post-processing</h4><p className="mt-4 leading-7 text-white/62">Global Light 2D establishes a dark baseline. Spot Light 2D components create warm pools around candles and lanterns, while a Global Volume adds vignette and colour correction. Animated candle sprites and firefly particles stop the still cave from feeling lifeless.</p></article>
-            <article><h4 className="text-2xl font-semibold">Reflected water</h4><p className="mt-4 leading-7 text-white/62">The water effect uses a custom shader and a secondary camera to capture a reflected layer in real time. Ripple and distortion values deform that reflection, giving a stronger sense of movement and depth than a static surface.</p></article>
-          </div>
-        </section>
-
-        <section className="cubo-story mx-auto grid max-w-7xl gap-16 px-5 py-32 md:px-8 md:py-44 lg:grid-cols-[0.72fr_1.28fr] lg:gap-24">
-          <div className="h-fit max-w-md">
+        <section className="cubo-story mx-auto max-w-7xl px-5 py-32 md:px-8 md:py-44">
+          <div className="max-w-3xl">
             <h3 className="text-5xl font-semibold tracking-[-0.05em] md:text-7xl">Level design</h3>
-            <p className="mt-7 text-lg leading-8 text-white/58">I kept the tutorial inside the same scene so learning flows directly into exploration without breaking the world apart.</p>
+            <p className="mt-7 text-lg leading-8 text-white/58">The tutorial remains inside the main scene and leads directly into exploration.</p>
           </div>
-          <div className="space-y-28">
-            <figure>
+          <div className="mt-16 grid gap-12 md:grid-cols-2 md:gap-16">
+            <figure className="md:col-span-2">
               <div className="cubo-scroll-image overflow-hidden rounded-[22px] bg-black"><img src={cuboImage("connected-map.png")} alt="Wide view of Cubo's connected cave map" className="aspect-video w-full object-cover" /></div>
               <figcaption className="mt-5 max-w-2xl text-base leading-7 text-white/58">The connected layout combines contextual tutorials, vertical routes, hazards, chests, and gated encounters in one continuous cave system.</figcaption>
             </figure>
@@ -1100,8 +1239,15 @@ function CuboProjectView({
           </div>
         </section>
 
-        <section className="mx-auto max-w-7xl px-5 py-32 md:px-8 md:py-44">
-          <div className="max-w-4xl"><h3 className="text-5xl font-semibold tracking-[-0.05em] md:text-7xl">Bosses</h3><p className="mt-7 max-w-2xl text-lg leading-8 text-white/60">Each encounter tests a different reading of the player's abilities while maintaining the Metroidvania progression between them.</p></div>
+        <section id="extras" data-case-study-chapter className="scroll-mt-16 mx-auto max-w-7xl px-5 pt-32 md:px-8 md:pt-44">
+          <div className="border-b border-white/12 pb-16 md:pb-20">
+            <h3 className="text-5xl font-semibold tracking-[-0.05em] md:text-8xl">Extras</h3>
+            <p className="mt-7 max-w-2xl text-lg leading-8 text-white/60">Supporting material covering the bosses, progression, interface, and development workflow.</p>
+          </div>
+        </section>
+
+        <section id="cubo-bosses" className="mx-auto max-w-7xl px-5 pb-32 pt-16 md:px-8 md:pb-44 md:pt-20">
+          <div className="max-w-4xl"><h3 className="text-5xl font-semibold tracking-[-0.05em] md:text-7xl">Bosses</h3><p className="mt-7 max-w-2xl text-lg leading-8 text-white/60">Each encounter uses a different player ability and acts as a progression gate.</p></div>
           <div className="mt-16 flex flex-col gap-4 lg:h-[34rem] lg:flex-row">
             <article className="group relative min-h-[28rem] flex-1 overflow-hidden rounded-[24px] transition-[flex] duration-700 ease-out hover:flex-[1.35]">
               <img src={cuboImage("grump-rock.png")} alt="Grump Rock rolling toward Cubo" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
@@ -1111,16 +1257,16 @@ function CuboProjectView({
             <article className="group relative min-h-[28rem] flex-1 overflow-hidden rounded-[24px] transition-[flex] duration-700 ease-out hover:flex-[1.35]">
               <img src={cuboImage("shackled-bomber.png")} alt="Cubo facing the suspended Shackled Bomber" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/12 to-transparent" />
-              <div className="absolute inset-x-0 bottom-0 p-7 md:p-9"><h4 className="text-3xl font-semibold">Shackled Bomber</h4><p className="mt-3 max-w-xl leading-7 text-white/70">The Boulder Key unlocks a boss positioned out of reach on the roof. Players sprint through dynamite patterns, collect three Soul Essences, and fire an invulnerable Soul Charge. In phase two the boss drops to the floor and bounces across the arena, returning the fight to ground-slam timing.</p></div>
+              <div className="absolute inset-x-0 bottom-0 p-7 md:p-9"><h4 className="text-3xl font-semibold">Shackled Bomber</h4><p className="mt-3 max-w-xl leading-7 text-white/70">The Boulder Key unlocks a boss positioned out of reach on the roof. Players sprint through dynamite patterns, collect three Soul Essences, and fire an invulnerable Soul Charge. In phase two the boss drops to the floor and bounces across the arena, returning the fight to ground slam timing.</p></div>
             </article>
           </div>
           <div className="mt-16 grid gap-10 border-t border-white/12 pt-12 md:grid-cols-2">
-            <article><h4 className="text-2xl font-semibold">Boss mechanics</h4><p className="mt-4 leading-8 text-white/62">The boss research looked at attacks that are unusually effective against a specific enemy, including Howling Wraiths against the stationary Flukemarm and missiles fired into Kraid's open mouth. Cubo applies the same principle by making the slam the natural answer to Grump Rock's low rolling body.</p></article>
-            <article><h4 className="text-2xl font-semibold">Boss progression</h4><p className="mt-4 leading-8 text-white/62">The encounters also act as progression gates. Grump Rock teaches the core attack and awards the key to Shackled Bomber. The second fight introduces a different resource-and-projectile loop before bringing the slam back in its final phase, linking the two lessons together.</p></article>
+            <article><h4 className="text-2xl font-semibold">Boss mechanics</h4><p className="mt-4 leading-8 text-white/62">The reference review covered attacks designed for a specific enemy, including Howling Wraiths against Flukemarm and missiles fired into Kraid's open mouth. Grump Rock applies the same structure by requiring the slam against its rolling attack.</p></article>
+            <article><h4 className="text-2xl font-semibold">Boss progression</h4><p className="mt-4 leading-8 text-white/62">The encounters also act as progression gates. Grump Rock teaches the core attack and awards the key to Shackled Bomber. The second fight introduces a resource and projectile loop before using the slam again in its final phase.</p></article>
           </div>
         </section>
 
-        <section className="bg-[#d95f27] px-5 py-32 text-[#1b0d08] md:px-8 md:py-44">
+        <section id="cubo-progression" className="bg-[#d95f27] px-5 py-32 text-[#1b0d08] md:px-8 md:py-44">
           <div className="mx-auto max-w-7xl">
             <h3 className="max-w-5xl text-5xl font-semibold tracking-[-0.055em] md:text-8xl">Player progression</h3>
             <div className="mt-20 border-y border-[#1b0d08]/20">
@@ -1135,22 +1281,30 @@ function CuboProjectView({
           </div>
         </section>
 
-        <section className="bg-[#f0e9df] px-5 py-32 text-[#1c1613] md:px-8 md:py-44">
+        <section id="cubo-interface" className="bg-[#f0e9df] px-5 py-32 text-[#1c1613] md:px-8 md:py-44">
           <div className="mx-auto max-w-7xl">
             <div className="grid gap-14 lg:grid-cols-[0.72fr_1.28fr] lg:items-end">
               <div><h3 className="text-5xl font-semibold tracking-[-0.05em] md:text-7xl">Interface</h3><p className="mt-7 text-lg leading-8 text-[#1c1613]/62">The main and pause menus include master volume, fullscreen, and resolution controls, with settings synchronised across scenes. Cursor visibility changes between gameplay and menu states, and later hotfixes protected button input after display changes.</p><p className="mt-5 text-lg leading-8 text-[#1c1613]/62">The optional speedrun timer records runtime and best completion time, while later builds added total death tracking to the end screen. On the title screen, Cubo replaces the letter O and its eyes follow the mouse through a raycast-driven effect.</p></div>
-              <img src={cuboImage("main-menu.png")} alt="Cubo's main menu with the character forming the letter O" className="w-full rounded-[22px] shadow-[0_32px_80px_rgba(53,31,18,0.2)]" />
+              <img src={cuboImage("main-menu.png")} alt="Cubo's main menu with the character forming the letter O" width="1483" height="833" className="aspect-[1483/833] w-full rounded-[22px] object-cover shadow-[0_32px_80px_rgba(53,31,18,0.2)]" />
             </div>
           </div>
         </section>
 
-        <section className="mx-auto max-w-7xl px-5 py-32 md:px-8 md:py-44">
+        <section id="cubo-workflow" className="mx-auto max-w-7xl px-5 py-32 md:px-8 md:py-44">
           <div className="grid gap-14 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
-            <div className="cubo-scroll-image overflow-hidden rounded-[24px]"><img src={cuboImage("version-control.png")} alt="Cubo's private GitHub repository and organised Unity project history" className="w-full object-cover" /></div>
-            <div><h3 className="text-5xl font-semibold tracking-[-0.05em] md:text-7xl">Development workflow</h3><p className="mt-7 text-lg leading-8 text-white/60">The Unity hierarchy was kept organised, and assets were separated into folders and subfolders so scenes, sprites, animation, enemies, UI, and scripts remained manageable as the project expanded.</p><p className="mt-5 text-lg leading-8 text-white/60">GitHub version control tracked the project throughout development and supported the post-submission release history. Player and enemy behaviours were separated into focused scripts, while debug logs were used to trace targeting and interaction problems before changes were tested in context.</p></div>
+            <div className="cubo-scroll-image overflow-hidden rounded-[24px]"><img src={cuboImage("version-control.png")} alt="Cubo's private GitHub repository and organised Unity project history" width="1920" height="1020" className="aspect-[32/17] w-full object-cover" /></div>
+            <div><h3 className="text-5xl font-semibold tracking-[-0.05em] md:text-7xl">Development workflow</h3><p className="mt-7 text-lg leading-8 text-white/60">The Unity hierarchy was organised by function. Assets were separated into folders for scenes, sprites, animation, enemies, interface elements, and scripts.</p><p className="mt-5 text-lg leading-8 text-white/60">GitHub tracked the project and later releases. Player and enemy behaviours used separate scripts. Debug logs were used to trace targeting and interaction problems before testing changes in the game.</p></div>
           </div>
         </section>
 
+        <ChangelogAccordion
+          entries={cuboChangelog}
+          openVersion={openChangelogVersion}
+          onToggle={setOpenChangelogVersion}
+          idPrefix="cubo"
+          description="Complete release notes for Cubo, from the first test build to the latest update."
+        />
+        {false && (
         <section className="mx-auto max-w-7xl px-5 py-32 md:px-8 md:py-44">
           <div className="max-w-4xl">
             <h3 className="text-5xl font-semibold tracking-[-0.05em] md:text-7xl">Changelog</h3>
@@ -1187,14 +1341,14 @@ function CuboProjectView({
             )})}
           </div>
         </section>
+        )}
 
-        <section className="relative overflow-hidden px-5 py-24 text-center md:px-8 md:py-32">
+        <section id="reflection" data-case-study-chapter className="scroll-mt-16 relative overflow-hidden px-5 py-24 text-center md:px-8 md:py-32">
           <img src={cuboImage("pause-menu.png")} alt="Cubo paused inside the Crystal Caverns" className="absolute inset-0 h-full w-full object-cover opacity-30" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(11,9,9,0.28),#0b0909_78%)]" />
-          <div className="relative mx-auto max-w-4xl"><h3 className="text-5xl font-semibold tracking-[-0.055em] md:text-8xl">Reflection</h3><p className="mx-auto mt-8 max-w-2xl text-lg leading-8 text-white/66">Cubo taught me to protect the core feel of a game while changing the systems around it. I simplified the character art to prioritise mechanics, refactored input when the first approach became limiting, and used playtesting to reshape movement for the second boss.</p><p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-white/66">The main weakness remains character animation. Several enemies still lack dedicated attack or stun states because I was building confidence with fluid frame-by-frame work. A save and load system was also cut to keep the original schedule achievable. Those are the clearest priorities for the next development pass.</p><button type="button" onClick={() => onNavigate(1)} className="mt-10 inline-flex items-center gap-2 rounded-full bg-white px-7 py-3.5 font-semibold text-[#171111] transition-transform hover:scale-[1.03] active:scale-95">Continue to next project <ArrowUpRight size={18} /></button></div>
+          <div className="relative mx-auto max-w-4xl"><h3 className="text-5xl font-semibold tracking-[-0.055em] md:text-8xl">Reflection</h3><p className="mx-auto mt-8 max-w-2xl text-lg leading-8 text-white/66">The project required the central movement and combat behavior to remain consistent while supporting changes to input, level design, and boss encounters. I simplified the character art, replaced the original input implementation, and adjusted movement after playtesting the second boss.</p><p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-white/66">Character animation remains incomplete. Several enemies do not have dedicated attack or stun states. Save and load support was removed from the original scope to meet the submission schedule. These areas should be addressed in a later development pass.</p></div>
         </section>
-      </main>
-    </div>
+    </CaseStudyShell>
   );
 }
 

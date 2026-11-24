@@ -2,6 +2,7 @@ export type Project = {
   id: string;
   title: string;
   category: "Games" | "3D" | "2D Art" | "Tools";
+  caseStudyStatus: "published" | "draft";
   summary: string;
   description: string;
   stack: string[];
@@ -53,38 +54,42 @@ export const projects: Project[] = [
     id: "cubo",
     title: "Cubo",
     category: "Games",
+    caseStudyStatus: "published",
     summary: "A 2D Metroidvania with combat, exploration, and boss fights.",
     description:
       "Cubo is a solo Unity project set in an abandoned crystal mine. I designed and built the connected world, movement, combat, enemies, bosses, interface, lighting, shaders, and progression systems, then kept iterating after the original submission.",
     stack: ["Unity 6", "C#", "Aseprite", "ShaderLab", "GitHub"],
     highlights: [
-      "Ground-slam combat, sprinting, wall climbing, variable jumps, and full gamepad support with haptics.",
-      "Two multi-phase bosses with different damage loops and ability-gated progression between encounters.",
+      "Ground slam combat, sprinting, wall climbing, variable jumps, and full gamepad support with haptics.",
+      "Two bosses with multiple phases, different damage loops, and progression gated by abilities.",
       "Custom 2D lighting, reflected water, contextual tutorials, settings, respawning, and an optional speedrun timer.",
     ],
     imageSeed: "cubo-crystal-caverns",
     imageUrl: "projects/cubo/world.png",
   },
   {
-    id: "portfolio-system",
-    title: "Portfolio System",
-    category: "Tools",
-    summary: "A clean personal site architecture with editable project data and animated case-study overlays.",
+    id: "everdew",
+    title: "Everdew",
+    category: "Games",
+    caseStudyStatus: "published",
+    summary: "A top down pixel farming game made by four students during a three week game jam.",
     description:
-      "The portfolio you are viewing: a single-page, GitHub Pages-ready React site with project content isolated into a data file and interaction behavior kept accessible.",
-    stack: ["Vite", "React", "GSAP", "GitHub Pages"],
+      "Everdew is a top down farming game created for New College Swindon's A New Path game jam. I worked on the environment, game design, programming, and interface. The team replaced the first implementation with smaller systems and continued updating the game after the jam.",
+    stack: ["Unity", "C#", "Aseprite", "GitHub", "Trello"],
     highlights: [
-      "Single-page navigation with smooth anchored sections.",
-      "Accessible project overlay with Escape and backdrop close.",
-      "Production build configured for repository-based Pages hosting.",
+      "Farming, inventory, shops, animals, day and night, NPCs, perks, and a 30-day economy loop.",
+      "Four person development using modular scripts, version control, Trello, and assigned production roles.",
+      "Later releases added balance changes, shop restocking, interface updates, and save/load support.",
     ],
-    imageSeed: "minimal-portfolio-interface",
-    liveUrl: "https://cinder7832.github.io/Portfolio/",
+    imageSeed: "everdew-pixel-farm",
+    imageUrl: "projects/everdew/farm-village.png",
+    liveUrl: "https://cinder7832.itch.io/everdew",
   },
   {
     id: "automation-lab",
     title: "Automation Lab",
     category: "Games",
+    caseStudyStatus: "draft",
     summary: "Prototype tooling for turning repetitive manual workflows into dependable browser actions.",
     description:
       "A placeholder case study for automation experiments, built to show problem framing, interaction design, and engineering taste. Replace this with one of your real repositories when ready.",
@@ -101,6 +106,7 @@ export const projects: Project[] = [
     id: "learning-platform",
     title: "Learning Platform Concept",
     category: "2D Art",
+    caseStudyStatus: "draft",
     summary: "A study-friendly interface for organizing topics, progress, notes, and next actions.",
     description:
       "A concept project shaped around clarity and momentum: what to learn next, what has been completed, and what needs review. It is ready to be swapped with a finished academic or product project.",
@@ -113,6 +119,10 @@ export const projects: Project[] = [
     imageSeed: "learning-platform-minimal",
   },
 ];
+
+export const publishedProjects = projects.filter(
+  (project): project is Project & { caseStudyStatus: "published" } => project.caseStudyStatus === "published",
+);
 
 export const artworks: Artwork[] = [
   {

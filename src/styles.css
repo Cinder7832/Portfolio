@@ -1,4 +1,18 @@
-@import url("https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap");
+@font-face {
+  font-family: "Geist";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: block;
+  src: url("/fonts/geist-latin.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Outfit";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: block;
+  src: url("/fonts/outfit-latin.woff2") format("woff2");
+}
 
 @tailwind base;
 @tailwind components;
@@ -29,17 +43,6 @@ body {
   min-width: 320px;
   background: #ffffff;
   transition: background-color 220ms cubic-bezier(0.2, 0, 0.2, 1);
-}
-
-html.js-intro-pending .site-nav,
-html.js-intro-pending .hero-copy > *,
-html.js-intro-pending .profile-photo {
-  opacity: 0;
-}
-
-.hero-copy > *,
-.profile-photo {
-  backface-visibility: hidden;
 }
 
 .glass-nav-surface {
@@ -106,6 +109,26 @@ html.is-scrolling::-webkit-scrollbar-thumb,
 button,
 a {
   -webkit-tap-highlight-color: transparent;
+}
+
+.icon-button-motion {
+  transform: translateZ(0) scale(1);
+  transform-origin: center;
+  transition-property: transform, background-color, color, box-shadow;
+  transition-duration: 220ms;
+  transition-timing-function: cubic-bezier(0.2, 0, 0.2, 1);
+  will-change: transform;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .icon-button-motion:hover {
+    transform: translateZ(0) scale(1.06);
+  }
+}
+
+.icon-button-motion:active {
+  transform: translateZ(0) scale(0.94);
+  transition-duration: 120ms;
 }
 
 .filter-menu {
@@ -203,37 +226,21 @@ a {
     transform: scale(0.985) !important;
   }
 
-  .project-card:hover img {
-    filter: brightness(0.68) contrast(1.12) saturate(0.72) !important;
-  }
-
-  .artwork-tile:hover img,
-  .group:hover .catalog-artwork-image {
-    filter: brightness(0.86) contrast(1.08) saturate(0.82) !important;
-  }
-
-  .group:hover .catalog-project-image {
-    filter: brightness(0.72) contrast(1.1) saturate(0.76) !important;
-  }
-
   .group:hover .catalog-project-image,
   .group:hover .catalog-artwork-image {
     transform: none !important;
   }
 
   .project-card:active img {
-    filter: brightness(1) contrast(1) saturate(1) !important;
     transform: scale(1.025) !important;
   }
 
   .artwork-tile:active img,
   .group:active .catalog-artwork-image {
-    filter: brightness(1) contrast(1) saturate(1) !important;
     transform: scale(1.03) !important;
   }
 
   .group:active .catalog-project-image {
-    filter: brightness(1) contrast(1) saturate(1) !important;
     transform: scale(1.025) !important;
   }
 }
@@ -252,9 +259,16 @@ a {
     animation: none;
   }
 
+  .icon-button-motion,
+  .icon-button-motion:hover,
+  .icon-button-motion:active {
+    transform: none;
+  }
+
 }
 
-.cubo-changelog-panel {
+.cubo-changelog-panel,
+.case-study-changelog-panel {
   display: grid;
   grid-template-rows: 0fr;
   opacity: 0;
@@ -263,13 +277,15 @@ a {
     opacity 220ms ease;
 }
 
-.cubo-changelog-panel.is-open {
+.cubo-changelog-panel.is-open,
+.case-study-changelog-panel.is-open {
   grid-template-rows: 1fr;
   opacity: 1;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .cubo-changelog-panel {
+  .cubo-changelog-panel,
+  .case-study-changelog-panel {
     transition: none;
   }
 }

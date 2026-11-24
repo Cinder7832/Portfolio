@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { clone as cloneSkinnedModel } from "three/examples/jsm/utils/SkeletonUtils.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
 import { GTAOPass } from "three/examples/jsm/postprocessing/GTAOPass.js";
@@ -17,6 +18,47 @@ const DEFAULT_KEY_INTENSITY = 1.45;
 const DEFAULT_FILL_INTENSITY = 0.2;
 const DEFAULT_RIM_INTENSITY = 0.38;
 const DEFAULT_MODEL_YAW = 180;
+
+// Parsed glTF scenes are shared while a model catalog is open. Viewers use a
+// cloned scene graph, so an offscreen card can be shown again without reloading.
+const loadedModelSources = new Map<string, Promise<THREE.Object3D>>();
+
+export const clearLoadedModelSources = () => {
+  // Do not dispose here. A featured artwork card outside the catalog may still
+  // reference the same geometry or textures. Clearing this map releases the
+  // cache's ownership and allows unreferenced models to be collected safely.
+  loadedModelSources.clear();
+};
+
+if (typeof window !== "undefined") {
+  window.addEventListener("artwork-model-cache-clear", clearLoadedModelSources);
+}
+
+const loadModelSource = (modelUrl: string) => {
+  const cachedModel = loadedModelSources.get(modelUrl);
+  if (cachedModel) {
+    return cachedModel;
+  }
+
+  const modelPromise = new Promise<THREE.Object3D>((resolve, reject) => {
+    new GLTFLoader().load(
+      modelUrl,
+      (gltf) => resolve(gltf.scene),
+      undefined,
+      reject,
+    );
+  });
+
+  loadedModelSources.set(modelUrl, modelPromise);
+  modelPromise.catch(() => {
+    // Failed requests should be retryable rather than remaining cached forever.
+    if (loadedModelSources.get(modelUrl) === modelPromise) {
+      loadedModelSources.delete(modelUrl);
+    }
+  });
+
+  return modelPromise;
+};
 
 const modelUrlFor = (artwork: Artwork) => {
   if (!artwork.modelUrl) {
@@ -514,16 +556,12 @@ export default function ModelViewer({
 
     const modelUrl = modelUrlFor(artwork);
     if (modelUrl) {
-      new GLTFLoader().load(
-        modelUrl,
-        (gltf) => {
-          if (disposed) {
-            disposeObjectResources(gltf.scene);
-            return;
+      loadModelSource(modelUrl).then(
+        (source) => {
+          if (!disposed) {
+            mountModel(cloneSkinnedModel(source));
           }
-          mountModel(gltf.scene);
         },
-        undefined,
         (error) => {
           if (!disposed) {
             console.error(`Could not load 3D model: ${modelUrl}`, error);
@@ -600,6 +638,10 @@ export default function ModelViewer({
       composer.dispose();
       environmentTarget.dispose();
       pmremGenerator.dispose();
+      // Source models use shared GPU resources from the page cache. Detach the
+      // viewer clone before disposing the scene so those resources stay resident.
+      modelGroup.clear();
+      scene.remove(modelGroup);
       disposeObjectResources(scene);
       renderer.dispose();
       renderer.forceContextLoss();
