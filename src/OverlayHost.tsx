@@ -67,8 +67,12 @@ const artworkImageFor = (artwork: Artwork, width = 900, height = 1200) => {
 };
 
 const artworkCardImageFor = (artwork: Artwork, width = 900, height = 1200) => {
-  if (artwork.imageUrl?.startsWith("artwork/sketches/")) {
-    const cardPath = artwork.imageUrl.replace("artwork/sketches/", "artwork/sketches/cards/");
+  const cardAssetPrefix = ["artwork/sketches/", "artwork/mobile-devices/"].find((prefix) =>
+    artwork.imageUrl?.startsWith(prefix),
+  );
+
+  if (artwork.imageUrl && cardAssetPrefix) {
+    const cardPath = artwork.imageUrl.replace(cardAssetPrefix, `${cardAssetPrefix}cards/`);
     return `${import.meta.env.BASE_URL}${cardPath}`;
   }
 
@@ -624,15 +628,26 @@ function AllProjectsView({ onChange }: { onChange: (state: OverlayState | null) 
   );
 }
 
+type ArtworkFilter = "All" | Artwork["kind"] | "Photographs" | "Sketches";
+
+const matchesArtworkFilter = (artwork: Artwork, filter: ArtworkFilter) => {
+  if (filter === "All") return true;
+  if (filter === "2D" || filter === "3D") return artwork.kind === filter;
+
+  const classification = [artwork.medium, ...artwork.tags].join(" ").toLowerCase();
+  if (filter === "Photographs") return classification.includes("photograph");
+  return classification.includes("sketch") || classification.includes("drawing");
+};
+
 function AllArtworkView({ onChange }: { onChange: (state: OverlayState | null) => void }) {
   const [query, setQuery] = useState("");
-  const [kind, setKind] = useState<"All" | Artwork["kind"]>("All");
+  const [kind, setKind] = useState<ArtworkFilter>("All");
   const [filterOpen, setFilterOpen] = useState(false);
   const resultsRef = useRef<HTMLDivElement | null>(null);
   const reducedMotion = usePrefersReducedMotion();
   const filtered = useMemo(() => artworks.filter((artwork) => {
     const text = [artwork.title, artwork.kind, artwork.medium, artwork.year, artwork.summary, artwork.description, ...artwork.tags].join(" ").toLowerCase();
-    return text.includes(query.trim().toLowerCase()) && (kind === "All" || artwork.kind === kind);
+    return text.includes(query.trim().toLowerCase()) && matchesArtworkFilter(artwork, kind);
   }), [kind, query]);
 
   useEffect(
@@ -654,7 +669,7 @@ function AllArtworkView({ onChange }: { onChange: (state: OverlayState | null) =
     <>
       <CatalogHeader title="All creative work" count={`${filtered.length} creative work results`} onClose={() => onChange(null)}>
         <SearchField value={query} onChange={setQuery} placeholder="Search creative work by title, medium, or tag" />
-        <FilterMenu label={kind === "All" ? "Filter" : kind} open={filterOpen} setOpen={setFilterOpen} items={["All", "2D", "3D"]} selected={kind} onSelect={(item) => setKind(item as typeof kind)} />
+        <FilterMenu label={kind === "All" ? "Filter" : kind} open={filterOpen} setOpen={setFilterOpen} items={["All", "Photographs", "Sketches", "2D", "3D"]} selected={kind} onSelect={(item) => setKind(item as ArtworkFilter)} />
       </CatalogHeader>
       <div className="detail-scrollbar flex-1 touch-pan-y overflow-y-auto overscroll-contain p-5 pt-3 md:p-8 md:pt-4">
         <div ref={resultsRef} className="columns-1 gap-4 sm:columns-2 lg:columns-3 xl:columns-4">

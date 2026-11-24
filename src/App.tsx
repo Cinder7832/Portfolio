@@ -97,8 +97,12 @@ const artworkImageFor = (artwork: Artwork, width = 900, height = 1200) => {
 };
 
 const artworkCardImageFor = (artwork: Artwork, width = 900, height = 1200) => {
-  if (artwork.imageUrl?.startsWith("artwork/sketches/")) {
-    const cardPath = artwork.imageUrl.replace("artwork/sketches/", "artwork/sketches/cards/");
+  const cardAssetPrefix = ["artwork/sketches/", "artwork/mobile-devices/"].find((prefix) =>
+    artwork.imageUrl?.startsWith(prefix),
+  );
+
+  if (artwork.imageUrl && cardAssetPrefix) {
+    const cardPath = artwork.imageUrl.replace(cardAssetPrefix, `${cardAssetPrefix}cards/`);
     return `${import.meta.env.BASE_URL}${cardPath}`;
   }
 
