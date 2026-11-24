@@ -1,7 +1,7 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { type ReactNode, type RefObject, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import gsap from "gsap";
-import { Maximize2, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Maximize2, X } from "lucide-react";
 import { MOTION, usePrefersReducedMotion } from "../motion";
 
 export function ExpandedImageViewer({
@@ -115,5 +115,36 @@ export function CaseStudyShowcaseImage({ src, alt, title }: { src: string; alt: 
       </div>
       <ExpandedImageViewer open={expanded} src={src} title={title} onClose={() => setExpanded(false)} />
     </>
+  );
+}
+
+export function CaseStudyShowcaseRail({
+  background,
+  railRef,
+  onScroll,
+  children,
+}: {
+  background: string;
+  railRef: RefObject<HTMLDivElement | null>;
+  onScroll: (direction: -1 | 1) => void;
+  children: ReactNode;
+}) {
+  return (
+    <section id="showcase" data-case-study-chapter className="scroll-mt-16 py-14 md:py-20" style={{ background }}>
+      <div className="mx-auto max-w-7xl px-5 md:px-8">
+        <div className="mb-8 flex flex-col justify-between gap-3 md:mb-10 md:flex-row md:items-end">
+          <h3 className="text-4xl font-semibold tracking-[-0.045em] md:text-6xl">Showcase</h3>
+          <div className="flex w-fit gap-1 rounded-full bg-white p-1 text-[#171717] shadow-[0_14px_34px_rgba(0,0,0,0.24)]">
+            <button type="button" className="icon-button-motion grid size-10 place-items-center rounded-full text-[#171717] hover:bg-[#171717] hover:text-white" aria-label="Show previous showcase item" onClick={() => onScroll(-1)}><ChevronLeft size={20} /></button>
+            <button type="button" className="icon-button-motion grid size-10 place-items-center rounded-full text-[#171717] hover:bg-[#171717] hover:text-white" aria-label="Show next showcase item" onClick={() => onScroll(1)}><ChevronRight size={20} /></button>
+          </div>
+        </div>
+      </div>
+      <div className="px-5 md:px-8">
+        <div ref={railRef} className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-3 md:gap-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {children}
+        </div>
+      </div>
+    </section>
   );
 }

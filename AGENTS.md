@@ -10,6 +10,8 @@ Whatever action you can do yourself, please do yourself. This includes starting 
 - Place exceptional material such as bosses, promotion, or project management in the shared Extras chapter. Every typed deep dive uses `extras` placement.
 - Keep incomplete projects at `caseStudyStatus: "draft"`. Do not publish a study or invent content to fill a required chapter.
 - Preserve each project’s visual identity, but use `CaseStudyShell` for chapter navigation, spacing, interaction motion, and accessibility.
+- Keep media and major content surfaces rounded across every project. Individual case studies may vary the corner radius, composition, colour, and typography while retaining this shared portfolio identity.
+- Keep cards and media outlineless. Use background contrast, spacing, clipping, and shadow to define surfaces. Reserve borders for accessibility focus states and meaningful separators between sections, columns, or content groups.
 - Every project details overlay must use the same large 16:9 landscape frame at every viewport width. Do not switch project details to a portrait or compact modal at smaller breakpoints.
 - Do not add vertical scroll driven effects to case studies. Text opacity, image scale, image position, and brightness must remain stable while the reader scrolls.
 - Retain normal interface motion such as hover feedback, button states, showcase movement, accordion transitions, and overlay opening or closing transitions.
@@ -17,6 +19,7 @@ Whatever action you can do yourself, please do yourself. This includes starting 
 - Chapter navigation scrolls smoothly to the selected section while keeping the selected pill stable. Use immediate scrolling when reduced motion is requested.
 - The case study navigation surface is solid black with no transparency or backdrop blur.
 - Every image in a Showcase must include an expand control that opens the shared fullscreen image viewer. Videos remain playable in place.
+- Showcase chapters contain media only. Do not place visible descriptions or captions beneath the Showcase heading or its images.
 - Every horizontal content rail must include previous and next arrow controls, with smooth scrolling unless reduced motion is requested.
 - Case studies must not include a “Continue to next project” action.
 - Keep case-study heroes wide and within two or three lines. Use dense, complete bento grids, high-contrast controls, descriptive media alternatives, and no numbered meta-labels.

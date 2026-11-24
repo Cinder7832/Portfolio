@@ -29,7 +29,7 @@ export default function ChangelogAccordion({
         <h3 className={`text-5xl md:text-8xl ${editorial ? "font-medium tracking-[-0.06em]" : industrial ? "font-semibold tracking-[-0.075em]" : "font-semibold tracking-[-0.055em]"}`}>Changelog</h3>
         <p className="mt-7 text-lg leading-8 text-white/60">{description}</p>
       </div>
-      <div className={`mt-16 ${industrial ? "grid gap-2 border-2 border-[#ef6c43] bg-[#ef6c43] p-0" : cinematic ? "divide-y divide-white/12 border-l-2 border-[#df683c]" : "divide-y divide-white/12 border-y border-white/12"}`}>
+      <div className={`mt-16 ${industrial ? "grid overflow-hidden rounded-[26px] gap-2 bg-[#ef6c43] p-0" : cinematic ? "overflow-hidden rounded-[28px] divide-y divide-white/12" : "divide-y divide-white/12 border-y border-white/12"}`}>
         {entries.map((entry) => {
           const isOpen = openVersion === entry.version;
           const panelId = `${idPrefix}-changelog-${entry.version.replaceAll(".", "-")}`;

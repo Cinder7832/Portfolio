@@ -19,7 +19,7 @@ import { MOTION, usePrefersReducedMotion } from "./motion";
 import CaseStudyShell from "./case-studies/CaseStudyShell";
 import { caseStudyDefinitions } from "./case-studies/definitions";
 import ChangelogAccordion from "./case-studies/ChangelogAccordion";
-import { CaseStudyShowcaseImage, ExpandedImageViewer } from "./case-studies/CaseStudyMedia";
+import { CaseStudyShowcaseImage, CaseStudyShowcaseRail, ExpandedImageViewer } from "./case-studies/CaseStudyMedia";
 import { ConstructedProjectView, ForgottenLineProjectView, RavensdownProjectView } from "./case-studies/NewProjectStudies";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -720,21 +720,7 @@ function EverdewProjectView({
         </div>
       </header>
 
-        <section id="showcase" data-case-study-chapter className="scroll-mt-16 bg-[#1d2612] py-14 md:py-20">
-          <div className="mx-auto max-w-7xl px-5 md:px-8">
-            <div className="mb-8 flex flex-col justify-between gap-3 md:mb-10 md:flex-row md:items-end">
-              <div>
-                <h3 className="text-4xl font-semibold tracking-[-0.045em] md:text-6xl">Showcase</h3>
-                <p className="mt-3 max-w-xl text-base leading-7 text-white/60">Gameplay footage, screenshots of the farm, gameplay systems, and interface.</p>
-              </div>
-              <div className="flex w-fit gap-1 rounded-full bg-white p-1 text-ink shadow-[0_14px_34px_rgba(0,0,0,0.24)]">
-                <button type="button" className="icon-button-motion grid size-10 place-items-center rounded-full text-ink/72 hover:bg-ink hover:text-white" aria-label="Show previous showcase item" onClick={() => scrollShowcase(-1)}><ChevronLeft size={20} /></button>
-                <button type="button" className="icon-button-motion grid size-10 place-items-center rounded-full text-ink/72 hover:bg-ink hover:text-white" aria-label="Show next showcase item" onClick={() => scrollShowcase(1)}><ChevronRight size={20} /></button>
-              </div>
-            </div>
-          </div>
-          <div className="px-5 md:px-8">
-            <div ref={showcaseRef} className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-3 md:gap-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <CaseStudyShowcaseRail background="#1d2612" railRef={showcaseRef} onScroll={scrollShowcase}>
               <div className="w-[min(82vw,43rem)] shrink-0 snap-start overflow-hidden rounded-[22px] bg-black">
                 <video className="aspect-[16/10] w-full object-cover" controls preload="metadata" poster={everdewImage("main-menu.png")} aria-label="Everdew gameplay video">
                   <source src={everdewImage("gameplay.mp4")} type="video/mp4" />
@@ -751,9 +737,7 @@ function EverdewProjectView({
                   <CaseStudyShowcaseImage src={everdewImage(image)} alt={title} title={title} />
                 </figure>
               ))}
-            </div>
-          </div>
-        </section>
+        </CaseStudyShowcaseRail>
 
         <section id="overview" data-case-study-chapter className="scroll-mt-16 mx-auto max-w-7xl px-5 py-32 md:px-8 md:py-44">
           <h3 className="text-4xl font-semibold tracking-[-0.04em] md:text-6xl">Overview</h3>
@@ -1006,21 +990,7 @@ function CuboProjectView({
         </div>
       </header>
 
-        <section id="showcase" data-case-study-chapter className="scroll-mt-16 bg-[#12100f] py-14 md:py-20">
-          <div className="mx-auto max-w-7xl px-5 md:px-8">
-            <div className="mb-8 flex flex-col justify-between gap-3 md:mb-10 md:flex-row md:items-end">
-              <div>
-                <h3 className="text-4xl font-semibold tracking-[-0.045em] md:text-6xl">Showcase</h3>
-                <p className="mt-3 max-w-xl text-base leading-7 text-white/60">Screenshots of the world, gameplay areas, and interface.</p>
-              </div>
-              <div className="flex w-fit gap-1 rounded-full bg-white p-1 text-ink shadow-[0_14px_34px_rgba(0,0,0,0.24)]">
-                <button type="button" className="icon-button-motion group grid size-10 place-items-center rounded-full text-ink/72 hover:bg-ink hover:text-white" aria-label="Show previous showcase item" onClick={() => scrollShowcase(-1)}><ChevronLeft size={20} /></button>
-                <button type="button" className="icon-button-motion group grid size-10 place-items-center rounded-full text-ink/72 hover:bg-ink hover:text-white" aria-label="Show next showcase item" onClick={() => scrollShowcase(1)}><ChevronRight size={20} /></button>
-              </div>
-            </div>
-          </div>
-          <div className="px-5 md:px-8">
-            <div ref={showcaseRef} className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-3 md:gap-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <CaseStudyShowcaseRail background="#12100f" railRef={showcaseRef} onScroll={scrollShowcase}>
               {[
                 ["world2.png", "Crystal mine", "A wider view of the layered cave world."],
                 ["exploration.png", "Exploration", "Traversal, vertical routes, and the ground slam in context."],
@@ -1031,9 +1001,7 @@ function CuboProjectView({
                   <CaseStudyShowcaseImage src={cuboImage(image)} alt={title} title={title} />
                 </figure>
               ))}
-            </div>
-          </div>
-        </section>
+        </CaseStudyShowcaseRail>
 
         <section id="overview" data-case-study-chapter className="scroll-mt-16 mx-auto max-w-7xl px-5 py-32 md:px-8 md:py-44">
           <div className="grid gap-14 lg:grid-cols-[0.72fr_1.28fr] lg:items-start">

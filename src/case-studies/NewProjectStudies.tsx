@@ -1,8 +1,7 @@
 import { useRef, useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { caseStudyDefinitions } from "./definitions";
 import CaseStudyShell from "./CaseStudyShell";
-import { CaseStudyShowcaseImage } from "./CaseStudyMedia";
+import { CaseStudyShowcaseImage, CaseStudyShowcaseRail } from "./CaseStudyMedia";
 import ChangelogAccordion, { type ChangelogEntry } from "./ChangelogAccordion";
 import { usePrefersReducedMotion } from "../motion";
 
@@ -108,10 +107,7 @@ const studies: Record<StudyId, StudyConfig> = {
       ] },
     ],
     changelog: [
-      { version: "0.1", date: "Planning", title: "Research and route plan", body: ["Defined the After the Fall interpretation", "Researched medieval settlements and reference games", "Planned one route through a six house settlement"] },
-      { version: "0.2", date: "Blockout", title: "Terrain and modular tests", body: ["Tested Mesh Terrain and changed to Landscape", "Whiteboxed the settlement", "Built the first modular house"] },
-      { version: "0.3", date: "Production", title: "Village and forest", body: ["Completed six house variations", "Converted houses into Packed Level Actors", "Replaced the European trees with taiga trees"] },
-      { version: "1.0", date: "Final", title: "Lighting, ending, and optimisation", body: ["Built the HDRI sky and local fog setup", "Added water planes and the cemetery ending", "Removed unseen foliage and reduced distant detail"] },
+      { version: "1.0.0", date: "2026-10-15", title: "First release", body: ["- Fully playable version of Ravensdown"] },
     ],
     reflection: [
       "The project improved my understanding of terrain, modular construction, Packed Level Actors, landscape materials, foliage, HDRI lighting, and atmospheric effects.",
@@ -180,10 +176,7 @@ const studies: Record<StudyId, StudyConfig> = {
       ] },
     ],
     changelog: [
-      { version: "0.1", date: "Planning", title: "Concept and route", body: ["Defined the hotel and mine premise", "Sketched the hotel and tunnel layouts", "Selected HDRP and the collaboration workflow"] },
-      { version: "0.2", date: "Weeks one and two", title: "Hotel and elevator", body: ["Reduced the lobby size", "Corrected indoor lighting", "Built the elevator transition and audio systems"] },
-      { version: "0.3", date: "Final week", title: "Tunnels and interface", body: ["Built and lit the mine route", "Added menus, settings, and controller support", "Added audio triggers, water, and the ending"] },
-      { version: "1.0", date: "Final build", title: "Scope and build fixes", body: ["Removed the battery mechanic and interaction outlines", "Resolved merge conflicts manually", "Worked around Git LFS limits and Unity build cache failures"] },
+      { version: "0.1.0", date: "2026-01-03", title: "First release", body: ["- Fully playable version of The Forgotten Line"] },
     ],
     reflection: [
       "The team completed the hotel, elevator sequence, tunnel route, interface, audio systems, and ending within the project deadline.",
@@ -252,10 +245,7 @@ const studies: Record<StudyId, StudyConfig> = {
       ] },
     ],
     changelog: [
-      { version: "0.1", date: "Concept", title: "Theme and map", body: ["Selected a grounded construction site theme", "Compared platformer and prototype references", "Reduced the top down plan to fit the deadline"] },
-      { version: "0.2", date: "Blockout", title: "Controller and route", body: ["Imported and customised Starter Assets", "Built the route with Unity primitives and ProBuilder", "Added a camera collider"] },
-      { version: "0.3", date: "Systems", title: "Obstacles and timer", body: ["Added pistons, moving pipes, and rotating boards", "Built the Hinge Joint wrecking ball", "Added hazard respawning and the speedrun timer"] },
-      { version: "1.0", date: "Final", title: "Menus and presentation", body: ["Added the main menu, pause menu, and volume control", "Completed the full route", "Cut additional building content and ledge grabbing to finish on time"] },
+      { version: "0.1.0", date: "2026-01-03", title: "First release", body: ["- Fully playable version of Constructed"] },
     ],
     reflection: [
       "The largest production challenge was the wrecking ball. Building the crane and connecting each chain element with Hinge Joints took longer than writing the force script.",
@@ -307,37 +297,25 @@ function StudyPage({ id, onClose }: { id: StudyId; onClose: () => void }) {
         </div>
       </header>
 
-      <section id="showcase" data-case-study-chapter className={`scroll-mt-16 ${industrial ? "border-y-8 border-[#ef6c43] py-14 md:py-20" : cinematic ? "border-y border-white/10 py-20 md:py-28" : "py-20 md:py-32"}`} style={{ background: config.palette.page }}>
-        <div className={`${cinematic ? "mx-0 max-w-none" : "mx-auto max-w-7xl"} px-5 md:px-8`}>
-          <div className={`flex flex-wrap items-end justify-between gap-8 ${editorial ? "border-b border-white/20 pb-8" : ""}`}>
-            <SectionHeading design={config.design}>Showcase</SectionHeading>
-            <div className="flex gap-1 rounded-full bg-white p-1 shadow-xl">
-              <button type="button" className="icon-button-motion grid size-10 place-items-center rounded-full text-ink/72 hover:bg-ink hover:text-white" aria-label="Show previous showcase image" onClick={() => scrollShowcase(-1)}><ChevronLeft size={20} /></button>
-              <button type="button" className="icon-button-motion grid size-10 place-items-center rounded-full text-ink/72 hover:bg-ink hover:text-white" aria-label="Show next showcase image" onClick={() => scrollShowcase(1)}><ChevronRight size={20} /></button>
-            </div>
-          </div>
-          <div ref={showcaseRef} className={`flex snap-x snap-mandatory overflow-x-auto pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${cinematic ? "-mx-5 mt-16 gap-2 px-5 md:-mx-8 md:px-8" : industrial ? "mt-10 gap-3" : "mt-14 gap-8"}`}>
-            {config.showcase.map((media) => (
-              <figure key={media.file} className={`shrink-0 snap-center overflow-hidden ${editorial ? "w-[88%] rounded-[2px] border border-white/16 bg-[#111] p-2 shadow-[0_30px_90px_rgba(0,0,0,0.45)] md:w-[68%]" : cinematic ? "w-[92%] border-y border-white/20 bg-black md:w-[78%]" : "w-[86%] border-2 border-[#ef6c43] bg-[#ef6c43] md:w-[62%]"}`}>
-                <CaseStudyShowcaseImage src={image(id, media.file)} alt={media.alt} title={media.title} />
-                <figcaption className={`text-sm font-medium ${editorial ? "px-3 pb-2 pt-4 text-white/60" : cinematic ? "px-5 py-5 text-white/58" : "px-4 py-3 font-semibold uppercase tracking-[0.08em] text-[#0d1012]"}`}>{media.title}</figcaption>
-              </figure>
-            ))}
-          </div>
-        </div>
-      </section>
+      <CaseStudyShowcaseRail background={config.palette.page} railRef={showcaseRef} onScroll={scrollShowcase}>
+        {config.showcase.map((media) => (
+          <figure key={media.file} className="w-[min(82vw,43rem)] shrink-0 snap-start overflow-hidden rounded-[22px] bg-black">
+            <CaseStudyShowcaseImage src={image(id, media.file)} alt={media.alt} title={media.title} />
+          </figure>
+        ))}
+      </CaseStudyShowcaseRail>
 
       <section id="overview" data-case-study-chapter className={`scroll-mt-16 ${industrial ? "py-24 md:py-32" : "py-32 md:py-44"}`} style={{ background: config.palette.panel }}>
         <div className="mx-auto max-w-7xl px-5 md:px-8">
           <SectionHeading design={config.design}>Overview</SectionHeading>
-          <div className={`mt-16 grid grid-flow-dense ${editorial ? "gap-x-16 gap-y-0 border-t border-white/18 md:grid-cols-[0.72fr_1.28fr]" : cinematic ? "gap-3 md:grid-cols-12" : "gap-px border-2 border-[#ef6c43] bg-[#ef6c43] md:grid-cols-2"}`}>
-            <article className={editorial ? "border-b border-white/18 py-10 md:row-span-4 md:pr-8" : cinematic ? "bg-[#df683c] p-8 text-[#090806] md:col-span-8 md:p-12" : "bg-[#ef6c43] p-8 text-[#0d1012] md:col-span-2 md:p-12"}>
+          <div className={`mt-16 grid grid-flow-dense ${editorial ? "gap-x-16 gap-y-0 border-t border-white/18 md:grid-cols-[0.72fr_1.28fr]" : cinematic ? "gap-3 md:grid-cols-12" : "overflow-hidden rounded-[30px] bg-[#ef6c43] gap-px md:grid-cols-2"}`}>
+            <article className={editorial ? "border-b border-white/18 py-10 md:row-span-4 md:pr-8" : cinematic ? "rounded-[28px] bg-black/30 p-8 text-white md:col-span-9 md:p-12" : "bg-[#ef6c43] p-8 text-[#0d1012] md:col-span-2 md:p-12"}>
               <p className={`max-w-4xl font-semibold leading-[1.12] tracking-[-0.04em] ${editorial ? "text-3xl md:text-4xl" : "text-3xl md:text-5xl"}`}>{config.summary}</p>
             </article>
-            {config.overview.map((item, index) => <article key={item.title} className={editorial ? "border-b border-white/18 py-9" : cinematic ? `${index === 0 || index === 3 ? "md:col-span-7" : "md:col-span-5"} min-h-64 bg-black/35 p-7 md:p-9` : "min-h-64 bg-[#151a1d] p-7 md:p-9"}><h4 className={`font-semibold ${industrial ? "text-3xl uppercase tracking-[-0.04em] text-[#ef6c43]" : "text-2xl"}`}>{item.title}</h4><p className="mt-5 text-lg leading-8 text-white/64">{item.body}</p></article>)}
+            {config.overview.map((item, index) => <article key={item.title} className={editorial ? "border-b border-white/18 py-9" : cinematic ? `${index === 0 || index === 3 ? "md:col-span-7" : "md:col-span-5"} min-h-64 rounded-[24px] bg-black/35 p-7 md:p-9` : "min-h-64 bg-[#151a1d] p-7 md:p-9"}><h4 className={`font-semibold ${industrial ? "text-3xl uppercase tracking-[-0.04em] text-[#ef6c43]" : "text-2xl"}`}>{item.title}</h4><p className="mt-5 text-lg leading-8 text-white/64">{item.body}</p></article>)}
           </div>
-          <dl className={`mt-12 grid sm:grid-cols-2 lg:grid-cols-4 ${editorial ? "border-y border-white/18" : cinematic ? "gap-3" : "gap-px border-2 border-white/15 bg-white/15"}`}>
-            {config.meta.map(([term, value]) => <div key={term} className={editorial ? "py-6 lg:border-r lg:border-white/18 lg:px-6 lg:first:pl-0 lg:last:border-r-0" : cinematic ? "border-l-2 border-[#df683c] bg-black/30 p-6" : "bg-[#0d1012] p-6"}><dt className={`text-xs font-semibold uppercase tracking-[0.12em] ${industrial ? "text-[#ef6c43]" : "text-white/45"}`}>{term}</dt><dd className="mt-3 text-lg font-semibold text-white/86">{value}</dd></div>)}
+          <dl className={`mt-12 grid sm:grid-cols-2 lg:grid-cols-4 ${editorial ? "border-y border-white/18" : cinematic ? "gap-3" : "overflow-hidden rounded-[24px] gap-px bg-white/15"}`}>
+            {config.meta.map(([term, value]) => <div key={term} className={editorial ? "py-6 lg:border-r lg:border-white/18 lg:px-6 lg:first:pl-0 lg:last:border-r-0" : cinematic ? "rounded-[20px] bg-black/30 p-6" : "bg-[#0d1012] p-6"}><dt className={`text-xs font-semibold uppercase tracking-[0.12em] ${industrial ? "text-[#ef6c43]" : "text-white/45"}`}>{term}</dt><dd className="mt-3 text-lg font-semibold text-white/86">{value}</dd></div>)}
           </dl>
         </div>
       </section>
@@ -346,7 +324,7 @@ function StudyPage({ id, onClose }: { id: StudyId; onClose: () => void }) {
         <div className="mx-auto max-w-7xl px-5 md:px-8">
           <SectionHeading design={config.design} intro={config.researchIntro}>Research</SectionHeading>
           <div className={`mt-16 grid ${editorial ? "gap-x-16 gap-y-12 border-t border-white/18 pt-12 md:grid-cols-2" : cinematic ? "gap-0 border-y border-white/14" : "grid-flow-dense gap-3 md:grid-cols-12"}`}>
-            {config.research.map((item, index) => <article key={item.title} className={editorial ? `${index === 0 ? "md:col-span-2 md:grid md:grid-cols-2 md:gap-16" : ""}` : cinematic ? "grid gap-5 border-b border-white/14 py-9 last:border-b-0 md:grid-cols-[0.65fr_1.35fr] md:py-12" : `${index === 0 || index === 3 ? "md:col-span-7" : "md:col-span-5"} border border-[#ef6c43]/45 bg-[#151a1d] p-7 md:p-9`}><h4 className={`${industrial ? "text-2xl uppercase text-[#ef6c43]" : cinematic ? "text-3xl text-[#df683c]" : "text-3xl"} font-semibold tracking-[-0.03em]`}>{item.title}</h4><p className={`${editorial && index === 0 ? "md:mt-0" : "mt-5"} text-lg leading-8 text-white/62`}>{item.body}</p></article>)}
+            {config.research.map((item, index) => <article key={item.title} className={editorial ? `${index === 0 ? "md:col-span-2 md:grid md:grid-cols-2 md:gap-16" : ""}` : cinematic ? "grid gap-5 border-b border-white/14 py-9 last:border-b-0 md:grid-cols-[0.65fr_1.35fr] md:py-12" : `${index === 0 || index === 3 ? "md:col-span-7" : "md:col-span-5"} rounded-[22px] bg-[#151a1d] p-7 md:p-9`}><h4 className={`${industrial ? "text-2xl uppercase text-[#ef6c43]" : cinematic ? "text-3xl text-[#df683c]" : "text-3xl"} font-semibold tracking-[-0.03em]`}>{item.title}</h4><p className={`${editorial && index === 0 ? "md:mt-0" : "mt-5"} text-lg leading-8 text-white/62`}>{item.body}</p></article>)}
           </div>
         </div>
       </section>
@@ -354,8 +332,8 @@ function StudyPage({ id, onClose }: { id: StudyId; onClose: () => void }) {
       <section id="experience" data-case-study-chapter className="scroll-mt-16 py-32 md:py-44" style={{ background: config.palette.soft, color: config.palette.page }}>
         <div className="mx-auto max-w-7xl px-5 md:px-8">
           <SectionHeading design={config.design} intro={config.gameplayIntro} dark={false}>Gameplay</SectionHeading>
-          <div className={`mt-16 grid grid-flow-dense ${editorial ? "gap-x-12 gap-y-20 md:grid-cols-2" : cinematic ? "gap-4 md:grid-cols-12" : "gap-px border-2 border-[#0d1012] bg-[#0d1012] md:grid-cols-2"}`}>
-            {config.gameplay.map((item, index) => <article key={item.title} className={editorial ? `${index % 2 ? "md:mt-24" : ""}` : cinematic ? `${index === 0 || index === 3 ? "md:col-span-7" : "md:col-span-5"} overflow-hidden bg-[#0d0908] text-white` : "overflow-hidden bg-[#f4f0e8]"}>{item.media && <img src={image(id, item.media.file)} alt={item.media.alt} className={`${editorial ? "aspect-[4/3] border border-black/15" : cinematic ? "aspect-[16/10] grayscale-[0.35]" : "aspect-[16/9] border-b-8 border-[#ef6c43]"} w-full object-cover`} />}<div className={editorial ? "border-t border-black/25 py-7" : cinematic ? "p-7 md:p-9" : "p-7 md:p-9"}><h4 className={`${industrial ? "text-3xl uppercase tracking-[-0.05em]" : "text-3xl tracking-[-0.03em]"} font-semibold`}>{item.title}</h4><p className={`mt-5 text-lg leading-8 ${cinematic ? "text-white/62" : "opacity-65"}`}>{item.body}</p></div></article>)}
+          <div className={`mt-16 grid grid-flow-dense ${editorial ? "gap-x-12 gap-y-20 md:grid-cols-2" : cinematic ? "gap-4 md:grid-cols-12" : "overflow-hidden rounded-[30px] gap-px bg-[#0d1012] md:grid-cols-2"}`}>
+            {config.gameplay.map((item, index) => <article key={item.title} className={editorial ? `${index % 2 ? "md:mt-24" : ""}` : cinematic ? `${index === 0 || index === 3 ? "md:col-span-7" : "md:col-span-5"} overflow-hidden rounded-[28px] bg-[#0d0908] text-white` : "overflow-hidden bg-[#f4f0e8]"}>{item.media && <img src={image(id, item.media.file)} alt={item.media.alt} className={`${editorial ? "aspect-[4/3] rounded-[26px]" : cinematic ? "aspect-[16/10] grayscale-[0.35]" : "aspect-[16/9] border-b-8 border-[#ef6c43]"} w-full object-cover`} />}<div className={editorial ? "border-t border-black/25 py-7" : cinematic ? "p-7 md:p-9" : "p-7 md:p-9"}><h4 className={`${industrial ? "text-3xl uppercase tracking-[-0.05em]" : "text-3xl tracking-[-0.03em]"} font-semibold`}>{item.title}</h4><p className={`mt-5 text-lg leading-8 ${cinematic ? "text-white/62" : "opacity-65"}`}>{item.body}</p></div></article>)}
           </div>
         </div>
       </section>
@@ -364,7 +342,7 @@ function StudyPage({ id, onClose }: { id: StudyId; onClose: () => void }) {
         <div className="mx-auto max-w-7xl px-5 md:px-8">
           <SectionHeading design={config.design} intro={config.processIntro}>Process</SectionHeading>
           <div className={industrial ? "mt-16 grid gap-4 md:grid-cols-2" : cinematic ? "mt-20 space-y-3" : "mt-24 space-y-28"}>
-            {config.process.map((item, index) => <article key={item.title} className={editorial ? "grid border-t border-white/20 pt-8 lg:grid-cols-[1.3fr_0.7fr] lg:gap-16" : cinematic ? "grid min-h-[28rem] overflow-hidden border border-white/12 bg-[#050505] lg:grid-cols-[0.9fr_1.1fr]" : "overflow-hidden border-2 border-[#ef6c43] bg-[#151a1d]"}><img src={image(id, item.media.file)} alt={item.media.alt} className={editorial ? `aspect-[16/10] w-full object-cover ${index % 2 ? "lg:order-2" : ""}` : cinematic ? `h-full min-h-80 w-full object-cover grayscale-[0.45] ${index % 2 ? "lg:order-2" : ""}` : "aspect-[16/10] w-full border-b-2 border-[#ef6c43] object-cover"} /><div className={editorial ? `flex flex-col justify-end py-8 ${index % 2 ? "lg:order-1" : ""}` : cinematic ? "flex flex-col justify-end border-l border-[#df683c]/55 p-8 md:p-12" : "p-7 md:p-9"}><h4 className={`${industrial ? "text-3xl uppercase text-[#ef6c43] md:text-4xl" : "text-4xl md:text-6xl"} font-semibold tracking-[-0.04em]`}>{item.title}</h4><p className="mt-6 max-w-xl text-lg leading-8 text-white/62">{item.body}</p></div></article>)}
+            {config.process.map((item, index) => <article key={item.title} className={editorial ? "grid border-t border-white/20 pt-8 lg:grid-cols-[1.3fr_0.7fr] lg:gap-16" : cinematic ? "grid min-h-[28rem] overflow-hidden rounded-[30px] bg-[#050505] lg:grid-cols-[0.9fr_1.1fr]" : "overflow-hidden rounded-[24px] bg-[#151a1d]"}><img src={image(id, item.media.file)} alt={item.media.alt} className={editorial ? `aspect-[16/10] w-full rounded-[28px] object-cover ${index % 2 ? "lg:order-2" : ""}` : cinematic ? `h-full min-h-80 w-full object-cover grayscale-[0.45] ${index % 2 ? "lg:order-2" : ""}` : "aspect-[16/10] w-full border-b-2 border-[#ef6c43] object-cover"} /><div className={editorial ? `flex flex-col justify-end py-8 ${index % 2 ? "lg:order-1" : ""}` : cinematic ? "flex flex-col justify-end p-8 md:p-12" : "p-7 md:p-9"}><h4 className={`${industrial ? "text-3xl uppercase text-[#ef6c43] md:text-4xl" : "text-4xl md:text-6xl"} font-semibold tracking-[-0.04em]`}>{item.title}</h4><p className="mt-6 max-w-xl text-lg leading-8 text-white/62">{item.body}</p></div></article>)}
           </div>
         </div>
       </section>
@@ -373,7 +351,7 @@ function StudyPage({ id, onClose }: { id: StudyId; onClose: () => void }) {
         <div className="mx-auto max-w-7xl px-5 md:px-8">
           <SectionHeading design={config.design} intro={config.extrasIntro}>Extras</SectionHeading>
           <div className={editorial ? "mt-24 space-y-32" : cinematic ? "mt-20 space-y-16" : "mt-16 grid gap-4 lg:grid-cols-2"}>
-            {config.extras.map((extra, extraIndex) => <article key={extra.title} className={editorial ? "border-t border-white/18 pt-10" : cinematic ? "border-l-2 border-[#df683c] bg-black/22 p-7 md:p-10" : `${extraIndex === 0 ? "lg:col-span-2" : ""} border-2 border-[#ef6c43] p-6 md:p-8`}><div className={editorial ? "max-w-4xl md:grid md:grid-cols-[0.7fr_1.3fr] md:gap-16" : "max-w-3xl"}><h4 className={`${industrial ? "text-3xl uppercase text-[#ef6c43] md:text-5xl" : "text-4xl md:text-6xl"} font-semibold tracking-[-0.04em]`}>{extra.title}</h4><p className={`${editorial ? "md:mt-0" : "mt-6"} text-lg leading-8 text-white/62`}>{extra.body}</p></div><div className={`mt-10 grid grid-flow-dense ${editorial ? "gap-8" : cinematic ? "gap-2" : "gap-3"} ${extra.media.length === 1 ? "max-w-4xl" : "md:grid-cols-3"}`}>{extra.media.map((media, mediaIndex) => <figure key={media.file} className={editorial ? `${mediaIndex === 0 && extra.media.length > 1 ? "md:col-span-2" : ""} border-t border-white/18 pt-3` : cinematic ? "overflow-hidden bg-black/45" : "overflow-hidden border border-[#ef6c43]/70 bg-[#0d1012]"}><img src={image(id, media.file)} alt={media.alt} className={`${editorial && mediaIndex === 0 ? "aspect-video" : industrial ? "aspect-video" : "aspect-[4/3]"} w-full object-cover`} /><figcaption className={`p-4 text-sm font-medium ${industrial ? "uppercase tracking-[0.08em] text-[#ef6c43]" : "text-white/62"}`}>{media.title}</figcaption></figure>)}</div></article>)}
+            {config.extras.map((extra, extraIndex) => <article key={extra.title} className={editorial ? "border-t border-white/18 pt-10" : cinematic ? "rounded-[28px] bg-black/22 p-7 md:p-10" : `${extraIndex === 0 ? "lg:col-span-2" : ""} rounded-[24px] bg-white/[0.035] p-6 md:p-8`}><div className={editorial ? "max-w-4xl md:grid md:grid-cols-[0.7fr_1.3fr] md:gap-16" : "max-w-3xl"}><h4 className={`${industrial ? "text-3xl uppercase text-[#ef6c43] md:text-5xl" : "text-4xl md:text-6xl"} font-semibold tracking-[-0.04em]`}>{extra.title}</h4><p className={`${editorial ? "md:mt-0" : "mt-6"} text-lg leading-8 text-white/62`}>{extra.body}</p></div><div className={`mt-10 grid grid-flow-dense ${editorial ? "gap-8" : cinematic ? "gap-2" : "gap-3"} ${extra.media.length === 1 ? "max-w-4xl" : "md:grid-cols-3"}`}>{extra.media.map((media, mediaIndex) => <figure key={media.file} className={editorial ? `${mediaIndex === 0 && extra.media.length > 1 ? "md:col-span-2" : ""} border-t border-white/18 pt-3` : cinematic ? "overflow-hidden rounded-[22px] bg-black/45" : "overflow-hidden rounded-[20px] bg-[#0d1012]"}><img src={image(id, media.file)} alt={media.alt} className={`${editorial && mediaIndex === 0 ? "aspect-video" : industrial ? "aspect-video" : "aspect-[4/3]"} w-full rounded-[22px] object-cover`} /><figcaption className={`p-4 text-sm font-medium ${industrial ? "uppercase tracking-[0.08em] text-[#ef6c43]" : "text-white/62"}`}>{media.title}</figcaption></figure>)}</div></article>)}
           </div>
         </div>
       </section>
@@ -387,7 +365,7 @@ function StudyPage({ id, onClose }: { id: StudyId; onClose: () => void }) {
         <div className={`absolute inset-0 ${editorial ? "bg-[#151918]/75" : cinematic ? "bg-[linear-gradient(90deg,rgba(9,8,6,0.96),rgba(9,8,6,0.72),rgba(9,8,6,0.35))]" : "bg-[#0d1012]/82"}`} />
         <div className={`relative mx-auto max-w-7xl px-5 md:px-8 ${editorial ? "md:grid md:grid-cols-[0.65fr_1.35fr] md:gap-20" : ""}`}>
           <SectionHeading design={config.design}>Reflection</SectionHeading>
-          <div className={`space-y-6 text-xl leading-9 text-white/74 ${editorial ? "mt-12 border-l border-white/24 pl-7 md:mt-0 md:pl-12" : cinematic ? "mt-16 max-w-3xl border-l-2 border-[#df683c] pl-7 md:pl-12" : "mt-14 max-w-4xl border-2 border-[#ef6c43] bg-[#0d1012]/78 p-7 md:p-10"}`}>{config.reflection.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</div>
+          <div className={`space-y-6 text-xl leading-9 text-white/74 ${editorial ? "mt-12 border-l border-white/24 pl-7 md:mt-0 md:pl-12" : cinematic ? "mt-16 max-w-3xl rounded-[28px] bg-black/25 p-7 md:p-12" : "mt-14 max-w-4xl rounded-[28px] bg-[#0d1012]/78 p-7 md:p-10"}`}>{config.reflection.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</div>
         </div>
       </section>
     </CaseStudyShell>
