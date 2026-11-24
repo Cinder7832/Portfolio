@@ -66,6 +66,15 @@ const artworkImageFor = (artwork: Artwork, width = 900, height = 1200) => {
   return `${import.meta.env.BASE_URL}${artwork.imageUrl.replace(/^\/+/, "")}`;
 };
 
+const artworkCardImageFor = (artwork: Artwork, width = 900, height = 1200) => {
+  if (artwork.imageUrl?.startsWith("artwork/sketches/")) {
+    const cardPath = artwork.imageUrl.replace("artwork/sketches/", "artwork/sketches/cards/");
+    return `${import.meta.env.BASE_URL}${cardPath}`;
+  }
+
+  return artworkImageFor(artwork, width, height);
+};
+
 const artworkAspectClass = (artwork: Artwork) => ({
   landscape: "aspect-[4/3]",
   portrait: "aspect-[3/4]",
@@ -678,11 +687,12 @@ function SearchField({ value, onChange, placeholder }: { value: string; onChange
 function ArtworkCatalogImageTile({ artwork }: { artwork: Artwork }) {
   const [expanded, setExpanded] = useState(false);
   const image = artworkImageFor(artwork, 1800, 2400);
+  const cardImage = artworkCardImageFor(artwork, 900, 1200);
 
   return (
     <div className="catalog-card group relative mb-4 block w-full break-inside-avoid overflow-hidden rounded-[18px] bg-canvas text-left shadow-[0_10px_28px_rgba(29,29,31,0.16)] transition-shadow duration-500 hover:shadow-[0_16px_40px_rgba(29,29,31,0.24)] dark:bg-[#24252b]">
       <div className={`overflow-hidden ${artworkAspectClass(artwork)}`}>
-        <img src={image} alt={artwork.title} className="catalog-card-image catalog-artwork-image h-full w-full object-cover brightness-[0.86] contrast-[1.08] saturate-[0.82] transition-transform duration-700 ease-out group-hover:scale-[1.045]" />
+        <img src={cardImage} alt={artwork.title} className="catalog-card-image catalog-artwork-image h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.045]" />
       </div>
       <button
         type="button"

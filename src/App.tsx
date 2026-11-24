@@ -96,6 +96,15 @@ const artworkImageFor = (artwork: Artwork, width = 900, height = 1200) => {
   return `${import.meta.env.BASE_URL}${artwork.imageUrl.replace(/^\/+/, "")}`;
 };
 
+const artworkCardImageFor = (artwork: Artwork, width = 900, height = 1200) => {
+  if (artwork.imageUrl?.startsWith("artwork/sketches/")) {
+    const cardPath = artwork.imageUrl.replace("artwork/sketches/", "artwork/sketches/cards/");
+    return `${import.meta.env.BASE_URL}${cardPath}`;
+  }
+
+  return artworkImageFor(artwork, width, height);
+};
+
 function App() {
   const [overlay, setOverlay] = useState<OverlayState | null>(null);
   const appRef = useRef<HTMLElement | null>(null);
@@ -391,8 +400,17 @@ function ArtworkSection({
   onSelect: (artwork: Artwork) => void;
   onViewAll: () => void;
 }) {
+  const featured2DArtworkIds = [
+    "clifton-suspension-bridge",
+    "horse-sketch",
+    "evergreen-against-blue",
+    "underpass-entrance",
+  ];
+
   const featuredArtworks = [
-    ...artworks.filter((artwork) => artwork.kind === "2D").slice(0, 4),
+    ...featured2DArtworkIds
+      .map((id) => artworks.find((artwork) => artwork.id === id))
+      .filter((artwork): artwork is Artwork => Boolean(artwork)),
     ...artworks.filter((artwork) => artwork.kind === "3D").slice(0, 2),
   ];
 
@@ -436,9 +454,9 @@ function ArtworkSection({
                     <DeferredModelViewer artwork={artwork} compact keepMounted />
                   ) : (
                     <img
-                      src={artworkImageFor(artwork, 900, 1200)}
+                      src={artworkCardImageFor(artwork, 900, 1200)}
                       alt=""
-                      className="h-full w-full object-cover brightness-[0.86] contrast-[1.08] saturate-[0.82] transition-transform duration-700 ease-out group-hover:scale-[1.045]"
+                      className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.045]"
                     />
                   )}
                 </div>
@@ -454,6 +472,7 @@ function ArtworkSection({
 function ArtworkImageTile({ artwork, index }: { artwork: Artwork; index: number }) {
   const [expanded, setExpanded] = useState(false);
   const image = artworkImageFor(artwork, 1800, 2400);
+  const cardImage = artworkCardImageFor(artwork, 900, 1200);
 
   return (
     <div
@@ -463,9 +482,9 @@ function ArtworkImageTile({ artwork, index }: { artwork: Artwork; index: number 
       <div className="relative overflow-hidden rounded-[18px] bg-chalk dark:bg-[#1c1d23]">
         <div className={`overflow-hidden ${artworkMediaAspectClass(artwork)}`}>
           <img
-            src={image}
+            src={cardImage}
             alt={artwork.title}
-            className="h-full w-full object-cover brightness-[0.86] contrast-[1.08] saturate-[0.82] transition-transform duration-700 ease-out group-hover:scale-[1.045]"
+            className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.045]"
           />
         </div>
         <button
