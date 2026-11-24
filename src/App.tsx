@@ -304,101 +304,14 @@ function Projects({
   onSelect: (project: Project) => void;
   onViewAll: () => void;
 }) {
+  const featuredProjects = projects.slice(0, 4);
   const scrollerRef = useRef<HTMLDivElement | null>(null);
-  const targetIndexRef = useRef(0);
-  const programmaticScrollRef = useRef(false);
-  const scrollEndTimerRef = useRef(0);
-
-  useEffect(() => {
-    const scroller = scrollerRef.current;
-    if (!scroller) return;
-
-    const syncNearestCard = () => {
-      const cards = Array.from(scroller.querySelectorAll<HTMLElement>(".project-card"));
-      if (!cards.length) return;
-
-      const maxScroll = scroller.scrollWidth - scroller.clientWidth;
-      if (scroller.scrollLeft <= 1) {
-        targetIndexRef.current = 0;
-        return;
-      }
-      if (scroller.scrollLeft >= maxScroll - 1) {
-        targetIndexRef.current = cards.length - 1;
-        return;
-      }
-      targetIndexRef.current = cards.reduce((nearestIndex, card, index) => {
-        const cardTarget = Math.min(
-          maxScroll,
-          Math.max(0, card.offsetLeft - (scroller.clientWidth - card.offsetWidth) / 2),
-        );
-        const nearestCard = cards[nearestIndex];
-        const nearestTarget = Math.min(
-          maxScroll,
-          Math.max(0, nearestCard.offsetLeft - (scroller.clientWidth - nearestCard.offsetWidth) / 2),
-        );
-        return Math.abs(cardTarget - scroller.scrollLeft) < Math.abs(nearestTarget - scroller.scrollLeft)
-          ? index
-          : nearestIndex;
-      }, 0);
-    };
-
-    const finishProgrammaticScroll = () => {
-      programmaticScrollRef.current = false;
-      syncNearestCard();
-    };
-
-    const onScroll = () => {
-      window.clearTimeout(scrollEndTimerRef.current);
-      scrollEndTimerRef.current = window.setTimeout(finishProgrammaticScroll, 140);
-      if (!programmaticScrollRef.current) syncNearestCard();
-    };
-
-    const interruptProgrammaticScroll = () => {
-      programmaticScrollRef.current = false;
-      window.clearTimeout(scrollEndTimerRef.current);
-      syncNearestCard();
-    };
-
-    syncNearestCard();
-    scroller.addEventListener("scroll", onScroll, { passive: true });
-    scroller.addEventListener("pointerdown", interruptProgrammaticScroll, { passive: true });
-    scroller.addEventListener("touchstart", interruptProgrammaticScroll, { passive: true });
-    scroller.addEventListener("wheel", interruptProgrammaticScroll, { passive: true });
-
-    return () => {
-      window.clearTimeout(scrollEndTimerRef.current);
-      scroller.removeEventListener("scroll", onScroll);
-      scroller.removeEventListener("pointerdown", interruptProgrammaticScroll);
-      scroller.removeEventListener("touchstart", interruptProgrammaticScroll);
-      scroller.removeEventListener("wheel", interruptProgrammaticScroll);
-    };
-  }, []);
 
   const scrollProjects = (direction: "left" | "right") => {
     const scroller = scrollerRef.current;
     if (!scroller) return;
-    const cards = Array.from(scroller.querySelectorAll<HTMLElement>(".project-card"));
-    if (!cards.length) return;
-
-    const offset = direction === "left" ? -1 : 1;
-    const nextIndex = Math.min(cards.length - 1, Math.max(0, targetIndexRef.current + offset));
-    const target = cards[nextIndex];
-    const maxScroll = Math.max(0, scroller.scrollWidth - scroller.clientWidth);
-    const destination = Math.min(
-      maxScroll,
-      Math.max(0, target.offsetLeft - (scroller.clientWidth - target.offsetWidth) / 2),
-    );
-
-    if (nextIndex === targetIndexRef.current && Math.abs(destination - scroller.scrollLeft) < 1) {
-      programmaticScrollRef.current = false;
-      return;
-    }
-
-    targetIndexRef.current = nextIndex;
-    programmaticScrollRef.current = true;
-    window.clearTimeout(scrollEndTimerRef.current);
-    scroller.scrollTo({
-      left: destination,
+    scroller.scrollBy({
+      left: (direction === "left" ? -1 : 1) * Math.min(scroller.clientWidth * 0.82, 680),
       behavior: prefersReducedMotion() ? "auto" : "smooth",
     });
   };
@@ -448,7 +361,7 @@ function Projects({
           ref={scrollerRef}
           className="projects-scroller -mx-10 flex w-[calc(100%+5rem)] snap-x snap-mandatory gap-4 overflow-x-auto px-14 pb-28 pt-8 [-ms-overflow-style:none] [scrollbar-width:none] md:-mx-12 md:w-[calc(100%+6rem)] md:gap-6 md:px-20 md:pb-32 xl:-mx-16 xl:w-[calc(100%+8rem)] xl:px-16 [&::-webkit-scrollbar]:hidden"
         >
-          {projects.map((project, index) => {
+          {featuredProjects.map((project, index) => {
             return (
               <button
                 key={project.id}

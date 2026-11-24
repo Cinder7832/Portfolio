@@ -10,6 +10,7 @@ Whatever action you can do yourself, please do yourself. This includes starting 
 - Place exceptional material such as bosses, promotion, or project management in the shared Extras chapter. Every typed deep dive uses `extras` placement.
 - Keep incomplete projects at `caseStudyStatus: "draft"`. Do not publish a study or invent content to fill a required chapter.
 - Preserve each project’s visual identity, but use `CaseStudyShell` for chapter navigation, spacing, interaction motion, and accessibility.
+- Every project details overlay must use the same large 16:9 landscape frame at every viewport width. Do not switch project details to a portrait or compact modal at smaller breakpoints.
 - Do not add vertical scroll driven effects to case studies. Text opacity, image scale, image position, and brightness must remain stable while the reader scrolls.
 - Retain normal interface motion such as hover feedback, button states, showcase movement, accordion transitions, and overlay opening or closing transitions.
 - Chapter navigation must select the clicked item immediately. Manual scrolling must update the selected item from the case study scroll position.
@@ -19,6 +20,7 @@ Whatever action you can do yourself, please do yourself. This includes starting 
 - Every horizontal content rail must include previous and next arrow controls, with smooth scrolling unless reduced motion is requested.
 - Case studies must not include a “Continue to next project” action.
 - Keep case-study heroes wide and within two or three lines. Use dense, complete bento grids, high-contrast controls, descriptive media alternatives, and no numbered meta-labels.
+- Do not place category, engine, or project type eyebrow text above case study titles. Every project uses the same bottom aligned hero title and summary treatment.
 - Write in a neutral, professional, evidence-based tone. Prefer direct statements about the work, decision, and result. Avoid promotional adjectives, emotional framing, rhetorical claims, generic praise, and polished filler that reads as AI-generated.
 - Use first person only to identify the author’s responsibility, decision, limitation, or learning. Do not anthropomorphise projects or describe them as inspiring, exciting, beautiful, powerful, or similar unless quoting a documented source.
 - Avoid hyphens and em dashes in reader facing prose unless the term is conventionally written that way and removing the mark would be incorrect. Prefer a short sentence, comma, or colon.

@@ -86,6 +86,57 @@ export const projects: Project[] = [
     liveUrl: "https://cinder7832.itch.io/everdew",
   },
   {
+    id: "ravensdown",
+    title: "Ravensdown",
+    category: "Games",
+    caseStudyStatus: "published",
+    summary: "A medieval Unreal Engine environment about a settlement left behind after war and disease.",
+    description:
+      "Ravensdown is a solo environment study created for the theme After the Fall. I planned the route, assembled six modular houses, created reusable Packed Level Actors, customised the terrain material, revised the forest, and developed the final HDRI lighting and atmosphere.",
+    stack: ["Unreal Engine 5.8", "Landscape", "Packed Level Actors", "Quixel Megascans", "Trello"],
+    highlights: [
+      "One readable route through six modular house variations, a waterwheel area, and a candle lit cemetery ending.",
+      "A production change from experimental Mesh Terrain to the established Landscape workflow.",
+      "A complete atmosphere revision using taiga trees, an HDRI sky, Local Fog Volumes, and controlled warm lighting.",
+    ],
+    imageSeed: "ravensdown-medieval-valley",
+    imageUrl: "projects/ravensdown/image1.png",
+  },
+  {
+    id: "forgotten-line",
+    title: "The Forgotten Line",
+    category: "Games",
+    caseStudyStatus: "published",
+    summary: "A team horror environment linking a Victorian hotel to an abandoned underground mine.",
+    description:
+      "The Forgotten Line is a three person Unity HDRP project. I set up the project and collaboration workflow, revised the hotel lobby, helped complete the elevator transition, built the interface and controller support, lit the tunnels, and constructed the final cavern section.",
+    stack: ["Unity 2022.3", "HDRP", "C#", "Blender", "GitHub", "Scene Fusion"],
+    highlights: [
+      "A linear flashlight led route with walking, sprinting, crouching, audio triggers, and environmental storytelling.",
+      "Main menu, pause menu, quality presets, resolution, fullscreen, volume, gamepad input, and a virtual cursor.",
+      "Original jug, crate, and table assets documented alongside the hotel and mine production process.",
+    ],
+    imageSeed: "forgotten-line-horror-tunnel",
+    imageUrl: "projects/forgotten-line/image40.png",
+  },
+  {
+    id: "constructed",
+    title: "Constructed",
+    category: "Games",
+    caseStudyStatus: "published",
+    summary: "A third person construction site speedrun built around machinery and physics hazards.",
+    description:
+      "Constructed is a solo Unity platformer with a continuous speedrun route. I built the site with ProBuilder, customised the third person controller, and created moving pistons, pipes, rotating boards, a Hinge Joint wrecking ball, hazard respawning, menus, and a timer.",
+    stack: ["Unity", "HDRP", "C#", "ProBuilder", "Blender", "GitHub"],
+    highlights: [
+      "Grounded obstacle design based on construction machinery instead of floating platforms.",
+      "A continuous route with no checkpoints and a timer displaying minutes, seconds, and milliseconds.",
+      "A grey and white prototype visual system supported by volumetric clouds, global illumination, and ambient occlusion.",
+    ],
+    imageSeed: "constructed-platformer-site",
+    imageUrl: "projects/constructed/image1.png",
+  },
+  {
     id: "automation-lab",
     title: "Automation Lab",
     category: "Games",

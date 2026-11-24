@@ -36,6 +36,42 @@ export const caseStudyDefinitions = {
       { id: "everdew-promotion", label: "Promotion", placement: "extras" },
     ],
   },
+  ravensdown: {
+    projectId: "ravensdown",
+    title: "Ravensdown",
+    theme: "ravensdown",
+    hero: { label: "Ravensdown introduction" },
+    sections: sharedLabels,
+    deepDives: [
+      { id: "ravensdown-assets", label: "Asset assembly", placement: "extras" },
+      { id: "ravensdown-production", label: "Production organisation", placement: "extras" },
+      { id: "ravensdown-iteration", label: "Major visual iteration", placement: "extras" },
+    ],
+  },
+  "forgotten-line": {
+    projectId: "forgotten-line",
+    title: "The Forgotten Line",
+    theme: "forgotten-line",
+    hero: { label: "The Forgotten Line introduction" },
+    sections: sharedLabels,
+    deepDives: [
+      { id: "forgotten-line-props", label: "Original prop work", placement: "extras" },
+      { id: "forgotten-line-interface", label: "Interface", placement: "extras" },
+      { id: "forgotten-line-door", label: "Cut door interaction", placement: "extras" },
+    ],
+  },
+  constructed: {
+    projectId: "constructed",
+    title: "Constructed",
+    theme: "constructed",
+    hero: { label: "Constructed introduction" },
+    sections: sharedLabels,
+    deepDives: [
+      { id: "constructed-practice", label: "Professional practice", placement: "extras" },
+      { id: "constructed-glasses", label: "Gurren Lagann glasses", placement: "extras" },
+      { id: "constructed-scripts", label: "Script evidence", placement: "extras" },
+    ],
+  },
 } as const satisfies Record<string, CaseStudyNavigationDefinition>;
 
 export type PublishedCaseStudyId = keyof typeof caseStudyDefinitions;

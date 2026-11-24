@@ -85,7 +85,7 @@ export default function CaseStudyShell({
       style={{ fontFamily: '"Cabinet Grotesk", "Outfit", sans-serif' }}
     >
       <nav className="sticky top-0 z-50 border-b border-white/10 bg-black text-white" aria-label={`${definition.title} case study`}>
-        <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 md:px-8">
+        <div className="flex w-full items-center gap-3 px-3 py-3 md:px-4">
           <button
             type="button"
             onClick={onClose}

@@ -1,5 +1,4 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { createPortal } from "react-dom";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
@@ -20,6 +19,8 @@ import { MOTION, usePrefersReducedMotion } from "./motion";
 import CaseStudyShell from "./case-studies/CaseStudyShell";
 import { caseStudyDefinitions } from "./case-studies/definitions";
 import ChangelogAccordion from "./case-studies/ChangelogAccordion";
+import { CaseStudyShowcaseImage, ExpandedImageViewer } from "./case-studies/CaseStudyMedia";
+import { ConstructedProjectView, ForgottenLineProjectView, RavensdownProjectView } from "./case-studies/NewProjectStudies";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -340,8 +341,10 @@ export default function OverlayHost({
   const catalogPanelClass = `flex h-[88vh] w-full flex-col overflow-hidden rounded-[18px] bg-chalk shadow-[0_28px_80px_rgba(29,29,31,0.28)] outline-none dark:bg-[#191a1f] dark:shadow-[0_34px_110px_rgba(0,0,0,0.72),0_0_48px_rgba(255,255,255,0.06)] ${
     backgroundCatalog === "all-projects" ? "max-w-6xl md:h-[46rem]" : "max-w-7xl"
   }`;
-  const immersiveProjectDetail = rendered.type === "project" && ["cubo", "everdew"].includes(rendered.project.id);
-  const detailPanelClass = `${immersiveProjectDetail ? "h-[92dvh] max-w-7xl" : "h-[min(46rem,86dvh)] max-w-5xl"} w-full overflow-hidden rounded-[18px] bg-chalk shadow-[0_28px_80px_rgba(29,29,31,0.28)] outline-none dark:bg-[#191a1f] dark:shadow-[0_34px_110px_rgba(0,0,0,0.72),0_0_48px_rgba(255,255,255,0.06)]`;
+  const detailPanelSizeClass = rendered.type === "project"
+    ? "aspect-video w-[min(94vw,96rem,calc((100dvh-3rem)*16/9))]"
+    : "h-[min(46rem,86dvh)] w-full max-w-5xl";
+  const detailPanelClass = `${detailPanelSizeClass} overflow-hidden rounded-[18px] bg-chalk shadow-[0_28px_80px_rgba(29,29,31,0.28)] outline-none dark:bg-[#191a1f] dark:shadow-[0_34px_110px_rgba(0,0,0,0.72),0_0_48px_rgba(255,255,255,0.06)]`;
 
   return (
     <div
@@ -443,6 +446,18 @@ function ProjectView({
     return <EverdewProjectView onNavigate={onNavigate} onClose={onClose} />;
   }
 
+  if (project.id === "ravensdown") {
+    return <RavensdownProjectView onClose={onClose} />;
+  }
+
+  if (project.id === "forgotten-line") {
+    return <ForgottenLineProjectView onClose={onClose} />;
+  }
+
+  if (project.id === "constructed") {
+    return <ConstructedProjectView onClose={onClose} />;
+  }
+
   return (
     <div className="detail-scrollbar relative h-full touch-pan-y overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch] lg:overflow-hidden">
       <div className="absolute right-4 top-4 z-30 md:right-6 md:top-6">
@@ -529,113 +544,6 @@ function ArtworkView({
         />
       )}
     </div>
-  );
-}
-
-function ExpandedImageViewer({
-  open,
-  src,
-  title,
-  onClose,
-}: {
-  open: boolean;
-  src: string;
-  title: string;
-  onClose: () => void;
-}) {
-  const [present, setPresent] = useState(open);
-  const rootRef = useRef<HTMLDivElement | null>(null);
-  const imageRef = useRef<HTMLImageElement | null>(null);
-  const reducedMotion = usePrefersReducedMotion();
-
-  useEffect(() => {
-    if (open) setPresent(true);
-  }, [open]);
-
-  useEffect(() => {
-    if (!open) return;
-
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== "Escape") return;
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      onClose();
-    };
-
-    window.addEventListener("keydown", onKeyDown, true);
-    return () => window.removeEventListener("keydown", onKeyDown, true);
-  }, [onClose, open]);
-
-  useLayoutEffect(() => {
-    if (!present) return;
-
-    const root = rootRef.current;
-    const image = imageRef.current;
-    if (!root || !image) return;
-
-    if (reducedMotion) {
-      gsap.set([root, image], { clearProps: "all" });
-      if (!open) setPresent(false);
-      return;
-    }
-
-    const timeline = gsap.timeline({
-      defaults: { overwrite: true },
-      onComplete: () => {
-        if (!open) setPresent(false);
-      },
-    });
-
-    if (open) {
-      timeline
-        .fromTo(root, { opacity: 0 }, { opacity: 1, duration: MOTION.base, ease: MOTION.easeOut }, 0)
-        .fromTo(
-          image,
-          { opacity: 0, scale: 0.985 },
-          { opacity: 1, scale: 1, duration: MOTION.base, ease: MOTION.easeOut, clearProps: "transform,opacity" },
-          0.04,
-        );
-    } else {
-      timeline
-        .to(image, { opacity: 0, scale: 0.985, duration: MOTION.fast, ease: "power2.in" }, 0)
-        .to(root, { opacity: 0, duration: MOTION.fast, ease: "power2.in" }, 0.04);
-    }
-
-    return () => {
-      timeline.kill();
-    };
-  }, [open, present, reducedMotion]);
-
-  if (!present) return null;
-
-  return createPortal(
-    <div
-      ref={rootRef}
-      className="fixed inset-0 z-[80] grid place-items-center bg-[rgba(245,245,247,0.86)] p-4 backdrop-blur-2xl dark:bg-[rgba(0,0,0,0.86)]"
-      role="dialog"
-      aria-modal="true"
-      aria-label={`${title} expanded image`}
-      onMouseDown={(event) => {
-        if (event.target === event.currentTarget) onClose();
-      }}
-    >
-      <div className="pointer-events-none absolute inset-0 bg-white/10 dark:bg-[rgba(0,0,0,0.18)]" aria-hidden="true" />
-      <button
-        type="button"
-        className="icon-button-motion absolute right-4 top-4 z-10 grid size-11 place-items-center rounded-full bg-[rgba(29,29,31,0.72)] text-white shadow-[0_18px_44px_rgba(0,0,0,0.22)] backdrop-blur-xl hover:bg-[rgba(29,29,31,0.86)] dark:bg-white/16 dark:hover:bg-white/24 md:right-6 md:top-6"
-        aria-label="Close expanded image"
-        onClick={onClose}
-      >
-        <X size={21} />
-      </button>
-      <img
-        ref={imageRef}
-        src={src}
-        alt={title}
-        className="relative z-10 max-h-[92dvh] max-w-[94vw] object-contain shadow-[0_28px_90px_rgba(0,0,0,0.46)]"
-      />
-    </div>,
-    document.body,
   );
 }
 
@@ -735,35 +643,6 @@ function SearchField({ value, onChange, placeholder }: { value: string; onChange
   );
 }
 
-function CaseStudyShowcaseImage({
-  src,
-  alt,
-  title,
-}: {
-  src: string;
-  alt: string;
-  title: string;
-}) {
-  const [expanded, setExpanded] = useState(false);
-
-  return (
-    <>
-      <div className="relative">
-        <img src={src} alt={alt} className="aspect-[16/10] w-full object-cover" />
-        <button
-          type="button"
-          className="icon-button-motion absolute bottom-4 right-4 z-10 grid size-11 place-items-center rounded-full bg-white text-ink shadow-[0_18px_44px_rgba(0,0,0,0.28)] hover:bg-[#f5f5f7]"
-          aria-label={`Expand ${title}`}
-          onClick={() => setExpanded(true)}
-        >
-          <Maximize2 size={18} />
-        </button>
-      </div>
-      <ExpandedImageViewer open={expanded} src={src} title={title} onClose={() => setExpanded(false)} />
-    </>
-  );
-}
-
 const everdewReleases = [
   { version: "0.4.2", date: "5 March 2026", title: "Small Adjustments and Fixes", body: ["- Fixed animals respawning after loading a save", "- Improved top down sprite sorting", "- Restored the survival time for pigs, cows, and sheep without food to five days", "- Restored tooltips for seed buttons"] },
   { version: "0.4.1", date: "16 February 2026", title: "Time & Save Fixes", body: ["- Fixed saved time of day", "- Fixed the day counter advancing at midnight", "- Fixed day and night lighting when loading a save", "- Fixed inconsistent clock speeds", "- Fixed shop stock resetting after loading a save", "- Disabled the fade image raycast during loading", "- Removed some nighttime scene lights"] },
@@ -827,13 +706,13 @@ function EverdewProjectView({
       onClose={onClose}
       className="bg-[#11140d] text-[#f5f4e9]"
     >
-      <header className="relative min-h-[calc(100vh-77px)] overflow-hidden bg-[#11140d]">
+      <header className="relative min-h-[42rem] overflow-hidden bg-[#11140d] md:min-h-[52rem]">
         <img src={everdewImage("farm-village.png")} alt="Everdew's farm and village" className="absolute inset-0 h-full w-full scale-[1.02] object-cover object-[68%_center]" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/64 to-black/28" aria-hidden="true" />
-        <div className="relative z-10 flex min-h-[calc(100dvh-77px)] items-center px-5 py-20 md:px-10 lg:px-[max(3rem,7vw)]">
-          <div className="max-w-6xl">
-            <h2 className="max-w-6xl whitespace-nowrap text-[clamp(3.5rem,18vw,11rem)] font-semibold leading-[0.82] tracking-[-0.075em] text-[#eef6c8]">Everdew</h2>
-            <p className="mt-8 max-w-xl text-xl leading-8 text-white/72 md:text-2xl md:leading-9">A top down pixel farming game made during a three week game jam.</p>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/20 to-black/5" aria-hidden="true" />
+        <div className="relative z-10 mx-auto flex min-h-[42rem] max-w-7xl flex-col justify-end px-5 pb-16 pt-28 md:min-h-[52rem] md:px-8 md:pb-24">
+          <div>
+            <h2 className="max-w-6xl text-[clamp(4rem,13vw,10rem)] font-semibold leading-[0.82] tracking-[-0.07em] text-[#eef6c8]">Everdew</h2>
+            <p className="mt-8 max-w-3xl text-lg leading-8 text-white/76">A top down pixel farming game made by a four person team for a three week game jam. I worked on the base environment, game design, programming, and interface.</p>
             <div className="mt-10 flex flex-wrap gap-3">
               <a href="https://cinder7832.itch.io/everdew" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-full bg-[#d5f36a] px-6 py-3 font-semibold text-[#11140d] transition-transform hover:scale-[1.03] active:scale-95">Play the game <ArrowUpRight size={18} /></a>
             </div>
@@ -1118,14 +997,12 @@ function CuboProjectView({
       onClose={onClose}
       className="bg-[#0b0909] text-white"
     >
-      <header className="relative grid min-h-[36rem] place-items-center overflow-hidden px-6 py-20 text-center md:min-h-[40rem]">
-        <img src={cuboImage("world.png")} alt="Cubo exploring the abandoned crystal mine" className="absolute inset-0 h-full w-full scale-105 object-cover opacity-70" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_48%,rgba(157,53,21,0.08),rgba(11,9,9,0.42)_42%,#0b0909_86%)]" />
-        <div className="relative mx-auto w-full max-w-6xl">
-          <h2 className="font-semibold leading-[0.82] tracking-[-0.07em] text-white [font-size:clamp(5.5rem,17vw,13rem)]">Cubo</h2>
-          <p className="mx-auto mt-8 max-w-3xl text-balance text-xl leading-relaxed text-white/76 md:text-2xl">
-            2D Metroidvania
-          </p>
+      <header className="relative min-h-[42rem] overflow-hidden md:min-h-[52rem]">
+        <img src={cuboImage("world.png")} alt="Cubo exploring the abandoned crystal mine" className="absolute inset-0 h-full w-full scale-105 object-cover opacity-85" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0b0909]/55 via-[#0b0909]/20 to-[#0b0909]/5" />
+        <div className="relative mx-auto flex min-h-[42rem] max-w-7xl flex-col justify-end px-5 pb-16 pt-28 md:min-h-[52rem] md:px-8 md:pb-24">
+          <h2 className="max-w-6xl text-[clamp(4rem,13vw,10rem)] font-semibold leading-[0.82] tracking-[-0.07em] text-white">Cubo</h2>
+          <p className="mt-8 max-w-3xl text-lg leading-8 text-white/76">A solo Unity project built around movement, exploration, and two staged boss encounters inside one connected mine.</p>
         </div>
       </header>
 
