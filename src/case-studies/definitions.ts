@@ -1,5 +1,7 @@
 import { CASE_STUDY_CHAPTERS, type CaseStudyNavigationDefinition } from "./types";
 
+const chaptersWithoutChangelog = CASE_STUDY_CHAPTERS.filter((chapter) => chapter !== "changelog");
+
 const sharedLabels = {
   showcase: { label: "Showcase" },
   overview: { label: "Overview" },
@@ -10,8 +12,6 @@ const sharedLabels = {
   changelog: { label: "Changelog" },
   reflection: { label: "Reflection" },
 } as const;
-
-const chaptersWithoutChangelog = CASE_STUDY_CHAPTERS.filter((chapter) => chapter !== "changelog");
 
 export const caseStudyDefinitions = {
   cubo: {
@@ -92,8 +92,8 @@ export const caseStudyDefinitions = {
     title: "MIRO",
     theme: "miro",
     hero: { label: "MIRO introduction" },
-    sections: sharedLabels,
     chapters: chaptersWithoutChangelog,
+    sections: sharedLabels,
     deepDives: [
       { id: "miro-custom-assets", label: "Custom assets", placement: "extras" },
       { id: "miro-production-workflow", label: "Production workflow", placement: "extras" },
