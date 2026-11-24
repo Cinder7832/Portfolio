@@ -216,7 +216,7 @@ export default function ModelViewer({
     controls.enablePan = false;
     controls.enableRotate = !compact;
     controls.enableZoom = !compact;
-    controls.autoRotate = motionEnabled && (viewer.autoRotate ?? true);
+    controls.autoRotate = !compact && motionEnabled && (viewer.autoRotate ?? true);
     controls.autoRotateSpeed = -0.62;
     controls.minPolarAngle = 0.08;
     controls.maxPolarAngle = Math.PI / 2 - 0.025;

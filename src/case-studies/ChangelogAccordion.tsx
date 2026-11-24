@@ -6,11 +6,14 @@ export type ChangelogEntry = {
   body: string[];
 };
 
+export const BREEZE_CLIENT_URL = "https://cinder7832.github.io/Breeze-Client-Website/";
+
 export default function ChangelogAccordion({
   entries,
   openVersion,
   onToggle,
   idPrefix,
+  gameTitle,
   description,
   variant = "default",
 }: {
@@ -18,6 +21,7 @@ export default function ChangelogAccordion({
   openVersion: string | null;
   onToggle: (version: string | null) => void;
   idPrefix: string;
+  gameTitle: string;
   description: string;
   variant?: "default" | "editorial" | "cinematic" | "industrial";
 }) {
@@ -29,6 +33,14 @@ export default function ChangelogAccordion({
       <div className="max-w-4xl">
         <h3 className={`text-5xl md:text-8xl ${editorial ? "font-medium tracking-[-0.06em]" : industrial ? "font-semibold tracking-[-0.075em]" : "font-semibold tracking-[-0.055em]"}`}>Changelog</h3>
         <p className="mt-7 text-lg leading-8 text-white/60">{description}</p>
+        <a
+          href={BREEZE_CLIENT_URL}
+          target="_blank"
+          rel="noreferrer"
+          className="mt-7 inline-flex min-h-12 items-center justify-center rounded-full bg-white px-6 py-3 text-sm font-semibold text-black transition-[box-shadow,transform] duration-300 hover:shadow-[0_12px_30px_rgba(255,255,255,0.18)] active:scale-95 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/35"
+        >
+          Download Breeze Client to play {gameTitle}
+        </a>
       </div>
       <div className={`mt-16 ${industrial ? "grid overflow-hidden rounded-[26px] gap-2 bg-[#ef6c43] p-0" : cinematic ? "overflow-hidden rounded-[28px] divide-y divide-white/12" : "divide-y divide-white/12 border-y border-white/12"}`}>
         {entries.map((entry) => {

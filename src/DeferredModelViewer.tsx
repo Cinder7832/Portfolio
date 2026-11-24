@@ -59,17 +59,15 @@ export default function DeferredModelViewer({
   artwork,
   compact = false,
   keepMounted = false,
-  preload = false,
 }: {
   artwork: Artwork;
   compact?: boolean;
   keepMounted?: boolean;
-  preload?: boolean;
 }) {
   const boundaryRef = useRef<HTMLDivElement | null>(null);
   const releaseCompactSlotRef = useRef<(() => void) | null>(null);
   const viewerActiveRef = useRef(!compact);
-  const [nearViewport, setNearViewport] = useState(!compact || preload);
+  const [nearViewport, setNearViewport] = useState(!compact);
   const [viewerActive, setViewerActive] = useState(!compact);
   const [ready, setReady] = useState(false);
   const [showLoader, setShowLoader] = useState(false);
@@ -77,7 +75,7 @@ export default function DeferredModelViewer({
 
   useEffect(() => {
     const boundary = boundaryRef.current;
-    if (!boundary || !compact || preload) {
+    if (!boundary || !compact) {
       return;
     }
 
@@ -90,7 +88,7 @@ export default function DeferredModelViewer({
 
     observer.observe(boundary);
     return () => observer.disconnect();
-  }, [compact, preload]);
+  }, [compact]);
 
   useEffect(() => {
     setReady(false);
@@ -122,12 +120,6 @@ export default function DeferredModelViewer({
 
     const activateViewer = () => {
       if (cancelled || viewerActiveRef.current || releaseCompactSlotRef.current) return;
-
-      if (preload) {
-        viewerActiveRef.current = true;
-        setViewerActive(true);
-        return;
-      }
 
       releaseCompactSlotRef.current = requestCompactViewer(() => {
         if (cancelled) return;
@@ -172,7 +164,7 @@ export default function DeferredModelViewer({
         releaseCompactSlotRef.current = null;
       }
     };
-  }, [compact, keepMounted, nearViewport, preload]);
+  }, [compact, keepMounted, nearViewport]);
 
   useEffect(
     () => () => {

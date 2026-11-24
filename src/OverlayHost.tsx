@@ -26,6 +26,7 @@ import MiroProjectView from "./case-studies/MiroStudy";
 import IndependentLevelProjectView from "./case-studies/IndependentLevelProjectStudy";
 import ErodedSandsProjectView from "./case-studies/ErodedSandsStudy";
 import HorizonProjectView from "./case-studies/HorizonStudy";
+import ReboundProjectView from "./case-studies/ReboundStudy";
 import ProjectCover from "./ProjectCover";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -402,8 +403,8 @@ export default function OverlayHost({
 
 function overlayLabel(state: OverlayState) {
   if (state.type === "project") return `${state.project.title} project details`;
-  if (state.type === "artwork") return `${state.artwork.title} artwork details`;
-  return state.type === "all-projects" ? "All projects" : "All artwork";
+  if (state.type === "artwork") return `${state.artwork.title} creative work details`;
+  return state.type === "all-projects" ? "All projects" : "All creative work";
 }
 
 function CloseButton({ onClick, label }: { onClick: () => void; label: string }) {
@@ -451,6 +452,10 @@ function ProjectView({
 
   if (project.id === "everdew") {
     return <EverdewProjectView onNavigate={onNavigate} onClose={onClose} />;
+  }
+
+  if (project.id === "rebound") {
+    return <ReboundProjectView onClose={onClose} />;
   }
 
   if (project.id === "ravensdown") {
@@ -529,7 +534,7 @@ function ArtworkView({
   return (
     <div className="detail-scrollbar relative h-full touch-pan-y overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch] lg:overflow-hidden">
       <div className="absolute right-4 top-4 z-30 md:right-6 md:top-6">
-        <BackButton label="Back to artwork" onClick={onClose} />
+        <BackButton label="Back to creative work" onClick={onClose} />
       </div>
       <div className="grid min-h-full lg:h-full lg:min-h-0 lg:grid-cols-[1.15fr_0.85fr]">
         <div className="relative grid min-h-[22rem] place-items-stretch overflow-hidden bg-[var(--model-viewer-bg)] md:min-h-[34rem] lg:min-h-0">
@@ -638,15 +643,15 @@ function AllArtworkView({ onChange }: { onChange: (state: OverlayState | null) =
 
   return (
     <>
-      <CatalogHeader title="All artwork" count={`${filtered.length} artwork results`} onClose={() => onChange(null)}>
-        <SearchField value={query} onChange={setQuery} placeholder="Search artwork by title, medium, or tag" />
+      <CatalogHeader title="All creative work" count={`${filtered.length} creative work results`} onClose={() => onChange(null)}>
+        <SearchField value={query} onChange={setQuery} placeholder="Search creative work by title, medium, or tag" />
         <FilterMenu label={kind === "All" ? "Filter" : kind} open={filterOpen} setOpen={setFilterOpen} items={["All", "2D", "3D"]} selected={kind} onSelect={(item) => setKind(item as typeof kind)} />
       </CatalogHeader>
       <div className="detail-scrollbar flex-1 touch-pan-y overflow-y-auto overscroll-contain p-5 pt-3 md:p-8 md:pt-4">
         <div ref={resultsRef} className="columns-1 gap-4 sm:columns-2 lg:columns-3 xl:columns-4">
           {filtered.map((artwork) => artwork.kind === "2D" ? <ArtworkCatalogImageTile key={artwork.id} artwork={artwork} /> : <button key={artwork.id} type="button" aria-label={`View ${artwork.title}`} className="catalog-card group mb-4 block w-full break-inside-avoid overflow-hidden rounded-[18px] bg-canvas text-left shadow-[0_10px_28px_rgba(29,29,31,0.16)] outline-none transition-shadow duration-500 hover:shadow-[0_16px_40px_rgba(29,29,31,0.24)] focus-visible:ring-4 focus-visible:ring-blueFocus/35 dark:bg-[#24252b]" onClick={() => onChange({ type: "artwork", artwork, origin: "all-artwork" })}><div className={`overflow-hidden ${artworkAspectClass(artwork)}`}><DeferredModelViewer artwork={artwork} compact keepMounted /></div></button>)}
         </div>
-        {!filtered.length && <EmptyResults noun="artwork" />}
+        {!filtered.length && <EmptyResults noun="creative work" />}
       </div>
     </>
   );
@@ -885,6 +890,7 @@ function EverdewChangelog({
       openVersion={openVersion}
       onToggle={onToggle}
       idPrefix="everdew"
+      gameTitle="Everdew"
       description="Release notes for Everdew."
     />
   );
@@ -1196,6 +1202,7 @@ function CuboProjectView({
           openVersion={openChangelogVersion}
           onToggle={setOpenChangelogVersion}
           idPrefix="cubo"
+          gameTitle="Cubo"
           description="Complete release notes for Cubo, from the first test build to the latest update."
         />
         {false && (

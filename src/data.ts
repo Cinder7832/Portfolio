@@ -43,7 +43,11 @@ export type Artwork = {
 
 export const profile = {
   name: "Devanand Asai",
-  role: "Developer focused on clean, practical digital products.",
+  role: "Game developer and environment artist working across gameplay, level design, and 2D and 3D art.",
+  about: [
+    "I am a Game Development and Creative Media student at New College Swindon, I love working on the technical and visual aspects of games design. My goal is to create fun games and keep improving my skills with every project I build. My work covers gameplay, level and environment design, interface design, and 2D and 3D asset creation.",
+    "I work on both solo and group projects, usually starting with research and planning, then building, testing, and improving each project until it feels complete. I focus on delivering high quality work that follows professional standards and documenting my development decisions and what I've learnt.",
+  ],
   email: "devanandasai08@gmail.com",
   github: "https://github.com/Cinder7832",
   linkedin: "https://www.linkedin.com/in/devanand-asai/",
@@ -84,6 +88,23 @@ export const projects: Project[] = [
     imageSeed: "everdew-pixel-farm",
     imageUrl: "projects/everdew/farm-village.png",
     liveUrl: "https://cinder7832.itch.io/everdew",
+  },
+  {
+    id: "rebound",
+    title: "Rebound",
+    category: "Games",
+    caseStudyStatus: "published",
+    summary: "A three week first person dungeon game built around a returning boomerang and an upgradeable drill.",
+    description:
+      "Rebound is a team project created for a college game jam with the theme Less is More. I produced and textured a large share of the Blockbench models, contributed to the player controller, built the chest mimic, and worked on the interface, effects, and final polish.",
+    stack: ["Unity 6", "C#", "Blockbench", "GitHub"],
+    highlights: [
+      "A boomerang that ricochets from walls and enemies before returning to the player.",
+      "A drill upgrade that increases boomerang speed, range, and damage through an active spin mechanic.",
+      "A compact dungeon with perks, resources, four enemy types, and two connected boss encounters.",
+    ],
+    imageSeed: "rebound-green-dungeon",
+    imageUrl: "projects/rebound/gameplay-boomerang.png",
   },
   {
     id: "ravensdown",
@@ -257,9 +278,23 @@ export const projects: Project[] = [
   },
 ];
 
-export const publishedProjects = projects.filter(
-  (project): project is Project & { caseStudyStatus: "published" } => project.caseStudyStatus === "published",
-);
+const publishedProjectOrder = [
+  "cubo",
+  "everdew",
+  "ravensdown",
+  "forgotten-line",
+  "eroded-sands",
+  "miro",
+  "rebound",
+  "constructed",
+  "aztec-temple",
+  "horizon",
+  "independent-level-project",
+] as const;
+
+export const publishedProjects = projects
+  .filter((project): project is Project & { caseStudyStatus: "published" } => project.caseStudyStatus === "published")
+  .sort((left, right) => publishedProjectOrder.indexOf(left.id as (typeof publishedProjectOrder)[number]) - publishedProjectOrder.indexOf(right.id as (typeof publishedProjectOrder)[number]));
 
 export const artworks: Artwork[] = [
   {

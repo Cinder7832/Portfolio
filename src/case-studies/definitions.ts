@@ -38,6 +38,18 @@ export const caseStudyDefinitions = {
       { id: "everdew-promotion", label: "Promotion", placement: "extras" },
     ],
   },
+  rebound: {
+    projectId: "rebound",
+    title: "Rebound",
+    theme: "rebound",
+    hero: { label: "Rebound introduction" },
+    sections: sharedLabels,
+    deepDives: [
+      { id: "rebound-combat", label: "Combat modes", placement: "extras" },
+      { id: "rebound-enemies", label: "Enemies and bosses", placement: "extras" },
+      { id: "rebound-assets", label: "Blockbench assets", placement: "extras" },
+    ],
+  },
   ravensdown: {
     projectId: "ravensdown",
     title: "Ravensdown",
@@ -105,6 +117,7 @@ export const caseStudyDefinitions = {
     title: "Independent Level Project",
     theme: "independent-level-project",
     hero: { label: "Independent Level Project introduction" },
+    chapters: chaptersWithoutChangelog,
     sections: sharedLabels,
     deepDives: [
       { id: "independent-level-project-source", label: "Asset source", placement: "extras" },
@@ -131,6 +144,7 @@ export const caseStudyDefinitions = {
     title: "Horizon",
     theme: "horizon",
     hero: { label: "Horizon introduction" },
+    chapters: chaptersWithoutChangelog,
     sections: {
       ...sharedLabels,
       experience: { label: "Scene Experience" },

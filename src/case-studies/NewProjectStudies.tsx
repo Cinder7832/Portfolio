@@ -357,7 +357,7 @@ function StudyPage({ id, onClose }: { id: StudyId; onClose: () => void }) {
       </section>
 
       <div style={{ background: config.palette.page }}>
-        <ChangelogAccordion entries={config.changelog} openVersion={openChangelog} onToggle={setOpenChangelog} idPrefix={id} description="Recorded development stages from the supplied project documentation." variant={config.design} />
+        <ChangelogAccordion entries={config.changelog} openVersion={openChangelog} onToggle={setOpenChangelog} idPrefix={id} gameTitle={config.title} description="Recorded development stages from the supplied project documentation." variant={config.design} />
       </div>
 
       <section id="reflection" data-case-study-chapter className={`relative scroll-mt-16 overflow-hidden ${industrial ? "border-t-8 border-[#ef6c43] py-24 md:py-32" : "py-32 md:py-44"}`} style={{ background: config.palette.panel }}>

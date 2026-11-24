@@ -22,7 +22,7 @@ export type CaseStudySectionSlot = {
 export type CaseStudyDefinition = {
   projectId: string;
   title: string;
-  theme: "cubo" | "everdew" | "ravensdown" | "forgotten-line" | "constructed" | "aztec-temple" | "miro" | "independent-level-project" | "eroded-sands" | "horizon";
+  theme: "cubo" | "everdew" | "rebound" | "ravensdown" | "forgotten-line" | "constructed" | "aztec-temple" | "miro" | "independent-level-project" | "eroded-sands" | "horizon";
   hero: CaseStudySectionSlot;
   sections: Record<CaseStudyChapter, CaseStudySectionSlot>;
   deepDives: Array<{

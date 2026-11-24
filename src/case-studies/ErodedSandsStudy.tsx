@@ -57,7 +57,7 @@ export default function ErodedSandsProjectView({ onClose }: { onClose: () => voi
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const showcaseRef = useRef<HTMLDivElement | null>(null);
   const reducedMotion = usePrefersReducedMotion();
-  const [openVersion, setOpenVersion] = useState<string | null>("1.0.0");
+  const [openVersion, setOpenVersion] = useState<string | null>(null);
 
   const scrollShowcase = (direction: -1 | 1) => {
     const rail = showcaseRef.current;
@@ -162,6 +162,7 @@ export default function ErodedSandsProjectView({ onClose }: { onClose: () => voi
         openVersion={openVersion}
         onToggle={setOpenVersion}
         idPrefix="eroded-sands"
+        gameTitle="Eroded Sands"
         description="The project was completed as one short environment exercise, so the record contains a single finished state."
         variant="cinematic"
       />

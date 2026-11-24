@@ -163,7 +163,7 @@ function Navigation() {
   const links = [
     ["Home", "home"],
     ["Projects", "projects"],
-    ["Artwork", "artwork"],
+    ["Creative Work", "artwork"],
     ["About", "about"],
     ["Contact", "contact"],
   ];
@@ -257,7 +257,7 @@ function Hero() {
             Devanand Asai
           </h1>
           <p className="mx-auto mt-5 max-w-2xl text-[21px] leading-[1.25] text-ink/80 dark:text-white/80 lg:mx-0">
-            Game Development &amp; Creative Media student at New College Swindon.
+            {profile.role}
           </p>
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row lg:justify-start">
             <button
@@ -402,10 +402,10 @@ function ArtworkSection({
         <div className="reveal mb-12 flex flex-col justify-between gap-6 md:flex-row md:items-end">
           <div>
             <h2 className="max-w-5xl text-[clamp(2.3rem,5vw,4rem)] font-semibold leading-[1.08] tracking-[-0.01em]">
-              Artwork
+              Creative Work
             </h2>
             <p className="mt-4 max-w-2xl text-[17px] leading-[1.47] text-ink/70 dark:text-white/70">
-              Sketches, concepts, 3D models, studies, and visual experiments.
+              Photography, sketches, concepts, 3D models, studies, and visual experiments.
             </p>
           </div>
           <button
@@ -433,7 +433,7 @@ function ArtworkSection({
               <div className="overflow-hidden rounded-[18px] bg-chalk dark:bg-[#1c1d23]">
                 <div className={`overflow-hidden ${artworkMediaAspectClass(artwork)}`}>
                   {artwork.kind === "3D" ? (
-                    <DeferredModelViewer artwork={artwork} compact keepMounted preload />
+                    <DeferredModelViewer artwork={artwork} compact keepMounted />
                   ) : (
                     <img
                       src={artworkImageFor(artwork, 900, 1200)}
@@ -483,7 +483,6 @@ function ArtworkImageTile({ artwork, index }: { artwork: Artwork; index: number 
 }
 
 function About() {
-  const introduction = "Game Development & Creative Media student at New College Swindon.";
   const skills = ["2D Art", "3D Modelling", "Level Design"];
   const tools = [
     "Blender",
@@ -507,7 +506,9 @@ function About() {
             About me
           </h2>
           <div className="mx-auto mt-7 max-w-2xl space-y-5 text-[17px] leading-[1.47] text-ink/80 dark:text-white/80">
-            <p>{introduction}</p>
+            {profile.about.map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
           </div>
           <div className="about-stack mx-auto mt-10 grid max-w-2xl gap-6">
             <div className="about-stack-card rounded-[18px] bg-[#f1f1f4] p-5 dark:bg-[#1c1d23]">

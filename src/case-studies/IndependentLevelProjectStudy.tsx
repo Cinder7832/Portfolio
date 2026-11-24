@@ -1,58 +1,10 @@
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { usePrefersReducedMotion } from "../motion";
 import CaseStudyShell from "./CaseStudyShell";
 import { CaseStudyShowcaseImage, CaseStudyShowcaseRail } from "./CaseStudyMedia";
-import ChangelogAccordion, { type ChangelogEntry } from "./ChangelogAccordion";
 import { caseStudyDefinitions } from "./definitions";
 
 const projectImage = (file: string) => `${import.meta.env.BASE_URL}projects/independent-level-project/${file}`;
-
-const changelog: ChangelogEntry[] = [
-  {
-    version: "planning",
-    label: "Planning",
-    date: "Documented sequence",
-    title: "Concept and route development",
-    body: [
-      "Selected a cyberpunk theme for a first person runner tutorial focused on jumping.",
-      "Produced three map sketches, then added hidden rooms, safe spots, and score stars across the iterations.",
-      "Created concept art for a rooftop jump between simple block forms.",
-    ],
-  },
-  {
-    version: "blockout",
-    label: "Blockout",
-    date: "Documented sequence",
-    title: "ProBuilder construction",
-    body: [
-      "Built the route with ProBuilder and used the Starter Assets First Person Character for testing.",
-      "Kept floors separate from walls so each part could be enabled or disabled independently.",
-      "Extended the course by extruding blocks while referring back to the concept designs.",
-    ],
-  },
-  {
-    version: "mechanics",
-    label: "Mechanics",
-    date: "Documented sequence",
-    title: "Hazards and moving platform",
-    body: [
-      "Added pistons that push the player away on contact.",
-      "Added a floating platform that carries the player into the next area.",
-      "Planned a large piston and opposing air current for the ending, but did not implement them within the available time.",
-    ],
-  },
-  {
-    version: "revision",
-    label: "Revision",
-    date: "Documented sequence",
-    title: "Middle and final area changes",
-    body: [
-      "Replaced the long middle hallway with more pistons and a pipe traversal section.",
-      "Removed the floor from the final area and introduced a sequence of platforms.",
-      "Completed a working level while recording the differences between the result and the original visual and pacing goals.",
-    ],
-  },
-];
 
 function Heading({ children, intro, dark = false }: { children: string; intro?: string; dark?: boolean }) {
   return (
@@ -66,7 +18,6 @@ function Heading({ children, intro, dark = false }: { children: string; intro?: 
 export default function IndependentLevelProjectView({ onClose }: { onClose: () => void }) {
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const showcaseRef = useRef<HTMLDivElement | null>(null);
-  const [openChangelog, setOpenChangelog] = useState<string | null>("planning");
   const reducedMotion = usePrefersReducedMotion();
 
   const scrollShowcase = (direction: -1 | 1) => {
@@ -174,10 +125,6 @@ export default function IndependentLevelProjectView({ onClose }: { onClose: () =
           </div>
         </div>
       </section>
-
-      <div className="bg-[#071619]">
-        <ChangelogAccordion entries={changelog} openVersion={openChangelog} onToggle={setOpenChangelog} idPrefix="independent-level-project" description="Recorded stages from the supplied planning and development documentation." variant="cinematic" />
-      </div>
 
       <section id="reflection" data-case-study-chapter className="scroll-mt-16 bg-[#e9f4f1] py-32 text-[#102327] md:py-44">
         <div className="mx-auto max-w-7xl px-5 md:px-8">
