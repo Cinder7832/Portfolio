@@ -11,6 +11,7 @@ import {
   Menu,
   MoveRight,
   FileText,
+  Maximize2,
   X,
 } from "lucide-react";
 import { Artwork, Project, artworks, profile, publishedProjects as projects } from "./data";
@@ -18,6 +19,7 @@ import DeferredModelViewer from "./DeferredModelViewer";
 import OverlayHost, { type OverlayState } from "./OverlayHost";
 import { MOTION, prefersReducedMotion } from "./motion";
 import ProjectCover from "./ProjectCover";
+import { ExpandedImageViewer } from "./case-studies/CaseStudyMedia";
 
 const imageFor = (seed: string, width = 1920, height = 1080) =>
   `https://picsum.photos/seed/${seed}/${width}/${height}`;
@@ -417,10 +419,13 @@ function ArtworkSection({
         </div>
 
         <div className="isolate columns-1 gap-4 sm:columns-2 lg:columns-3">
-          {featuredArtworks.map((artwork, index) => (
+          {featuredArtworks.map((artwork, index) => artwork.kind === "2D" ? (
+            <ArtworkImageTile key={artwork.id} artwork={artwork} index={index} />
+          ) : (
             <button
               key={artwork.id}
               type="button"
+              aria-label={`View ${artwork.title}`}
               className="artwork-tile group relative mb-4 block w-full break-inside-avoid text-left outline-none focus-visible:ring-4 focus-visible:ring-blueFocus/35 before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:rounded-[18px] before:content-[''] before:shadow-[0_18px_44px_rgba(29,29,31,0.2)] before:transition-shadow before:duration-500 hover:before:shadow-[0_24px_58px_rgba(29,29,31,0.3)] dark:before:shadow-[0_24px_70px_rgba(0,0,0,0.56)] dark:hover:before:shadow-[0_30px_86px_rgba(0,0,0,0.7)]"
               style={{ animationDelay: `${index * 45}ms` }}
               onClick={() => onSelect(artwork)}
@@ -437,21 +442,43 @@ function ArtworkSection({
                     />
                   )}
                 </div>
-                <div className="p-5">
-                  <div className="flex items-start justify-between gap-4">
-                    <h3 className="text-xl font-semibold tracking-[-0.01em]">{artwork.title}</h3>
-                    <span className="mt-0.5 shrink-0 rounded-full bg-canvas px-3 py-1 text-xs font-semibold text-ink/55 dark:bg-[#30313a] dark:text-white/55">
-                      {artwork.kind}
-                    </span>
-                  </div>
-                  <p className="mt-2 text-sm leading-6 text-ink/65 dark:text-white/65">{artwork.summary}</p>
-                </div>
               </div>
             </button>
           ))}
         </div>
       </div>
     </section>
+  );
+}
+
+function ArtworkImageTile({ artwork, index }: { artwork: Artwork; index: number }) {
+  const [expanded, setExpanded] = useState(false);
+  const image = artworkImageFor(artwork, 1800, 2400);
+
+  return (
+    <div
+      className="artwork-tile group relative mb-4 block w-full break-inside-avoid before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:rounded-[18px] before:content-[''] before:shadow-[0_18px_44px_rgba(29,29,31,0.2)] before:transition-shadow before:duration-500 hover:before:shadow-[0_24px_58px_rgba(29,29,31,0.3)] dark:before:shadow-[0_24px_70px_rgba(0,0,0,0.56)] dark:hover:before:shadow-[0_30px_86px_rgba(0,0,0,0.7)]"
+      style={{ animationDelay: `${index * 45}ms` }}
+    >
+      <div className="relative overflow-hidden rounded-[18px] bg-chalk dark:bg-[#1c1d23]">
+        <div className={`overflow-hidden ${artworkMediaAspectClass(artwork)}`}>
+          <img
+            src={image}
+            alt={artwork.title}
+            className="h-full w-full object-cover brightness-[0.86] contrast-[1.08] saturate-[0.82] transition-transform duration-700 ease-out group-hover:scale-[1.045]"
+          />
+        </div>
+        <button
+          type="button"
+          className="icon-button-motion absolute bottom-4 right-4 z-10 grid size-11 place-items-center rounded-full bg-white text-ink shadow-[0_18px_44px_rgba(0,0,0,0.28)] hover:bg-[#f5f5f7] focus-visible:ring-4 focus-visible:ring-blueFocus/35 dark:bg-[#24252b] dark:text-white dark:shadow-[0_18px_44px_rgba(0,0,0,0.48)] dark:hover:bg-[#303139]"
+          aria-label={`Expand ${artwork.title}`}
+          onClick={() => setExpanded(true)}
+        >
+          <Maximize2 size={18} />
+        </button>
+      </div>
+      <ExpandedImageViewer open={expanded} src={image} title={artwork.title} onClose={() => setExpanded(false)} />
+    </div>
   );
 }
 

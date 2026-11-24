@@ -644,7 +644,7 @@ function AllArtworkView({ onChange }: { onChange: (state: OverlayState | null) =
       </CatalogHeader>
       <div className="detail-scrollbar flex-1 touch-pan-y overflow-y-auto overscroll-contain p-5 pt-3 md:p-8 md:pt-4">
         <div ref={resultsRef} className="columns-1 gap-4 sm:columns-2 lg:columns-3 xl:columns-4">
-          {filtered.map((artwork) => <button key={artwork.id} type="button" className="catalog-card group mb-4 block w-full break-inside-avoid overflow-hidden rounded-[18px] bg-canvas text-left shadow-[0_10px_28px_rgba(29,29,31,0.16)] outline-none transition-shadow duration-500 hover:shadow-[0_16px_40px_rgba(29,29,31,0.24)] focus-visible:ring-4 focus-visible:ring-blueFocus/35 dark:bg-[#24252b]" onClick={() => onChange({ type: "artwork", artwork, origin: "all-artwork" })}><div className={`overflow-hidden ${artworkAspectClass(artwork)}`}>{artwork.kind === "3D" ? <DeferredModelViewer artwork={artwork} compact keepMounted /> : <img src={artworkImageFor(artwork)} alt="" className="catalog-card-image catalog-artwork-image h-full w-full object-cover brightness-[0.86] contrast-[1.08] saturate-[0.82] transition-transform duration-700 ease-out group-hover:scale-[1.045]" />}</div><div className="p-4"><div className="flex items-start justify-between gap-3"><h3 className="text-lg font-semibold">{artwork.title}</h3><span className="rounded-full bg-chalk px-2.5 py-1 text-xs font-semibold text-ink/55 dark:bg-[#30313a] dark:text-white/55">{artwork.kind}</span></div><p className="mt-1 text-sm text-ink/60 dark:text-white/60">{artwork.medium} · {artwork.year}</p></div></button>)}
+          {filtered.map((artwork) => artwork.kind === "2D" ? <ArtworkCatalogImageTile key={artwork.id} artwork={artwork} /> : <button key={artwork.id} type="button" aria-label={`View ${artwork.title}`} className="catalog-card group mb-4 block w-full break-inside-avoid overflow-hidden rounded-[18px] bg-canvas text-left shadow-[0_10px_28px_rgba(29,29,31,0.16)] outline-none transition-shadow duration-500 hover:shadow-[0_16px_40px_rgba(29,29,31,0.24)] focus-visible:ring-4 focus-visible:ring-blueFocus/35 dark:bg-[#24252b]" onClick={() => onChange({ type: "artwork", artwork, origin: "all-artwork" })}><div className={`overflow-hidden ${artworkAspectClass(artwork)}`}><DeferredModelViewer artwork={artwork} compact keepMounted /></div></button>)}
         </div>
         {!filtered.length && <EmptyResults noun="artwork" />}
       </div>
@@ -667,6 +667,28 @@ function SearchField({ value, onChange, placeholder }: { value: string; onChange
         className="h-full w-full min-w-0 bg-transparent text-[15px] leading-none outline-none placeholder:text-ink/40 dark:placeholder:text-white/50 md:text-sm"
       />
     </label>
+  );
+}
+
+function ArtworkCatalogImageTile({ artwork }: { artwork: Artwork }) {
+  const [expanded, setExpanded] = useState(false);
+  const image = artworkImageFor(artwork, 1800, 2400);
+
+  return (
+    <div className="catalog-card group relative mb-4 block w-full break-inside-avoid overflow-hidden rounded-[18px] bg-canvas text-left shadow-[0_10px_28px_rgba(29,29,31,0.16)] transition-shadow duration-500 hover:shadow-[0_16px_40px_rgba(29,29,31,0.24)] dark:bg-[#24252b]">
+      <div className={`overflow-hidden ${artworkAspectClass(artwork)}`}>
+        <img src={image} alt={artwork.title} className="catalog-card-image catalog-artwork-image h-full w-full object-cover brightness-[0.86] contrast-[1.08] saturate-[0.82] transition-transform duration-700 ease-out group-hover:scale-[1.045]" />
+      </div>
+      <button
+        type="button"
+        className="icon-button-motion absolute bottom-4 right-4 z-10 grid size-11 place-items-center rounded-full bg-white text-ink shadow-[0_18px_44px_rgba(0,0,0,0.28)] hover:bg-[#f5f5f7] focus-visible:ring-4 focus-visible:ring-blueFocus/35 dark:bg-[#24252b] dark:text-white dark:shadow-[0_18px_44px_rgba(0,0,0,0.48)] dark:hover:bg-[#303139]"
+        aria-label={`Expand ${artwork.title}`}
+        onClick={() => setExpanded(true)}
+      >
+        <Maximize2 size={18} />
+      </button>
+      <ExpandedImageViewer open={expanded} src={image} title={artwork.title} onClose={() => setExpanded(false)} />
+    </div>
   );
 }
 
