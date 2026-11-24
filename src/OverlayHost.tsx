@@ -24,6 +24,8 @@ import { ConstructedProjectView, ForgottenLineProjectView, RavensdownProjectView
 import AztecTempleProjectView from "./case-studies/AztecTempleStudy";
 import MiroProjectView from "./case-studies/MiroStudy";
 import IndependentLevelProjectView from "./case-studies/IndependentLevelProjectStudy";
+import ErodedSandsProjectView from "./case-studies/ErodedSandsStudy";
+import HorizonProjectView from "./case-studies/HorizonStudy";
 import ProjectCover from "./ProjectCover";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -473,6 +475,14 @@ function ProjectView({
 
   if (project.id === "independent-level-project") {
     return <IndependentLevelProjectView onClose={onClose} />;
+  }
+
+  if (project.id === "eroded-sands") {
+    return <ErodedSandsProjectView onClose={onClose} />;
+  }
+
+  if (project.id === "horizon") {
+    return <HorizonProjectView onClose={onClose} />;
   }
 
   return (

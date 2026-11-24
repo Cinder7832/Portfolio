@@ -120,6 +120,40 @@ export const projects: Project[] = [
     imageUrl: "projects/forgotten-line/image40.png",
   },
   {
+    id: "eroded-sands",
+    title: "Eroded Sands",
+    category: "3D",
+    caseStudyStatus: "published",
+    summary: "A compact Unreal Engine desert diorama built around an abandoned mining site.",
+    description:
+      "Eroded Sands is a short environment study completed in a few hours. I assembled Quixel Megascans assets into a destroyed mining area, shaped one clear composition, and added a tutorial assisted wind and dust effect to give the static scene movement.",
+    stack: ["Unreal Engine", "Quixel Megascans", "Environment Art", "VFX"],
+    highlights: [
+      "A focused desert composition using rock masses, a mine entrance, rail fragments, a cart, timber supports, and abandoned props.",
+      "Warm sandstone and sand are separated from the pale blue sky through complementary temperature contrast.",
+      "A wind driven dust effect adds movement and reinforces the exposed desert setting.",
+    ],
+    imageSeed: "eroded-sands-desert-mine",
+    imageUrl: "projects/eroded-sands/final.png",
+  },
+  {
+    id: "horizon",
+    title: "Horizon",
+    category: "3D",
+    caseStudyStatus: "published",
+    summary: "A small Unreal Engine meadow study shaped around sunset light and a distant ruined arch.",
+    description:
+      "Horizon is a compact meadow environment study. I developed a layered valley composition, used grasses, flowers, shrubs, trees, rocks, and a ruined stone arch to establish scale, then shaped the final view around warm sunset light and atmospheric depth.",
+    stack: ["Unreal Engine", "Landscape", "Foliage", "Lighting", "Atmosphere"],
+    highlights: [
+      "A low sun and warm cloud light establish the scene's colour direction.",
+      "Foreground vegetation, a middle ground ruin, and hazed mountain silhouettes create clear depth layers.",
+      "The final pass replaces an exposed open field with denser vegetation and a readable architectural landmark.",
+    ],
+    imageSeed: "horizon-sunset-meadow",
+    imageUrl: "projects/horizon/final-meadow.png",
+  },
+  {
     id: "constructed",
     title: "Constructed",
     category: "Games",

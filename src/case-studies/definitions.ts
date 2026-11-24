@@ -112,6 +112,34 @@ export const caseStudyDefinitions = {
       { id: "independent-level-project-workflow", label: "Build workflow", placement: "extras" },
     ],
   },
+  "eroded-sands": {
+    projectId: "eroded-sands",
+    title: "Eroded Sands",
+    theme: "eroded-sands",
+    hero: { label: "Eroded Sands introduction" },
+    sections: {
+      ...sharedLabels,
+      experience: { label: "Scene Experience" },
+    },
+    deepDives: [
+      { id: "eroded-sands-assets", label: "Asset authorship", placement: "extras" },
+      { id: "eroded-sands-vfx", label: "Dust VFX", placement: "extras" },
+    ],
+  },
+  horizon: {
+    projectId: "horizon",
+    title: "Horizon",
+    theme: "horizon",
+    hero: { label: "Horizon introduction" },
+    sections: {
+      ...sharedLabels,
+      experience: { label: "Scene Experience" },
+    },
+    deepDives: [
+      { id: "horizon-landmark", label: "Ruined landmark", placement: "extras" },
+      { id: "horizon-captures", label: "Render sequence", placement: "extras" },
+    ],
+  },
 } as const satisfies Record<string, CaseStudyNavigationDefinition>;
 
 export type PublishedCaseStudyId = keyof typeof caseStudyDefinitions;
