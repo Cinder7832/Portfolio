@@ -1,5 +1,6 @@
 export type ChangelogEntry = {
   version: string;
+  label?: string;
   date: string;
   title: string;
   body: string[];
@@ -42,7 +43,7 @@ export default function ChangelogAccordion({
                 onClick={() => onToggle(isOpen ? null : entry.version)}
                 className="flex w-full cursor-pointer flex-wrap items-center justify-between gap-x-8 gap-y-2 text-left focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/30"
               >
-                <span className={`text-2xl font-semibold ${industrial ? "text-[#ef6c43]" : cinematic ? "text-[#df683c]" : ""}`}>v{entry.version}</span>
+                <span className={`text-2xl font-semibold ${industrial ? "text-[#ef6c43]" : cinematic ? "text-[#df683c]" : ""}`}>{entry.label ?? `v${entry.version}`}</span>
                 <span className="flex-1 text-lg text-white/70 md:text-right">{entry.title}</span>
                 <span className="text-sm text-white/45">{entry.date}</span>
                 <span aria-hidden="true" className={`text-2xl leading-none text-white/55 transition-transform duration-300 ${isOpen ? "rotate-45" : "rotate-0"}`}>+</span>

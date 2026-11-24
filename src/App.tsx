@@ -17,15 +17,10 @@ import { Artwork, Project, artworks, profile, publishedProjects as projects } fr
 import DeferredModelViewer from "./DeferredModelViewer";
 import OverlayHost, { type OverlayState } from "./OverlayHost";
 import { MOTION, prefersReducedMotion } from "./motion";
+import ProjectCover from "./ProjectCover";
 
 const imageFor = (seed: string, width = 1920, height = 1080) =>
   `https://picsum.photos/seed/${seed}/${width}/${height}`;
-
-const projectImageFor = (project: Project, width = 1920, height = 1080) => {
-  if (!project.imageUrl) return imageFor(project.imageSeed, width, height);
-  if (/^https?:\/\//.test(project.imageUrl)) return project.imageUrl;
-  return `${import.meta.env.BASE_URL}${project.imageUrl.replace(/^\/+/, "")}`;
-};
 
 const profilePicture = `${import.meta.env.BASE_URL}profile-picture.jpg`;
 const cvUrl = `${import.meta.env.BASE_URL}CV-Devanand-Asai.pdf`;
@@ -369,11 +364,7 @@ function Projects({
                 className="project-card group relative h-[24rem] w-[min(24rem,calc(100%_-_2rem))] shrink-0 snap-center overflow-hidden rounded-[18px] bg-canvas text-left shadow-[0_18px_44px_rgba(29,29,31,0.2)] outline-none transition-shadow duration-500 ease-out hover:shadow-[0_24px_58px_rgba(29,29,31,0.3)] focus-visible:ring-4 focus-visible:ring-blueFocus/35 dark:bg-[#24252b] dark:shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_34px_86px_rgba(0,0,0,0.66),0_0_42px_rgba(255,255,255,0.06)] dark:hover:shadow-[0_0_0_1px_rgba(255,255,255,0.12),0_42px_104px_rgba(0,0,0,0.78),0_0_58px_rgba(255,255,255,0.09)] sm:w-[28rem] lg:w-[38rem]"
                 onClick={() => onSelect(project)}
               >
-                <img
-                  src={projectImageFor(project)}
-                  alt=""
-                  className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.035]"
-                />
+                <ProjectCover project={project} className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.035]" />
                 <div className="absolute inset-0 bg-gradient-to-t from-ink/70 via-ink/18 to-transparent transition-opacity duration-500 group-hover:opacity-90" />
                 <div className="pointer-events-none absolute inset-y-0 left-[-55%] w-1/2 -skew-x-12 bg-white/14 opacity-0 blur-sm transition-[left,opacity] duration-700 ease-out group-hover:left-[115%] group-hover:opacity-100" />
                 <div className="absolute inset-x-0 bottom-0 p-6 text-white transition-transform duration-500 ease-out group-hover:-translate-y-1">

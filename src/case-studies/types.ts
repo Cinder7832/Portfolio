@@ -22,7 +22,7 @@ export type CaseStudySectionSlot = {
 export type CaseStudyDefinition = {
   projectId: string;
   title: string;
-  theme: "cubo" | "everdew" | "ravensdown" | "forgotten-line" | "constructed";
+  theme: "cubo" | "everdew" | "ravensdown" | "forgotten-line" | "constructed" | "aztec-temple" | "miro" | "independent-level-project";
   hero: CaseStudySectionSlot;
   sections: Record<CaseStudyChapter, CaseStudySectionSlot>;
   deepDives: Array<{
@@ -36,5 +36,6 @@ export type CaseStudyDefinition = {
 export type CaseStudyNavigationDefinition = Omit<CaseStudyDefinition, "hero" | "sections" | "deepDives"> & {
   hero: Omit<CaseStudySectionSlot, "content">;
   sections: Record<CaseStudyChapter, Omit<CaseStudySectionSlot, "content">>;
+  chapters?: readonly CaseStudyChapter[];
   deepDives: Array<Omit<CaseStudyDefinition["deepDives"][number], "content">>;
 };

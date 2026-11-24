@@ -137,6 +137,58 @@ export const projects: Project[] = [
     imageUrl: "projects/constructed/image1.png",
   },
   {
+    id: "aztec-temple",
+    title: "Aztec Temple",
+    category: "Games",
+    caseStudyStatus: "published",
+    summary: "A Unity HDRP environment based on documented Mesoamerican temple research.",
+    description:
+      "Aztec Temple is a Unity environment built with terrain tools, HDRP atmosphere, a cube based temple, sourced vegetation and materials, and a working first or third person controller. The development record covers the move from URP to HDRP, terrain composition, historical references, shader repairs, scene detail, and final reflection.",
+    stack: ["Unity", "HDRP", "Terrain Tools", "Unity Version Control", "Poly Haven"],
+    highlights: [
+      "A square temple with central stairways and a flat summit design based on documented Mesoamerican references.",
+      "A renderer change from URP to HDRP to support global illumination, reflections, volumetric clouds, water, and fog.",
+      "A navigable environment with colliders, a first or third person controller, repaired shaders, and normal mapped materials.",
+    ],
+    imageSeed: "aztec-temple-documentation",
+    imageUrl: "projects/aztec-temple/temple-vista.png",
+  },
+  {
+    id: "miro",
+    title: "MIRO",
+    category: "Games",
+    caseStudyStatus: "published",
+    summary: "A first person vertical slice about a trash collector robot in a post industrial alien city.",
+    description:
+      "MIRO is a completed Unity HDRP vertical slice. I built the industrial environment and a collection loop where the player gathers waste, sells it to an NPC, clears areas, and buys upgrades. The project also includes custom Blender assets, menus, interaction feedback, production planning, and QA revisions.",
+    stack: ["Unity 6", "HDRP", "C#", "Blender", "Figma", "GitHub LFS", "Trello"],
+    highlights: [
+      "Trash spawning, raycast pickup, NPC selling, area progress, and five collection or movement upgrades form the complete gameplay loop.",
+      "A dense industrial city combines factories, pipes, platforms, waste, fog, and controlled yellow, green, and red lighting.",
+      "QA feedback led to clearer interaction controls, stronger route guidance, and more environmental detail.",
+      "Optional puzzle systems were removed so the collection and progression loop could reach a complete state.",
+    ],
+    imageSeed: "miro-industrial-city",
+    imageUrl: "projects/miro/industrial-courtyard.png",
+  },
+  {
+    id: "independent-level-project",
+    title: "Independent Level Project",
+    category: "Games",
+    caseStudyStatus: "published",
+    summary: "A first person Unity runner level that teaches jumping through a white box obstacle course.",
+    description:
+      "Independent Level Project is a completed Unity level based on a one mechanic tutorial brief. I planned a cyberpunk rooftop route, translated it into a playable ProBuilder course, and revised the layout with pistons, pipe traversal, a moving platform, and raised final platforms.",
+    stack: ["Unity 6", "URP", "ProBuilder", "Starter Assets"],
+    highlights: [
+      "A playable critical path built around running and jumping with a Starter Assets first person controller.",
+      "Three preliminary map iterations and concept art established the original rooftop route before production.",
+      "The final revision replaced a long hallway with pistons and pipe traversal, then removed the final floor to create a platform sequence.",
+    ],
+    imageSeed: "independent-level-cyan-runner",
+    imageUrl: "projects/independent-level-project/final-layout.png",
+  },
+  {
     id: "automation-lab",
     title: "Automation Lab",
     category: "Games",

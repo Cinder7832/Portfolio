@@ -21,6 +21,10 @@ import { caseStudyDefinitions } from "./case-studies/definitions";
 import ChangelogAccordion from "./case-studies/ChangelogAccordion";
 import { CaseStudyShowcaseImage, CaseStudyShowcaseRail, ExpandedImageViewer } from "./case-studies/CaseStudyMedia";
 import { ConstructedProjectView, ForgottenLineProjectView, RavensdownProjectView } from "./case-studies/NewProjectStudies";
+import AztecTempleProjectView from "./case-studies/AztecTempleStudy";
+import MiroProjectView from "./case-studies/MiroStudy";
+import IndependentLevelProjectView from "./case-studies/IndependentLevelProjectStudy";
+import ProjectCover from "./ProjectCover";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -41,7 +45,7 @@ const imageFor = (seed: string, width = 1920, height = 1080) =>
   `https://picsum.photos/seed/${seed}/${width}/${height}`;
 
 const projectImageFor = (project: Project, width = 1920, height = 1080) => {
-  if (!project.imageUrl) return imageFor(project.imageSeed, width, height);
+  if (!project.imageUrl) return null;
   if (/^https?:\/\//.test(project.imageUrl)) return project.imageUrl;
   return `${import.meta.env.BASE_URL}${project.imageUrl.replace(/^\/+/, "")}`;
 };
@@ -249,7 +253,8 @@ export default function OverlayHost({
       const index = projects.findIndex((project) => project.id === rendered.project.id);
       [-1, 1].forEach((offset) => {
         const project = projects[(index + offset + projects.length) % projects.length];
-        urls.push(projectImageFor(project));
+        const projectImage = projectImageFor(project);
+        if (projectImage) urls.push(projectImage);
       });
     } else {
       const index = artworks.findIndex((artwork) => artwork.id === rendered.artwork.id);
@@ -458,6 +463,18 @@ function ProjectView({
     return <ConstructedProjectView onClose={onClose} />;
   }
 
+  if (project.id === "aztec-temple") {
+    return <AztecTempleProjectView onClose={onClose} />;
+  }
+
+  if (project.id === "miro") {
+    return <MiroProjectView onClose={onClose} />;
+  }
+
+  if (project.id === "independent-level-project") {
+    return <IndependentLevelProjectView onClose={onClose} />;
+  }
+
   return (
     <div className="detail-scrollbar relative h-full touch-pan-y overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch] lg:overflow-hidden">
       <div className="absolute right-4 top-4 z-30 md:right-6 md:top-6">
@@ -466,7 +483,7 @@ function ProjectView({
       <div className="grid min-h-full lg:h-full lg:min-h-0 lg:grid-cols-[0.9fr_1.1fr]">
         <div className="relative min-h-[20rem] overflow-hidden bg-[var(--model-viewer-bg)] lg:min-h-0">
           <div ref={mediaRef} className="absolute inset-0">
-            <img src={projectImageFor(project)} alt="" className="h-full min-h-[20rem] w-full object-cover" />
+            <ProjectCover project={project} className="h-full min-h-[20rem] w-full object-cover" />
           </div>
         </div>
         <div ref={copyRef} className="detail-scrollbar p-6 pr-20 md:p-10 md:pr-24 lg:h-full lg:min-h-0 lg:overflow-y-auto lg:overscroll-contain lg:[scrollbar-gutter:stable]">
@@ -575,7 +592,7 @@ function AllProjectsView({ onChange }: { onChange: (state: OverlayState | null) 
       </CatalogHeader>
       <div className="detail-scrollbar flex-1 overflow-y-auto p-5 pt-3 md:p-8 md:pt-4">
         <div ref={resultsRef} className="grid gap-4 md:grid-cols-2">
-          {filtered.map((project) => <button key={project.id} type="button" className="catalog-card group grid overflow-hidden rounded-[18px] bg-canvas text-left shadow-[0_10px_28px_rgba(29,29,31,0.16)] outline-none transition-shadow duration-500 hover:shadow-[0_16px_40px_rgba(29,29,31,0.24)] focus-visible:ring-4 focus-visible:ring-blueFocus/35 dark:bg-[#24252b] sm:h-48 sm:grid-cols-[11rem_1fr]" onClick={() => onChange({ type: "project", project, origin: "all-projects" })}><div className="h-44 overflow-hidden sm:h-full"><img src={projectImageFor(project, 900, 700)} alt="" className="catalog-card-image catalog-project-image h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.035]" /></div><div className="p-5"><h3 className="text-2xl font-semibold">{project.title}</h3><p className="mt-3 text-sm leading-6 text-ink/70 dark:text-white/70">{project.summary}</p></div></button>)}
+          {filtered.map((project) => <button key={project.id} type="button" className="catalog-card group grid overflow-hidden rounded-[18px] bg-canvas text-left shadow-[0_10px_28px_rgba(29,29,31,0.16)] outline-none transition-shadow duration-500 hover:shadow-[0_16px_40px_rgba(29,29,31,0.24)] focus-visible:ring-4 focus-visible:ring-blueFocus/35 dark:bg-[#24252b] sm:h-48 sm:grid-cols-[11rem_1fr]" onClick={() => onChange({ type: "project", project, origin: "all-projects" })}><div className="h-44 overflow-hidden sm:h-full"><ProjectCover project={project} className="catalog-card-image catalog-project-image h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.035]" /></div><div className="p-5"><h3 className="text-2xl font-semibold">{project.title}</h3><p className="mt-3 text-sm leading-6 text-ink/70 dark:text-white/70">{project.summary}</p></div></button>)}
         </div>
         {!filtered.length && <EmptyResults noun="projects" />}
       </div>
@@ -759,7 +776,7 @@ function EverdewProjectView({
             <div className="mt-20 grid grid-flow-dense gap-4 md:grid-cols-12">
               <article className="rounded-[26px] bg-[#eef0d9] p-8 text-[#17200f] md:col-span-6"><h4 className="text-2xl font-semibold">Visual pipeline</h4><p className="mt-4 leading-8 text-[#17200f]/68">Blockbench models did not import reliably, so the team compared the cost of repairing the 3D workflow with moving to a shared pixel art pipeline in Aseprite.</p></article>
               <article className="rounded-[26px] bg-[#d5f36a] p-8 text-[#11140d] md:col-span-6"><h4 className="text-2xl font-semibold">Economy testing</h4><p className="mt-4 leading-8 text-[#11140d]/68">Playtests showed that the original 10,000-gold target was too easy. Growth times, prices, stock, restocking, and the nighttime skip cost were retuned.</p></article>
-              <article className="rounded-[26px] border border-white/14 bg-white/5 p-8 md:col-span-12"><h4 className="text-2xl font-semibold">Publishing review</h4><p className="mt-4 max-w-3xl leading-8 text-white/62">Raw Fury, Team17, Curve Games, and Critical Reflex were reviewed against the game’s art direction, farming loop, timed economy, and animal-soul system.</p></article>
+              <article className="rounded-[26px] bg-[#252c1c] p-8 md:col-span-12"><h4 className="text-2xl font-semibold">Publishing review</h4><p className="mt-4 max-w-3xl leading-8 text-white/62">Raw Fury, Team17, Curve Games, and Critical Reflex were reviewed against the game’s art direction, farming loop, timed economy, and animal-soul system.</p></article>
             </div>
           </div>
         </section>

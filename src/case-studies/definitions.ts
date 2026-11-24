@@ -1,4 +1,4 @@
-import type { CaseStudyNavigationDefinition } from "./types";
+import { CASE_STUDY_CHAPTERS, type CaseStudyNavigationDefinition } from "./types";
 
 const sharedLabels = {
   showcase: { label: "Showcase" },
@@ -10,6 +10,8 @@ const sharedLabels = {
   changelog: { label: "Changelog" },
   reflection: { label: "Reflection" },
 } as const;
+
+const chaptersWithoutChangelog = CASE_STUDY_CHAPTERS.filter((chapter) => chapter !== "changelog");
 
 export const caseStudyDefinitions = {
   cubo: {
@@ -70,6 +72,44 @@ export const caseStudyDefinitions = {
       { id: "constructed-practice", label: "Professional practice", placement: "extras" },
       { id: "constructed-glasses", label: "Gurren Lagann glasses", placement: "extras" },
       { id: "constructed-scripts", label: "Script evidence", placement: "extras" },
+    ],
+  },
+  "aztec-temple": {
+    projectId: "aztec-temple",
+    title: "Aztec Temple",
+    theme: "aztec-temple",
+    hero: { label: "Aztec Temple introduction" },
+    sections: sharedLabels,
+    chapters: chaptersWithoutChangelog,
+    deepDives: [
+      { id: "aztec-temple-renderer", label: "Renderer decision", placement: "extras" },
+      { id: "aztec-temple-assets", label: "Asset sources", placement: "extras" },
+      { id: "aztec-temple-materials", label: "Material repair", placement: "extras" },
+    ],
+  },
+  miro: {
+    projectId: "miro",
+    title: "MIRO",
+    theme: "miro",
+    hero: { label: "MIRO introduction" },
+    sections: sharedLabels,
+    chapters: chaptersWithoutChangelog,
+    deepDives: [
+      { id: "miro-custom-assets", label: "Custom assets", placement: "extras" },
+      { id: "miro-production-workflow", label: "Production workflow", placement: "extras" },
+      { id: "miro-scope-control", label: "Scope control", placement: "extras" },
+    ],
+  },
+  "independent-level-project": {
+    projectId: "independent-level-project",
+    title: "Independent Level Project",
+    theme: "independent-level-project",
+    hero: { label: "Independent Level Project introduction" },
+    sections: sharedLabels,
+    deepDives: [
+      { id: "independent-level-project-source", label: "Asset source", placement: "extras" },
+      { id: "independent-level-project-scope", label: "Scope control", placement: "extras" },
+      { id: "independent-level-project-workflow", label: "Build workflow", placement: "extras" },
     ],
   },
 } as const satisfies Record<string, CaseStudyNavigationDefinition>;

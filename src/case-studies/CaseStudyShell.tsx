@@ -15,13 +15,14 @@ export default function CaseStudyShell({
   className?: string;
   children: ReactNode;
 }) {
+  const chapters = definition.chapters ?? CASE_STUDY_CHAPTERS;
   const [activeChapter, setActiveChapter] = useState<CaseStudyChapter>("showcase");
   const pendingChapter = useRef<CaseStudyChapter | null>(null);
 
   useEffect(() => {
     const root = scrollRef.current;
     if (!root) return;
-    const sections = CASE_STUDY_CHAPTERS.map((chapter) => root.querySelector<HTMLElement>(`#${chapter}`)).filter(
+    const sections = chapters.map((chapter) => root.querySelector<HTMLElement>(`#${chapter}`)).filter(
       (section): section is HTMLElement => Boolean(section),
     );
     if (!sections.length) return;
@@ -66,7 +67,7 @@ export default function CaseStudyShell({
       if (frame) window.cancelAnimationFrame(frame);
       window.clearTimeout(settleTimer);
     };
-  }, [scrollRef]);
+  }, [chapters, scrollRef]);
 
   const goToChapter = (chapter: CaseStudyChapter) => {
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -96,7 +97,7 @@ export default function CaseStudyShell({
           </button>
           <span className="hidden shrink-0 text-sm font-semibold sm:block">{definition.title}</span>
           <div className="ml-auto flex min-w-0 gap-1 overflow-x-auto rounded-full bg-white/8 p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {CASE_STUDY_CHAPTERS.map((chapter) => {
+            {chapters.map((chapter) => {
               const active = activeChapter === chapter;
               return (
                 <button
