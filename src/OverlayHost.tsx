@@ -981,41 +981,39 @@ const cuboChangelog = [
   { version: "0.1.0", date: "3 January 2026", title: "Test Build", body: ["- Under Development"] },
 ];
 
-const cuboBrief = "I planned Cubo as a 2D Metroidvania with Souls style combat, set in an abandoned crystal mine. The original brief specified one uninterrupted world, a tutorial inside the map, a ground slam attack, fast traversal, two bosses, several enemy types, chests, and environmental detail.";
-
 const cuboSystems = [
   {
     title: "Input and movement",
-    copy: "The first controller used Unity's legacy Input Manager. I rebuilt it with the New Input System when controller support and more complex actions became difficult to scale. The final movement set includes variable jump height, aerial ground slam, dash, sprinting that uses stamina, wall climbing, gamepad support, and controller rumble.",
+    copy: "The controller moved from Unity's legacy Input Manager to the New Input System when controller support and additional actions increased implementation complexity. The movement set includes variable jump height, aerial ground slam, dash, stamina based sprinting, wall climbing, gamepad support, and controller rumble.",
   },
   {
     title: "Combat and player feedback",
-    copy: "Ground slam is the main attack and connects traversal directly to combat. Hits trigger a white damage flash shader, while player damage uses screen shake and a red screen flash. The feedback system includes a smooth health bar, stamina, floating damage numbers, respawn fades, temporary invulnerability during Soul Charge, and adjusted knockback and stun timing.",
+    copy: "Ground slam serves as the primary attack and traversal action. Enemy hits trigger a white damage flash shader. Player damage triggers screen shake and a red screen flash. Supporting feedback includes a smooth health bar, stamina, floating damage numbers, respawn fades, temporary invulnerability during Soul Charge, and tuned knockback and stun timing.",
   },
   {
     title: "World interactions",
-    copy: "Contextual tutorial triggers teach mechanics inside the level. Chests reward exploration, spike traps control movement, gates lock boss arenas, and a lever-driven elevator can be called from another floor before automatically returning to its starting position when it is no longer in use.",
+    copy: "Contextual triggers introduce mechanics in the level. Chests support exploration, spike traps constrain movement, gates define boss arenas, and a lever controlled elevator operates between floors before resetting when idle.",
   },
   {
     title: "Enemy behaviours",
-    copy: "The roster began with a patrol enemy moving between points and taking damage from the slam. It grew to include wall-crawling Crystal Crawlers inspired by Hollow Knight's Tiktiks, spear-throwing guards, patrolling mushroom enemies, and the two multi-phase bosses. Respawn timing, health, knockback, bounce height, and arena placement were later rebalanced.",
+    copy: "The enemy roster includes patrol enemies, wall crawling Crystal Crawlers, spear throwing guards, patrolling mushroom enemies, and two multi phase bosses. Respawn timing, health, knockback, bounce height, and arena placement received later balancing passes.",
   },
   {
     title: "Interface and accessibility",
-    copy: "The main menu and pause menu share settings for master volume, fullscreen mode, and resolution. Cursor visibility changes correctly between play and pause. Tutorial prompts appear in context, and the title screen turns Cubo into the letter O while the character's eyes track the mouse through a raycast-driven effect.",
+    copy: "The main and pause menus share controls for master volume, fullscreen mode, and resolution. Cursor state changes between gameplay and menu states. Tutorial prompts are contextual. The title screen uses Cubo as the letter O, with mouse tracking implemented through raycasts.",
   },
   {
     title: "Replay and completion",
-    copy: "An optional speedrun timer tracks runtime and stores the best completion time. Later releases added total death tracking to the end screen. The full objective ends when the player defeats both bosses, collects the Power Supply, returns to the opening area, and uses it to power the generator.",
+    copy: "An optional speedrun timer records runtime and best completion time. Later releases added total death tracking to the end screen. Completion requires both bosses, the Power Supply, and activation of the generator in the opening area.",
   },
 ];
 
 const cuboFlow = [
-  ["Tutorial", "Contextual triggers introduce movement, interaction, damage, and the ground slam without leaving the connected map."],
-  ["Exploration", "The player navigates caves, elevators, hazards, enemies, chests, and vertical routes while new movement options open more of the world."],
-  ["First boss", "Grump Rock tracks and rolls at the player, then adds shard projectiles. Successful timing earns the Boulder Key."],
-  ["Second boss", "The Boulder Key opens the route to Shackled Bomber. The player dodges dynamite, gathers three Soul Essences, and fires Soul Charge."],
-  ["Completion", "After the second phase, the player claims the Power Supply and returns it to the tutorial-area generator to finish the level."],
+  ["Tutorial", "Contextual triggers introduce movement, interaction, damage, and ground slam before the route opens into the cave environment."],
+  ["Exploration", "Caves, elevators, hazards, enemies, chests, and vertical routes form the primary exploration spaces."],
+  ["First boss", "Grump Rock uses rolling attacks and shard projectiles. Successful timing awards the Boulder Key."],
+  ["Second boss", "The Boulder Key grants access to Shackled Bomber. The encounter combines dynamite avoidance, Soul Essence collection, and Soul Charge."],
+  ["Completion", "The Power Supply returns to the opening generator after the second boss encounter."],
 ];
 
 function CuboResearchSection() {
@@ -1023,12 +1021,12 @@ function CuboResearchSection() {
     <section id="research" data-case-study-chapter className="scroll-mt-16 bg-[#f0e9df] px-5 py-32 text-[#1c1613] md:px-8 md:py-44">
       <div className="mx-auto max-w-7xl">
         <h3 className="max-w-6xl text-5xl font-semibold leading-[0.98] tracking-[-0.055em] md:text-8xl">Research</h3>
-        <p className="mt-14 max-w-5xl text-2xl leading-[1.45] tracking-[-0.02em] text-[#1c1613] md:text-4xl">{cuboBrief}</p>
+        <p className="mt-14 max-w-5xl text-2xl leading-[1.45] tracking-[-0.02em] text-[#1c1613] md:text-4xl">Research covered the development of 2D games and the Metroidvania genre, using Metroid, Hollow Knight, and Axiom Verge as examples.</p>
         <div className="mt-24 grid grid-flow-dense gap-12 border-t border-[#1c1613]/18 pt-12 md:grid-cols-2 lg:grid-cols-4">
-          <article><h4 className="text-xl font-semibold">Metroidvania foundations</h4><p className="mt-4 leading-7 text-[#1c1613]/66">Research into Metroid focused the project on non-linear exploration, backtracking, power-up gating, and allowing the player to discover their own route and pace. The world uses environment and mechanical progression instead of relying on cutscenes or long dialogue.</p></article>
-          <article><h4 className="text-xl font-semibold">Hollow Knight</h4><p className="mt-4 leading-7 text-[#1c1613]/66">The reference review covered environmental continuity, enemy integration, indirect narrative delivery, and boss attacks that respond to specific player abilities.</p></article>
-          <article><h4 className="text-xl font-semibold">Celeste and Rayman</h4><p className="mt-4 leading-7 text-[#1c1613]/66">Celeste informed platform readability and the simplified player geometry. Rayman Legends informed the use of layered environments and warm foreground accents against dark backgrounds.</p></article>
-          <article><h4 className="text-xl font-semibold">Boss references</h4><p className="mt-4 leading-7 text-[#1c1613]/66">Grump Rock began with Elden Ring's rolling boulder enemy in mind. Shackled Bomber combines Touhou-style projectile pressure with the collect-and-fire rhythm of Soul Essence and Soul Charge, inspired by Critical.</p></article>
+          <article><h4 className="text-xl font-semibold">2D games</h4><p className="mt-4 leading-7 text-[#1c1613]/66">Early games used 2D graphics and pixel art because of hardware limits. Pixel art later became a deliberate visual choice rather than only a technical limitation.</p></article>
+          <article><h4 className="text-xl font-semibold">Metroid</h4><p className="mt-4 leading-7 text-[#1c1613]/66">Metroid, released in 1986, established non-linear exploration and power-up gating. New items and abilities gave access to previously unavailable areas.</p></article>
+          <article><h4 className="text-xl font-semibold">Modern examples</h4><p className="mt-4 leading-7 text-[#1c1613]/66">Hollow Knight and Axiom Verge use acquired abilities to open routes and support revisiting earlier areas. This structure rewards exploration and shows player growth.</p></article>
+          <article><h4 className="text-xl font-semibold">Story and art</h4><p className="mt-4 leading-7 text-[#1c1613]/66">Environmental storytelling uses atmosphere, clues, and secrets instead of relying on dialogue. The research also considered pixel art, painterly 2.5D, vector art, and hand-drawn styles.</p></article>
         </div>
       </div>
     </section>
@@ -1114,12 +1112,11 @@ function CuboProjectView({
           <div className="grid gap-14 lg:grid-cols-[0.72fr_1.28fr] lg:items-start">
             <div>
               <h3 className="text-5xl font-semibold tracking-[-0.05em] md:text-7xl">Overview</h3>
-              <p className="mt-7 text-lg leading-8 text-white/60">{tagline}</p>
+              <p className="mt-7 text-lg leading-8 text-white/60">Solo 2D game coursework project. The brief required an essay, two level plans, original tiles and character art, a Unity tutorial level, and a gameplay recording. Initial submission: February 2026.</p>
             </div>
             <div className="grid grid-flow-dense gap-4 sm:grid-cols-2">
-              <article className="rounded-[24px] bg-[#181515] p-7"><h4 className="text-2xl font-semibold">Role</h4><p className="mt-4 leading-7 text-white/62">Game design, programming, level design, interface design, and asset production.</p></article>
-              <article className="rounded-[24px] bg-[#21120e] p-7"><h4 className="text-2xl font-semibold">Tools</h4><p className="mt-4 leading-7 text-white/62">Unity 6, C#, Aseprite, ShaderLab, and GitHub.</p></article>
-              <article className="rounded-[24px] bg-[#d95f27] p-7 text-[#1b0d08] sm:col-span-2"><h4 className="text-2xl font-semibold">Scope</h4><p className="mt-4 max-w-3xl leading-7 text-[#1b0d08]/76">The playable build includes a connected level, movement and combat systems, two bosses, progression gates, interface settings, lighting, and release tracking.</p></article>
+              <article className="rounded-[24px] bg-[#21120e] p-7"><h4 className="text-2xl font-semibold">Tools</h4><p className="mt-4 leading-7 text-white/62">Unity, GitHub, and Aseprite.</p></article>
+              <article className="rounded-[24px] bg-[#d95f27] p-7 text-[#1b0d08] sm:col-span-2"><h4 className="text-2xl font-semibold">Delivered</h4><p className="mt-4 max-w-3xl leading-7 text-[#1b0d08]/76">The coursework evidence includes research, level planning, original environment assets, Unity implementation, and gameplay recordings.</p></article>
             </div>
           </div>
         </section>
@@ -1129,15 +1126,15 @@ function CuboProjectView({
         <section id="experience" data-case-study-chapter className="scroll-mt-16 mx-auto max-w-7xl px-5 py-32 md:px-8 md:py-44">
           <div className="mb-14 max-w-4xl">
             <h3 className="text-4xl font-semibold tracking-[-0.045em] md:text-7xl">Gameplay</h3>
-            <p className="mt-7 max-w-2xl text-lg leading-8 text-white/62">The ground slam is used for traversal, regular enemies, and the first boss. Other systems extend that central action.</p>
+            <p className="mt-7 max-w-2xl text-lg leading-8 text-white/62">Ground slam connects movement and combat. Supporting systems introduce the action, apply it across encounters, and provide alternatives for boss specific requirements.</p>
           </div>
           <div className="grid grid-flow-dense gap-0 overflow-hidden rounded-[24px] md:grid-cols-4 md:grid-rows-2">
             <article className="relative min-h-[34rem] overflow-hidden md:col-span-2 md:row-span-2">
               <img src={cuboImage("ground-slam-cubo.png")} alt="Cubo using the ground slam against enemies in the crystal mine" className="h-full w-full object-cover transition-transform duration-700 ease-out hover:scale-105" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/86 via-black/10 to-transparent" />
-              <div className="absolute inset-x-0 bottom-0 p-7 md:p-9"><h4 className="text-3xl font-semibold">Ground slam combat</h4><p className="mt-3 max-w-lg leading-7 text-white/70">Jump, reach the apex, then drive downward to damage enemies, break the rhythm of a chase, or meet Grump Rock head-on.</p></div>
+              <div className="absolute inset-x-0 bottom-0 p-7 md:p-9"><h4 className="text-3xl font-semibold">Ground slam combat</h4><p className="mt-3 max-w-lg leading-7 text-white/70">Aerial descent attack used against regular enemies, traversal obstacles, and Grump Rock.</p></div>
             </article>
-            <article className="min-h-[17rem] bg-[#21120e] p-7 md:col-span-2 md:p-9"><h4 className="text-3xl font-semibold">Movement</h4><p className="mt-4 max-w-xl leading-7 text-white/65">The movement set includes variable jumps, dashing, wall climbing, and controller rumble. Sprinting later replaced the ground dash so players could evade the second boss more reliably.</p></article>
+            <article className="min-h-[17rem] bg-[#21120e] p-7 md:col-span-2 md:p-9"><h4 className="text-3xl font-semibold">Movement</h4><p className="mt-4 max-w-xl leading-7 text-white/65">Variable jumps, dashing, wall climbing, sprinting, and controller rumble support traversal. Stamina based sprinting replaced ground dash during balancing for the second boss.</p></article>
             <article className="min-h-[17rem] bg-[#d95f27] p-7 text-[#1b0d08] md:p-9"><h4 className="text-2xl font-semibold">Atmosphere</h4><p className="mt-4 leading-7 text-[#1b0d08]/76">Global Light 2D, spotlights, vignette, animated candles, fireflies, and reflected water define the mine's visual treatment.</p></article>
             <article className="min-h-[17rem] bg-[#181515] p-7 md:p-9"><h4 className="text-2xl font-semibold">Player systems</h4><p className="mt-4 leading-7 text-white/62">Health, stamina, respawning, i-frames, damage numbers, tutorial triggers, settings, and optional speedrun timing support the full loop.</p></article>
           </div>
@@ -1145,13 +1142,12 @@ function CuboProjectView({
 
         <section id="process" data-case-study-chapter className="scroll-mt-16 bg-[#151110] px-5 py-32 md:px-8 md:py-44">
           <div className="mx-auto max-w-7xl">
-            <div className="max-w-5xl"><h3 className="text-5xl font-semibold tracking-[-0.05em] md:text-8xl">Process</h3><p className="mt-7 max-w-3xl text-lg leading-8 text-white/60">Cubo began as a movement prototype. The following systems were added to produce the playable build.</p></div>
+            <div className="max-w-5xl"><h3 className="text-5xl font-semibold tracking-[-0.05em] md:text-8xl">Process</h3><p className="mt-7 max-w-3xl text-lg leading-8 text-white/60">Development progressed from a movement prototype to a complete gameplay loop. Implementation and playtesting informed subsequent system changes.</p></div>
             <div className="mt-20 border-y border-white/12">
-              {cuboSystems.map((system, index) => (
+              {cuboSystems.map((system) => (
                 <article key={system.title} className="grid gap-4 border-b border-white/12 py-9 last:border-b-0 md:grid-cols-[0.7fr_1.3fr] md:gap-16 md:py-12">
                   <h4 className="text-2xl font-semibold md:text-3xl">{system.title}</h4>
                   <p className="max-w-3xl text-base leading-8 text-white/62">{system.copy}</p>
-                  <span className="sr-only">System {index + 1}</span>
                 </article>
               ))}
             </div>
@@ -1160,12 +1156,12 @@ function CuboProjectView({
 
         <section className="mx-auto max-w-7xl px-5 py-32 md:px-8 md:py-44">
           <div>
-            <div className="max-w-3xl"><h3 className="text-5xl font-semibold tracking-[-0.05em] md:text-7xl">Engineering</h3><p className="mt-7 text-lg leading-8 text-white/60">Several systems changed because the first solution was too restrictive, too complex, or failed under real play.</p></div>
+            <div className="max-w-3xl"><h3 className="text-5xl font-semibold tracking-[-0.05em] md:text-7xl">Engineering decisions</h3><p className="mt-7 text-lg leading-8 text-white/60">System changes addressed implementation limits, complexity, and playtesting findings.</p></div>
             <div className="mt-16 grid gap-14 lg:grid-cols-2 lg:gap-x-16 lg:gap-y-20">
-              <article><h4 className="text-2xl font-semibold">Input system</h4><p className="mt-4 leading-8 text-white/62">The legacy Input Manager worked for basic movement but became difficult once controller support, rumble, variable jump height, ground slam, and dashing shared the same controller. Moving to the New Input System gave each action a cleaner input path and made keyboard and gamepad behaviour consistent.</p></article>
-              <article><h4 className="text-2xl font-semibold">Elevator system</h4><p className="mt-4 leading-8 text-white/62">An elevator tutorial produced a system that was more complex than this level needed and caused errors when customised. I replaced it with a smaller modular script. The lever can call the platform from the opposite floor, and the reset logic returns it when idle. ChatGPT helped produce and refine this targeted implementation.</p></article>
-              <article><h4 className="text-2xl font-semibold">Projectile debugging</h4><p className="mt-4 leading-8 text-white/62">Shackled Bomber's dynamite targeting produced repeated errors. Debug logs narrowed the issue to the projectile logic, and the fix was tested in the arena. The same workflow was used for the damage flash shader and other feedback scripts.</p></article>
-              <article><h4 className="text-2xl font-semibold">Playtesting</h4><p className="mt-4 leading-8 text-white/62">Playtesting showed that the original ground dash did not give players enough control to avoid repeated dynamite. A sprint that uses stamina replaced it on the ground. Soul Charge also gained temporary invulnerability so contact during its animation did not cancel a successful attack.</p></article>
+              <article><h4 className="text-2xl font-semibold">Input system</h4><p className="mt-4 leading-8 text-white/62">The legacy Input Manager supported initial movement but became difficult to maintain with controller support, rumble, variable jump height, ground slam, and dashing. The New Input System standardised keyboard and gamepad actions.</p></article>
+              <article><h4 className="text-2xl font-semibold">Elevator system</h4><p className="mt-4 leading-8 text-white/62">The initial tutorial based elevator implementation introduced unnecessary complexity and customisation errors. A smaller modular script added lever calls between floors and reset logic for idle states. ChatGPT assisted with targeted implementation refinement.</p></article>
+              <article><h4 className="text-2xl font-semibold">Projectile debugging</h4><p className="mt-4 leading-8 text-white/62">Debug logs isolated targeting errors in Shackled Bomber's dynamite projectiles. Arena testing verified the changes. The same debugging process supported the damage flash shader and related feedback scripts.</p></article>
+              <article><h4 className="text-2xl font-semibold">Playtesting</h4><p className="mt-4 leading-8 text-white/62">Testing identified insufficient ground movement control against repeated dynamite attacks. Stamina based sprinting replaced ground dash. Soul Charge received temporary invulnerability to preserve attack completion during contact.</p></article>
             </div>
           </div>
         </section>
@@ -1173,12 +1169,12 @@ function CuboProjectView({
         <section className="cubo-story mx-auto max-w-7xl px-5 py-32 md:px-8 md:py-44">
           <div className="max-w-3xl">
             <h3 className="text-5xl font-semibold tracking-[-0.05em] md:text-7xl">Level design</h3>
-            <p className="mt-7 text-lg leading-8 text-white/58">The tutorial remains inside the main scene and leads directly into exploration.</p>
+            <p className="mt-7 text-lg leading-8 text-white/58">The brief specified separate tutorial and first level plans. The final build integrates the tutorial route into the main scene before exploration begins.</p>
           </div>
           <div className="mt-16 grid gap-12 md:grid-cols-2 md:gap-16">
             <figure className="md:col-span-2">
               <div className="cubo-scroll-image overflow-hidden rounded-[22px] bg-black"><img src={cuboImage("Map - Cubo.png")} alt="Wide view of Cubo's connected cave map" className="aspect-video w-full object-cover" /></div>
-              <figcaption className="mt-5 max-w-2xl text-base leading-7 text-white/58">The connected layout combines contextual tutorials, vertical routes, hazards, chests, and gated encounters in one continuous cave system.</figcaption>
+              <figcaption className="mt-5 max-w-2xl text-base leading-7 text-white/58">The connected layout integrates the tutorial route with vertical paths, hazards, chests, and gated encounters.</figcaption>
             </figure>
             <figure>
               <div className="cubo-scroll-image overflow-hidden rounded-[22px] bg-black"><img src={cuboImage("elevator-cubo.png")} alt="Cubo beside the elevator lever in the crystal mine" className="aspect-video w-full object-cover" /></div>
@@ -1194,27 +1190,27 @@ function CuboProjectView({
         <section id="extras" data-case-study-chapter className="scroll-mt-16 mx-auto max-w-7xl px-5 pt-32 md:px-8 md:pt-44">
           <div className="border-b border-white/12 pb-16 md:pb-20">
             <h3 className="text-5xl font-semibold tracking-[-0.05em] md:text-8xl">Extras</h3>
-            <p className="mt-7 max-w-2xl text-lg leading-8 text-white/60">Supporting material covering the bosses, progression, interface, and development workflow.</p>
+            <p className="mt-7 max-w-2xl text-lg leading-8 text-white/60">Boss encounters, progression, interface, and development workflow.</p>
           </div>
         </section>
 
         <section id="cubo-bosses" className="mx-auto max-w-7xl px-5 pb-32 pt-16 md:px-8 md:pb-44 md:pt-20">
-          <div className="max-w-4xl"><h3 className="text-5xl font-semibold tracking-[-0.05em] md:text-7xl">Bosses</h3><p className="mt-7 max-w-2xl text-lg leading-8 text-white/60">Each encounter uses a different player ability and acts as a progression gate.</p></div>
+          <div className="max-w-4xl"><h3 className="text-5xl font-semibold tracking-[-0.05em] md:text-7xl">Bosses</h3><p className="mt-7 max-w-2xl text-lg leading-8 text-white/60">Each encounter tests a different combat action and controls progression.</p></div>
           <div className="mt-16 flex flex-col gap-4 lg:h-[34rem] lg:flex-row">
             <article className="group relative min-h-[28rem] flex-1 overflow-hidden rounded-[24px] transition-[flex] duration-700 ease-out hover:flex-[1.35]">
               <img src={cuboImage("Grump Rock Boss - Cubo.png")} alt="Grump Rock rolling toward Cubo" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/12 to-transparent" />
-              <div className="absolute inset-x-0 bottom-0 p-7 md:p-9"><h4 className="text-3xl font-semibold">Grump Rock</h4><p className="mt-3 max-w-xl leading-7 text-white/70">The arena gates close and the boss tracks and rolls toward the player, forcing a jump and downward slam at the moment of impact. A visible parry ring rewards perfect timing with bonus damage. The second phase adds thrown crystal shards, and victory opens a reward room containing the Boulder Key.</p></div>
+              <div className="absolute inset-x-0 bottom-0 p-7 md:p-9"><h4 className="text-3xl font-semibold">Grump Rock</h4><p className="mt-3 max-w-xl leading-7 text-white/70">Arena gates close during the encounter. The boss tracks and rolls toward the player. Ground slam timing counters the attack. A parry ring adds bonus damage. Phase two introduces crystal shards. Victory grants the Boulder Key.</p></div>
             </article>
             <article className="group relative min-h-[28rem] flex-1 overflow-hidden rounded-[24px] transition-[flex] duration-700 ease-out hover:flex-[1.35]">
               <img src={cuboImage("Shackled Bomber Boss - Cubo.jpg")} alt="Cubo facing the suspended Shackled Bomber" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/12 to-transparent" />
-              <div className="absolute inset-x-0 bottom-0 p-7 md:p-9"><h4 className="text-3xl font-semibold">Shackled Bomber</h4><p className="mt-3 max-w-xl leading-7 text-white/70">The Boulder Key unlocks a boss positioned out of reach on the roof. Players sprint through dynamite patterns, collect three Soul Essences, and fire an invulnerable Soul Charge. In phase two the boss drops to the floor and bounces across the arena, returning the fight to ground slam timing.</p></div>
+              <div className="absolute inset-x-0 bottom-0 p-7 md:p-9"><h4 className="text-3xl font-semibold">Shackled Bomber</h4><p className="mt-3 max-w-xl leading-7 text-white/70">The Boulder Key unlocks a ceiling mounted boss. The encounter combines dynamite avoidance, three Soul Essences, and Soul Charge. In phase two the boss moves to the arena floor, returning combat to ground slam timing.</p></div>
             </article>
           </div>
           <div className="mt-16 grid gap-10 border-t border-white/12 pt-12 md:grid-cols-2">
-            <article><h4 className="text-2xl font-semibold">Boss mechanics</h4><p className="mt-4 leading-8 text-white/62">The reference review covered attacks designed for a specific enemy, including Howling Wraiths against Flukemarm and missiles fired into Kraid's open mouth. Grump Rock applies the same structure by requiring the slam against its rolling attack.</p></article>
-            <article><h4 className="text-2xl font-semibold">Boss progression</h4><p className="mt-4 leading-8 text-white/62">The encounters also act as progression gates. Grump Rock teaches the core attack and awards the key to Shackled Bomber. The second fight introduces a resource and projectile loop before using the slam again in its final phase.</p></article>
+            <article><h4 className="text-2xl font-semibold">Boss mechanics</h4><p className="mt-4 leading-8 text-white/62">Reference research included attacks that match specific enemy conditions, such as Howling Wraiths against Flukemarm and missiles against Kraid's open mouth. Grump Rock requires ground slam timing against a rolling attack.</p></article>
+            <article><h4 className="text-2xl font-semibold">Boss progression</h4><p className="mt-4 leading-8 text-white/62">Grump Rock introduces the core attack and awards access to Shackled Bomber. The second encounter introduces resource collection and projectile combat before returning to ground slam timing in the final phase.</p></article>
           </div>
         </section>
 
@@ -1222,9 +1218,8 @@ function CuboProjectView({
           <div className="mx-auto max-w-7xl">
             <h3 className="max-w-5xl text-5xl font-semibold tracking-[-0.055em] md:text-8xl">Player progression</h3>
             <div className="mt-20 border-y border-[#1b0d08]/20">
-              {cuboFlow.map(([title, copy], index) => (
-                <article key={title} className="grid gap-4 border-b border-[#1b0d08]/20 py-8 last:border-b-0 md:grid-cols-[5rem_0.65fr_1.35fr] md:items-start md:gap-10 md:py-10">
-                  <p className="text-sm font-semibold tabular-nums text-[#1b0d08]/52">{String(index + 1).padStart(2, "0")}</p>
+              {cuboFlow.map(([title, copy]) => (
+                <article key={title} className="grid gap-4 border-b border-[#1b0d08]/20 py-8 last:border-b-0 md:grid-cols-[0.65fr_1.35fr] md:items-start md:gap-10 md:py-10">
                   <h4 className="text-2xl font-semibold md:text-3xl">{title}</h4>
                   <p className="max-w-3xl leading-8 text-[#1b0d08]/72">{copy}</p>
                 </article>
@@ -1236,7 +1231,7 @@ function CuboProjectView({
         <section id="cubo-interface" className="bg-[#f0e9df] px-5 py-32 text-[#1c1613] md:px-8 md:py-44">
           <div className="mx-auto max-w-7xl">
             <div className="grid gap-14 lg:grid-cols-[0.72fr_1.28fr] lg:items-end">
-              <div><h3 className="text-5xl font-semibold tracking-[-0.05em] md:text-7xl">Interface</h3><p className="mt-7 text-lg leading-8 text-[#1c1613]/62">The main and pause menus include master volume, fullscreen, and resolution controls, with settings synchronised across scenes. Cursor visibility changes between gameplay and menu states, and later hotfixes protected button input after display changes.</p><p className="mt-5 text-lg leading-8 text-[#1c1613]/62">The optional speedrun timer records runtime and best completion time, while later builds added total death tracking to the end screen. On the title screen, Cubo replaces the letter O and its eyes follow the mouse through a raycast-driven effect.</p></div>
+              <div><h3 className="text-5xl font-semibold tracking-[-0.05em] md:text-7xl">Interface</h3><p className="mt-7 text-lg leading-8 text-[#1c1613]/62">Main and pause menus provide master volume, fullscreen, and resolution controls. Settings synchronise across scenes. Cursor state changes between gameplay and menu states. Later updates protected button input after display changes.</p><p className="mt-5 text-lg leading-8 text-[#1c1613]/62">The optional speedrun timer records runtime and best completion time. Later builds added total death tracking to the end screen. The title screen replaces the letter O with Cubo and applies mouse tracking through raycasts.</p></div>
               <div className="min-w-0">
                 <div className="mb-4 flex items-center justify-between gap-4">
                   <p className="text-sm font-semibold text-[#1c1613]/58">Menu and settings screens</p>
@@ -1268,7 +1263,7 @@ function CuboProjectView({
         <section id="cubo-workflow" className="mx-auto max-w-7xl px-5 py-32 md:px-8 md:py-44">
           <div className="grid gap-14 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
             <div className="cubo-scroll-image overflow-hidden rounded-[24px]"><img src={cuboImage("Github Version Control - Cubo.png")} alt="Cubo's private GitHub repository and organised Unity project history" width="1881" height="993" className="aspect-[32/17] w-full object-cover" /></div>
-            <div><h3 className="text-5xl font-semibold tracking-[-0.05em] md:text-7xl">Development workflow</h3><p className="mt-7 text-lg leading-8 text-white/60">The Unity hierarchy was organised by function. Assets were separated into folders for scenes, sprites, animation, enemies, interface elements, and scripts.</p><p className="mt-5 text-lg leading-8 text-white/60">GitHub tracked the project and later releases. Player and enemy behaviours used separate scripts. Debug logs were used to trace targeting and interaction problems before testing changes in the game.</p></div>
+            <div><h3 className="text-5xl font-semibold tracking-[-0.05em] md:text-7xl">Development workflow</h3><p className="mt-7 text-lg leading-8 text-white/60">The Unity hierarchy was organised by function. Assets were separated into scenes, sprites, animation, enemies, interface elements, and scripts.</p><p className="mt-5 text-lg leading-8 text-white/60">GitHub tracked development and later releases. Player and enemy behaviours used separate scripts. Debug logs isolated targeting and interaction issues before in game testing.</p></div>
           </div>
         </section>
 
@@ -1322,7 +1317,7 @@ function CuboProjectView({
         <section id="reflection" data-case-study-chapter className="scroll-mt-16 relative overflow-hidden px-5 py-24 text-center md:px-8 md:py-32">
           <img src={cuboImage("Screenshot 2026-11-25 093118.png")} alt="Cubo exploring the Crystal Caverns" className="absolute inset-0 h-full w-full object-cover opacity-30" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(11,9,9,0.28),#0b0909_78%)]" />
-          <div className="relative mx-auto max-w-4xl"><h3 className="text-5xl font-semibold tracking-[-0.055em] md:text-8xl">Reflection</h3><p className="mx-auto mt-8 max-w-2xl text-lg leading-8 text-white/66">The project required the central movement and combat behavior to remain consistent while supporting changes to input, level design, and boss encounters. I simplified the character art, replaced the original input implementation, and adjusted movement after playtesting the second boss.</p><p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-white/66">Character animation remains incomplete. Several enemies do not have dedicated attack or stun states. Save and load support was removed from the original scope to meet the submission schedule. These areas should be addressed in a later development pass.</p></div>
+          <div className="relative mx-auto max-w-4xl"><h3 className="text-5xl font-semibold tracking-[-0.055em] md:text-8xl">Reflection</h3><p className="mx-auto mt-8 max-w-2xl text-lg leading-8 text-white/66">The assignment established requirements for research, level planning, original art, and basic movement. The project later expanded to a connected world with revised input, level layouts, and boss encounters. I reduced character art complexity to protect implementation time, replaced the input system to support controller features, and changed ground movement after second boss testing.</p><p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-white/66">Save and load support was excluded from the initial submission because of the deadline. Version 0.4.0 added four managed save slots and updated tutorial persistence. Character animation remains incomplete. Several enemies lack dedicated attack and stun states. Future work should add those states and review combat timing.</p></div>
         </section>
     </CaseStudyShell>
   );
