@@ -132,8 +132,8 @@ export function CaseStudyShowcaseRail({
   const hasMedia = Children.count(children) > 0;
   return (
     <section id="showcase" data-case-study-chapter className="scroll-mt-16 py-14 md:py-20" style={{ background }}>
-      <div className="mx-auto max-w-7xl px-5 md:px-8">
-        <div className="mb-8 flex flex-col justify-between gap-3 md:mb-10 md:flex-row md:items-end">
+      <div className="mx-auto max-w-7xl">
+        <div className="mb-8 flex flex-col justify-between gap-3 px-5 md:mb-10 md:flex-row md:items-end md:px-8 xl:px-0">
           <h3 className="text-4xl font-semibold tracking-[-0.045em] md:text-6xl">Showcase</h3>
           {hasMedia && (
             <div className="flex w-fit gap-1 rounded-full bg-white p-1 text-[#171717] shadow-[0_14px_34px_rgba(0,0,0,0.24)]">
@@ -142,14 +142,12 @@ export function CaseStudyShowcaseRail({
             </div>
           )}
         </div>
-      </div>
-      {hasMedia && (
-        <div className="px-5 md:px-8">
-          <div ref={railRef} className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-3 md:gap-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {hasMedia && (
+          <div ref={railRef} className="-mx-10 flex w-[calc(100%+5rem)] snap-x snap-mandatory gap-4 overflow-x-auto px-14 pb-3 md:-mx-12 md:w-[calc(100%+6rem)] md:gap-6 md:px-20 xl:-mx-16 xl:w-[calc(100%+8rem)] xl:px-16 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {children}
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </section>
   );
 }

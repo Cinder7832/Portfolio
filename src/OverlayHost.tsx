@@ -28,6 +28,7 @@ import ErodedSandsProjectView from "./case-studies/ErodedSandsStudy";
 import HorizonProjectView from "./case-studies/HorizonStudy";
 import ReboundProjectView from "./case-studies/ReboundStudy";
 import ProjectCover from "./ProjectCover";
+import { projectSummary } from "./case-studies/projectSummary";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -757,6 +758,7 @@ function EverdewProjectView({
   const gameplayCaptureRef = useRef<HTMLDivElement | null>(null);
   const [openChangelogVersion, setOpenChangelogVersion] = useState<string | null>(null);
   const reducedMotion = usePrefersReducedMotion();
+  const tagline = projectSummary("everdew", "A top down pixel farming game made by four students during a three week game jam.");
 
   const story = "Everdew was made by a four person team for a three week game jam based on the theme A New Path. I worked on the base environment, game design, programming, and interface. The first version used top down 3D graphics. Problems importing Blockbench models led the team to change to pixel art. We also replaced several large scripts with smaller systems. The submitted build included a farming and economy loop, and development continued after the jam.";
 
@@ -791,7 +793,7 @@ function EverdewProjectView({
         <div className="relative z-10 mx-auto flex min-h-[42rem] max-w-7xl flex-col justify-end px-5 pb-16 pt-28 md:min-h-[52rem] md:px-8 md:pb-24">
           <div>
             <h2 className="max-w-6xl text-[clamp(4rem,13vw,10rem)] font-semibold leading-[0.82] tracking-[-0.07em] text-[#eef6c8]">Everdew</h2>
-            <p className="mt-8 max-w-3xl text-lg leading-8 text-white/76">A top down pixel farming game made by a four person team for a three week game jam. I worked on the base environment, game design, programming, and interface.</p>
+            <p className="mt-8 max-w-3xl text-lg leading-8 text-white/76">{tagline}</p>
             <div className="mt-10 flex flex-wrap gap-3">
               <a href="https://cinder7832.itch.io/everdew" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-full bg-[#d5f36a] px-6 py-3 font-semibold text-[#11140d] transition-transform hover:scale-[1.03] active:scale-95">Play the game <ArrowUpRight size={18} /></a>
             </div>
@@ -800,7 +802,7 @@ function EverdewProjectView({
       </header>
 
         <CaseStudyShowcaseRail background="#1d2612" railRef={showcaseRef} onScroll={scrollShowcase}>
-              <div className="w-[min(82vw,43rem)] shrink-0 snap-start overflow-hidden rounded-[22px] bg-black">
+              <div className="w-[min(82vw,43rem)] shrink-0 snap-center overflow-hidden rounded-[22px] bg-black">
                 <video className="aspect-[16/10] w-full object-cover" controls preload="metadata" poster={everdewImage("main-menu.png")} aria-label="Everdew gameplay video">
                   <source src={everdewImage("gameplay.mp4")} type="video/mp4" />
                 </video>
@@ -812,7 +814,7 @@ function EverdewProjectView({
                 ["animal-pen.png", "Animal pen"],
                 ["perks-ui.png", "Perk interface"],
               ].map(([image, title]) => (
-                <figure key={image} className="w-[min(82vw,43rem)] shrink-0 snap-start overflow-hidden rounded-[22px] bg-[#11140d]">
+                <figure key={image} className="w-[min(82vw,43rem)] shrink-0 snap-center overflow-hidden rounded-[22px] bg-[#11140d]">
                   <CaseStudyShowcaseImage src={everdewImage(image)} alt={title} title={title} />
                 </figure>
               ))}
@@ -1042,14 +1044,25 @@ function CuboProjectView({
 }) {
   const rootRef = useRef<HTMLDivElement | null>(null);
   const showcaseRef = useRef<HTMLDivElement | null>(null);
+  const interfaceCarouselRef = useRef<HTMLDivElement | null>(null);
   const [openChangelogVersion, setOpenChangelogVersion] = useState<string | null>(null);
   const reducedMotion = usePrefersReducedMotion();
+  const tagline = projectSummary("cubo", "A 2D Metroidvania with combat, exploration, and boss fights.");
 
   const scrollShowcase = (direction: -1 | 1) => {
     const showcase = showcaseRef.current;
     if (!showcase) return;
     showcase.scrollBy({
       left: direction * Math.min(showcase.clientWidth * 0.82, 620),
+      behavior: reducedMotion ? "auto" : "smooth",
+    });
+  };
+
+  const scrollInterfaceCarousel = (direction: -1 | 1) => {
+    const carousel = interfaceCarouselRef.current;
+    if (!carousel) return;
+    carousel.scrollBy({
+      left: direction * carousel.clientWidth,
       behavior: reducedMotion ? "auto" : "smooth",
     });
   };
@@ -1062,22 +1075,36 @@ function CuboProjectView({
       className="bg-[#0b0909] text-white"
     >
       <header className="relative min-h-[42rem] overflow-hidden md:min-h-[52rem]">
-        <img src={cuboImage("world.png")} alt="Cubo exploring the abandoned crystal mine" className="absolute inset-0 h-full w-full scale-105 object-cover opacity-85" />
+        <img src={cuboImage("Cover - Cubo.png")} alt="Cubo cover artwork for Crystal Caverns" className="absolute inset-0 h-full w-full scale-105 object-cover opacity-85" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#0b0909]/55 via-[#0b0909]/20 to-[#0b0909]/5" />
         <div className="relative mx-auto flex min-h-[42rem] max-w-7xl flex-col justify-end px-5 pb-16 pt-28 md:min-h-[52rem] md:px-8 md:pb-24">
           <h2 className="max-w-6xl text-[clamp(4rem,13vw,10rem)] font-semibold leading-[0.82] tracking-[-0.07em] text-white">Cubo</h2>
-          <p className="mt-8 max-w-3xl text-lg leading-8 text-white/76">A solo Unity project built around movement, exploration, and two staged boss encounters inside one connected mine.</p>
+          <p className="mt-8 max-w-3xl text-lg leading-8 text-white/76">{tagline}</p>
         </div>
       </header>
 
         <CaseStudyShowcaseRail background="#12100f" railRef={showcaseRef} onScroll={scrollShowcase}>
               {[
-                ["world2.png", "Crystal mine", "A wider view of the layered cave world."],
-                ["exploration.png", "Exploration", "Traversal, vertical routes, and the ground slam in context."],
-                ["grump-rock.png", "Grump Rock", "The first boss encounter built around slam timing."],
-                ["pause-menu.png", "Pause menu", "An in-game interface capture from the playable build."],
+                ["Screenshot 2026-11-25 093118.png", "Crystal mine"],
+                ["Screenshot 2026-11-25 093131.png", "Exploration"],
+                ["ground-slam-cubo.png", "Ground slam combat"],
+                ["Grump Rock Boss - Cubo.png", "Grump Rock"],
+                ["Screenshot 2026-11-25 093233.png", "Combat"],
+                ["Screenshot 2026-11-25 093313.png", "Cave route"],
+                ["Screenshot 2026-11-25 093349.png", "Traversal"],
+                ["Screenshot 2026-11-25 093547.png", "Mine interior"],
+                ["Screenshot 2026-11-25 093804.png", "Crystal mine route"],
+                ["Screenshot 2026-11-25 093903.png", "Cave encounter"],
+                ["Screenshot 2026-11-25 093918.png", "Crystal mine platforming"],
+                ["Screenshot 2026-11-25 094002.png", "Mine traversal"],
+                ["Screenshot 2026-11-25 094020.png", "Crystal cave"],
+                ["Screenshot 2026-11-25 094113.png", "Mine exploration"],
+                ["Screenshot 2026-11-25 094125.png", "Cave scene"],
+                ["Screenshot 2026-11-25 100331.png", "Crystal mine environment"],
+                ["elevator-cubo.png", "Elevator lever"],
+                ["Shackled Bomber Boss - Cubo.jpg", "Shackled Bomber"],
               ].map(([image, title]) => (
-                <figure key={image} className="w-[min(82vw,43rem)] shrink-0 snap-start overflow-hidden rounded-[22px] bg-[#1a1716]">
+                <figure key={image} className="w-[min(82vw,43rem)] shrink-0 snap-center overflow-hidden rounded-[22px] bg-[#1a1716]">
                   <CaseStudyShowcaseImage src={cuboImage(image)} alt={title} title={title} />
                 </figure>
               ))}
@@ -1087,7 +1114,7 @@ function CuboProjectView({
           <div className="grid gap-14 lg:grid-cols-[0.72fr_1.28fr] lg:items-start">
             <div>
               <h3 className="text-5xl font-semibold tracking-[-0.05em] md:text-7xl">Overview</h3>
-              <p className="mt-7 text-lg leading-8 text-white/60">Cubo is a solo Unity project built around movement, exploration, and two staged boss encounters inside one connected mine.</p>
+              <p className="mt-7 text-lg leading-8 text-white/60">{tagline}</p>
             </div>
             <div className="grid grid-flow-dense gap-4 sm:grid-cols-2">
               <article className="rounded-[24px] bg-[#181515] p-7"><h4 className="text-2xl font-semibold">Role</h4><p className="mt-4 leading-7 text-white/62">Game design, programming, level design, interface design, and asset production.</p></article>
@@ -1106,7 +1133,7 @@ function CuboProjectView({
           </div>
           <div className="grid grid-flow-dense gap-0 overflow-hidden rounded-[24px] md:grid-cols-4 md:grid-rows-2">
             <article className="relative min-h-[34rem] overflow-hidden md:col-span-2 md:row-span-2">
-              <img src={cuboImage("exploration.png")} alt="Cubo moving through a warm crystal cave" className="h-full w-full object-cover transition-transform duration-700 ease-out hover:scale-105" />
+              <img src={cuboImage("ground-slam-cubo.png")} alt="Cubo using the ground slam against enemies in the crystal mine" className="h-full w-full object-cover transition-transform duration-700 ease-out hover:scale-105" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/86 via-black/10 to-transparent" />
               <div className="absolute inset-x-0 bottom-0 p-7 md:p-9"><h4 className="text-3xl font-semibold">Ground slam combat</h4><p className="mt-3 max-w-lg leading-7 text-white/70">Jump, reach the apex, then drive downward to damage enemies, break the rhythm of a chase, or meet Grump Rock head-on.</p></div>
             </article>
@@ -1150,15 +1177,15 @@ function CuboProjectView({
           </div>
           <div className="mt-16 grid gap-12 md:grid-cols-2 md:gap-16">
             <figure className="md:col-span-2">
-              <div className="cubo-scroll-image overflow-hidden rounded-[22px] bg-black"><img src={cuboImage("connected-map.png")} alt="Wide view of Cubo's connected cave map" className="aspect-video w-full object-cover" /></div>
+              <div className="cubo-scroll-image overflow-hidden rounded-[22px] bg-black"><img src={cuboImage("Map - Cubo.png")} alt="Wide view of Cubo's connected cave map" className="aspect-video w-full object-cover" /></div>
               <figcaption className="mt-5 max-w-2xl text-base leading-7 text-white/58">The connected layout combines contextual tutorials, vertical routes, hazards, chests, and gated encounters in one continuous cave system.</figcaption>
             </figure>
             <figure>
-              <div className="cubo-scroll-image overflow-hidden rounded-[22px] bg-black"><img src={cuboImage("elevator.png")} alt="Cubo's elevator room in the crystal mine" className="aspect-video w-full object-cover" /></div>
+              <div className="cubo-scroll-image overflow-hidden rounded-[22px] bg-black"><img src={cuboImage("elevator-cubo.png")} alt="Cubo beside the elevator lever in the crystal mine" className="aspect-video w-full object-cover" /></div>
               <figcaption className="mt-5 max-w-2xl text-base leading-7 text-white/58">A modular lever system calls the elevator between floors and returns it to its starting position when it is no longer needed.</figcaption>
             </figure>
             <figure>
-              <div className="cubo-scroll-image overflow-hidden rounded-[22px] bg-black"><img src={cuboImage("player-animator.png")} alt="Unity Animator graph for Cubo's player movement states" className="aspect-video w-full object-cover" /></div>
+              <div className="cubo-scroll-image overflow-hidden rounded-[22px] bg-black"><img src={cuboImage("player-animator-cubo.png")} alt="Unity Animator graph for Cubo's player movement states" className="aspect-video w-full object-cover" /></div>
               <figcaption className="mt-5 max-w-2xl text-base leading-7 text-white/58">The New Input System supports keyboard and gamepad while the Animator coordinates idle, run, jump, landing, dash, and slam states.</figcaption>
             </figure>
           </div>
@@ -1175,12 +1202,12 @@ function CuboProjectView({
           <div className="max-w-4xl"><h3 className="text-5xl font-semibold tracking-[-0.05em] md:text-7xl">Bosses</h3><p className="mt-7 max-w-2xl text-lg leading-8 text-white/60">Each encounter uses a different player ability and acts as a progression gate.</p></div>
           <div className="mt-16 flex flex-col gap-4 lg:h-[34rem] lg:flex-row">
             <article className="group relative min-h-[28rem] flex-1 overflow-hidden rounded-[24px] transition-[flex] duration-700 ease-out hover:flex-[1.35]">
-              <img src={cuboImage("grump-rock.png")} alt="Grump Rock rolling toward Cubo" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+              <img src={cuboImage("Grump Rock Boss - Cubo.png")} alt="Grump Rock rolling toward Cubo" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/12 to-transparent" />
               <div className="absolute inset-x-0 bottom-0 p-7 md:p-9"><h4 className="text-3xl font-semibold">Grump Rock</h4><p className="mt-3 max-w-xl leading-7 text-white/70">The arena gates close and the boss tracks and rolls toward the player, forcing a jump and downward slam at the moment of impact. A visible parry ring rewards perfect timing with bonus damage. The second phase adds thrown crystal shards, and victory opens a reward room containing the Boulder Key.</p></div>
             </article>
             <article className="group relative min-h-[28rem] flex-1 overflow-hidden rounded-[24px] transition-[flex] duration-700 ease-out hover:flex-[1.35]">
-              <img src={cuboImage("shackled-bomber.png")} alt="Cubo facing the suspended Shackled Bomber" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+              <img src={cuboImage("Shackled Bomber Boss - Cubo.jpg")} alt="Cubo facing the suspended Shackled Bomber" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/12 to-transparent" />
               <div className="absolute inset-x-0 bottom-0 p-7 md:p-9"><h4 className="text-3xl font-semibold">Shackled Bomber</h4><p className="mt-3 max-w-xl leading-7 text-white/70">The Boulder Key unlocks a boss positioned out of reach on the roof. Players sprint through dynamite patterns, collect three Soul Essences, and fire an invulnerable Soul Charge. In phase two the boss drops to the floor and bounces across the arena, returning the fight to ground slam timing.</p></div>
             </article>
@@ -1210,14 +1237,37 @@ function CuboProjectView({
           <div className="mx-auto max-w-7xl">
             <div className="grid gap-14 lg:grid-cols-[0.72fr_1.28fr] lg:items-end">
               <div><h3 className="text-5xl font-semibold tracking-[-0.05em] md:text-7xl">Interface</h3><p className="mt-7 text-lg leading-8 text-[#1c1613]/62">The main and pause menus include master volume, fullscreen, and resolution controls, with settings synchronised across scenes. Cursor visibility changes between gameplay and menu states, and later hotfixes protected button input after display changes.</p><p className="mt-5 text-lg leading-8 text-[#1c1613]/62">The optional speedrun timer records runtime and best completion time, while later builds added total death tracking to the end screen. On the title screen, Cubo replaces the letter O and its eyes follow the mouse through a raycast-driven effect.</p></div>
-              <img src={cuboImage("main-menu.png")} alt="Cubo's main menu with the character forming the letter O" width="1483" height="833" className="aspect-[1483/833] w-full rounded-[22px] object-cover shadow-[0_32px_80px_rgba(53,31,18,0.2)]" />
+              <div className="min-w-0">
+                <div className="mb-4 flex items-center justify-between gap-4">
+                  <p className="text-sm font-semibold text-[#1c1613]/58">Menu and settings screens</p>
+                  <div className="flex shrink-0 gap-1 rounded-full bg-[#1c1613] p-1 text-white shadow-[0_14px_32px_rgba(53,31,18,0.16)]">
+                    <button type="button" className="icon-button-motion grid size-10 place-items-center rounded-full transition-colors hover:bg-white hover:text-[#1c1613] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#1c1613]/25" aria-label="Show previous interface screen" onClick={() => scrollInterfaceCarousel(-1)}><ChevronLeft size={20} /></button>
+                    <button type="button" className="icon-button-motion grid size-10 place-items-center rounded-full transition-colors hover:bg-white hover:text-[#1c1613] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#1c1613]/25" aria-label="Show next interface screen" onClick={() => scrollInterfaceCarousel(1)}><ChevronRight size={20} /></button>
+                  </div>
+                </div>
+                <div ref={interfaceCarouselRef} className="flex snap-x snap-mandatory overflow-x-auto rounded-[22px] shadow-[0_32px_80px_rgba(53,31,18,0.2)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                  {[
+                    ["Main Menu - Cubo.png", "Cubo's main menu with the character forming the letter O", "Main menu"],
+                    ["Intro Sequence - Cubo.png", "Cubo's intro sequence", "Intro sequence"],
+                    ["Load Game Menu - Cubo.png", "Cubo's load game menu", "Load game"],
+                    ["Pause Menu - Cubo.png", "Cubo's pause menu", "Pause menu"],
+                    ["Options in Main Menu - Cubo.png", "Cubo's options menu from the main menu", "Main menu options"],
+                    ["Options in Game - Cubo.png", "Cubo's options menu during gameplay", "In game options"],
+                  ].map(([image, alt, label]) => (
+                    <figure key={image} className="relative w-full shrink-0 snap-start overflow-hidden bg-[#17110e]">
+                      <img src={cuboImage(image)} alt={alt} width="2560" height="1440" className="aspect-video w-full object-cover" />
+                      <figcaption className="absolute bottom-4 left-4 rounded-full bg-[#1c1613]/88 px-4 py-2 text-sm font-semibold text-white shadow-[0_12px_30px_rgba(0,0,0,0.22)]">{label}</figcaption>
+                    </figure>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </section>
 
         <section id="cubo-workflow" className="mx-auto max-w-7xl px-5 py-32 md:px-8 md:py-44">
           <div className="grid gap-14 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
-            <div className="cubo-scroll-image overflow-hidden rounded-[24px]"><img src={cuboImage("version-control.png")} alt="Cubo's private GitHub repository and organised Unity project history" width="1920" height="1020" className="aspect-[32/17] w-full object-cover" /></div>
+            <div className="cubo-scroll-image overflow-hidden rounded-[24px]"><img src={cuboImage("Github Version Control - Cubo.png")} alt="Cubo's private GitHub repository and organised Unity project history" width="1881" height="993" className="aspect-[32/17] w-full object-cover" /></div>
             <div><h3 className="text-5xl font-semibold tracking-[-0.05em] md:text-7xl">Development workflow</h3><p className="mt-7 text-lg leading-8 text-white/60">The Unity hierarchy was organised by function. Assets were separated into folders for scenes, sprites, animation, enemies, interface elements, and scripts.</p><p className="mt-5 text-lg leading-8 text-white/60">GitHub tracked the project and later releases. Player and enemy behaviours used separate scripts. Debug logs were used to trace targeting and interaction problems before testing changes in the game.</p></div>
           </div>
         </section>
@@ -1270,7 +1320,7 @@ function CuboProjectView({
         )}
 
         <section id="reflection" data-case-study-chapter className="scroll-mt-16 relative overflow-hidden px-5 py-24 text-center md:px-8 md:py-32">
-          <img src={cuboImage("pause-menu.png")} alt="Cubo paused inside the Crystal Caverns" className="absolute inset-0 h-full w-full object-cover opacity-30" />
+          <img src={cuboImage("Screenshot 2026-11-25 093118.png")} alt="Cubo exploring the Crystal Caverns" className="absolute inset-0 h-full w-full object-cover opacity-30" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(11,9,9,0.28),#0b0909_78%)]" />
           <div className="relative mx-auto max-w-4xl"><h3 className="text-5xl font-semibold tracking-[-0.055em] md:text-8xl">Reflection</h3><p className="mx-auto mt-8 max-w-2xl text-lg leading-8 text-white/66">The project required the central movement and combat behavior to remain consistent while supporting changes to input, level design, and boss encounters. I simplified the character art, replaced the original input implementation, and adjusted movement after playtesting the second boss.</p><p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-white/66">Character animation remains incomplete. Several enemies do not have dedicated attack or stun states. Save and load support was removed from the original scope to meet the submission schedule. These areas should be addressed in a later development pass.</p></div>
         </section>

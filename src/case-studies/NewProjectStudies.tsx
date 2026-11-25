@@ -4,6 +4,7 @@ import CaseStudyShell from "./CaseStudyShell";
 import { CaseStudyShowcaseImage, CaseStudyShowcaseRail } from "./CaseStudyMedia";
 import ChangelogAccordion, { type ChangelogEntry } from "./ChangelogAccordion";
 import { usePrefersReducedMotion } from "../motion";
+import { projectSummary } from "./projectSummary";
 
 type StudyId = "ravensdown" | "forgotten-line" | "constructed";
 
@@ -279,6 +280,7 @@ function StudyPage({ id, onClose }: { id: StudyId; onClose: () => void }) {
   const editorial = config.design === "editorial";
   const cinematic = config.design === "cinematic";
   const industrial = config.design === "industrial";
+  const tagline = projectSummary(config.id, config.summary);
 
   const scrollShowcase = (direction: -1 | 1) => {
     const rail = showcaseRef.current;
@@ -293,13 +295,13 @@ function StudyPage({ id, onClose }: { id: StudyId; onClose: () => void }) {
         <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/20 to-black/5" />
         <div className="relative mx-auto flex min-h-[42rem] max-w-7xl flex-col justify-end px-5 pb-16 pt-28 md:min-h-[52rem] md:px-8 md:pb-24">
           <h2 className="max-w-6xl text-[clamp(4rem,13vw,10rem)] font-semibold leading-[0.82] tracking-[-0.07em]">{config.title}</h2>
-          <p className="mt-8 max-w-3xl text-lg leading-8 text-white/76">{config.summary}</p>
+          <p className="mt-8 max-w-3xl text-lg leading-8 text-white/76">{tagline}</p>
         </div>
       </header>
 
       <CaseStudyShowcaseRail background={config.palette.page} railRef={showcaseRef} onScroll={scrollShowcase}>
         {config.showcase.map((media) => (
-          <figure key={media.file} className="w-[min(82vw,43rem)] shrink-0 snap-start overflow-hidden rounded-[22px] bg-black">
+          <figure key={media.file} className="w-[min(82vw,43rem)] shrink-0 snap-center overflow-hidden rounded-[22px] bg-black">
             <CaseStudyShowcaseImage src={image(id, media.file)} alt={media.alt} title={media.title} />
           </figure>
         ))}
@@ -310,7 +312,7 @@ function StudyPage({ id, onClose }: { id: StudyId; onClose: () => void }) {
           <SectionHeading design={config.design}>Overview</SectionHeading>
           <div className={`mt-16 grid grid-flow-dense ${editorial ? "gap-y-0 border-t border-white/18 md:grid-cols-[0.72fr_1.28fr]" : cinematic ? "gap-3 md:grid-cols-12" : "overflow-hidden rounded-[30px] bg-[#ef6c43] gap-px md:grid-cols-2"}`}>
             <article className={editorial ? "border-b border-white/18 py-10 md:row-span-4 md:pr-16" : cinematic ? "rounded-[28px] bg-black/30 p-8 text-white md:col-span-9 md:p-12" : "bg-[#ef6c43] p-8 text-[#0d1012] md:col-span-2 md:p-12"}>
-              <p className={`max-w-4xl font-semibold leading-[1.12] tracking-[-0.04em] ${editorial ? "text-3xl md:text-4xl" : "text-3xl md:text-5xl"}`}>{config.summary}</p>
+              <p className={`max-w-4xl font-semibold leading-[1.12] tracking-[-0.04em] ${editorial ? "text-3xl md:text-4xl" : "text-3xl md:text-5xl"}`}>{tagline}</p>
             </article>
             {config.overview.map((item, index) => <article key={item.title} className={editorial ? "border-b border-white/18 py-9 md:pl-16" : cinematic ? `${index === 0 || index === 3 ? "md:col-span-7" : "md:col-span-5"} min-h-64 rounded-[24px] bg-black/35 p-7 md:p-9` : "min-h-64 bg-[#151a1d] p-7 md:p-9"}><h4 className={`font-semibold ${industrial ? "text-3xl uppercase tracking-[-0.04em] text-[#ef6c43]" : "text-2xl"}`}>{item.title}</h4><p className="mt-5 text-lg leading-8 text-white/64">{item.body}</p></article>)}
           </div>

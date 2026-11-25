@@ -4,6 +4,7 @@ import { caseStudyDefinitions } from "./definitions";
 import { CaseStudyShowcaseImage, CaseStudyShowcaseRail } from "./CaseStudyMedia";
 import ChangelogAccordion, { type ChangelogEntry } from "./ChangelogAccordion";
 import { usePrefersReducedMotion } from "../motion";
+import { projectSummary } from "./projectSummary";
 
 type ReboundMedia = {
   file: string;
@@ -42,6 +43,7 @@ export default function ReboundProjectView({ onClose }: { onClose: () => void })
   const showcaseRef = useRef<HTMLDivElement | null>(null);
   const [openChangelog, setOpenChangelog] = useState<string | null>(null);
   const reducedMotion = usePrefersReducedMotion();
+  const tagline = projectSummary("rebound", "A three week first person dungeon game built around a returning boomerang and an upgradeable drill.");
 
   const scrollShowcase = (direction: -1 | 1) => {
     const rail = showcaseRef.current;
@@ -58,14 +60,14 @@ export default function ReboundProjectView({ onClose }: { onClose: () => void })
         <div className="relative mx-auto w-full max-w-7xl">
           <h1 className="max-w-6xl text-[clamp(4.8rem,14vw,11rem)] font-semibold leading-[0.78] tracking-[-0.075em]">Rebound</h1>
           <p className="mt-8 max-w-3xl text-lg leading-8 text-white/72 md:text-xl">
-            A three week college game jam project built around one returning weapon, a compact dungeon, and a layered upgrade system.
+            {tagline}
           </p>
         </div>
       </section>
 
       <CaseStudyShowcaseRail background="#07120b" railRef={showcaseRef} onScroll={scrollShowcase}>
         {showcase.map((media) => (
-          <div key={media.file} className="w-[86vw] shrink-0 snap-start md:w-[62vw] lg:w-[48rem]">
+          <div key={media.file} className="w-[86vw] shrink-0 snap-center md:w-[62vw] lg:w-[48rem]">
             <CaseStudyShowcaseImage src={reboundImage(media.file)} alt={media.alt} title={media.title} />
           </div>
         ))}
@@ -77,7 +79,7 @@ export default function ReboundProjectView({ onClose }: { onClose: () => void })
             <div>
               <h2 className="max-w-5xl text-5xl font-semibold tracking-[-0.055em] md:text-8xl">Overview</h2>
               <p className="mt-8 max-w-3xl text-xl leading-9 text-white/68">
-                Rebound was made for a college game jam based on the theme Less is More. The team moved from several early concepts to a first person action game where the player escapes a prison, crosses one dungeon route, and reaches the final boss.
+                {tagline}
               </p>
             </div>
             <dl className="grid grid-cols-2 gap-x-7 gap-y-8 rounded-[24px] bg-[#0d1710] p-7 shadow-[0_28px_80px_rgba(0,0,0,0.26)] md:p-9">

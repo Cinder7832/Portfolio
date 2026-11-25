@@ -5,6 +5,7 @@ import { caseStudyDefinitions } from "./definitions";
 import { CaseStudyShowcaseImage, CaseStudyShowcaseRail } from "./CaseStudyMedia";
 import ChangelogAccordion from "./ChangelogAccordion";
 import { usePrefersReducedMotion } from "../motion";
+import { projectSummary } from "./projectSummary";
 
 const image = (file: string) => `${import.meta.env.BASE_URL}projects/eroded-sands/${file}`;
 
@@ -58,6 +59,7 @@ export default function ErodedSandsProjectView({ onClose }: { onClose: () => voi
   const showcaseRef = useRef<HTMLDivElement | null>(null);
   const reducedMotion = usePrefersReducedMotion();
   const [openVersion, setOpenVersion] = useState<string | null>(null);
+  const tagline = projectSummary("eroded-sands", "A compact Unreal Engine desert diorama built around an abandoned mining site.");
 
   const scrollShowcase = (direction: -1 | 1) => {
     const rail = showcaseRef.current;
@@ -73,14 +75,14 @@ export default function ErodedSandsProjectView({ onClose }: { onClose: () => voi
         <div className="relative mx-auto flex min-h-[max(22rem,calc(100cqh-4rem))] max-w-7xl items-end px-5 pb-12 pt-20 md:px-8 md:pb-16 md:pt-24">
           <div className="max-w-5xl">
             <h2 className="max-w-5xl text-[clamp(4rem,9vw,8.8rem)] font-semibold leading-[0.82] tracking-[-0.075em]">Eroded Sands</h2>
-            <p className="mt-8 max-w-2xl text-lg leading-8 text-white/78 md:text-xl">A compact Unreal Engine diorama that turns a small set of Quixel Megascans assets into a cohesive abandoned mining site.</p>
+            <p className="mt-8 max-w-2xl text-lg leading-8 text-white/78 md:text-xl">{tagline}</p>
           </div>
         </div>
       </section>
 
       <CaseStudyShowcaseRail background="#e9b07b" railRef={showcaseRef} onScroll={scrollShowcase}>
         {showcase.map((item) => (
-          <div key={item.file} className="w-[86vw] shrink-0 snap-start md:w-[62vw] lg:w-[48rem]">
+          <div key={item.file} className="w-[86vw] shrink-0 snap-center md:w-[62vw] lg:w-[48rem]">
             <CaseStudyShowcaseImage src={image(item.file)} alt={item.alt} title={item.title} />
           </div>
         ))}

@@ -3,6 +3,7 @@ import { usePrefersReducedMotion } from "../motion";
 import CaseStudyShell from "./CaseStudyShell";
 import { CaseStudyShowcaseImage, CaseStudyShowcaseRail } from "./CaseStudyMedia";
 import { caseStudyDefinitions } from "./definitions";
+import { projectSummary } from "./projectSummary";
 
 const projectImage = (file: string) => `${import.meta.env.BASE_URL}projects/independent-level-project/${file}`;
 
@@ -19,6 +20,7 @@ export default function IndependentLevelProjectView({ onClose }: { onClose: () =
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const showcaseRef = useRef<HTMLDivElement | null>(null);
   const reducedMotion = usePrefersReducedMotion();
+  const tagline = projectSummary("independent-level-project", "A first person Unity runner level that teaches jumping through a white box obstacle course.");
 
   const scrollShowcase = (direction: -1 | 1) => {
     const rail = showcaseRef.current;
@@ -34,7 +36,7 @@ export default function IndependentLevelProjectView({ onClose }: { onClose: () =
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_78%_28%,rgba(74,219,220,0.2),transparent_36%)]" aria-hidden="true" />
         <div className="relative mx-auto flex min-h-[42rem] max-w-7xl flex-col justify-end px-5 pb-16 pt-28 md:min-h-[52rem] md:px-8 md:pb-24">
           <h2 className="max-w-6xl text-[clamp(3.5rem,10vw,8.5rem)] font-semibold leading-[0.84] tracking-[-0.07em]">Independent Level Project</h2>
-          <p className="mt-8 max-w-4xl text-lg leading-8 text-white/76">A completed Unity white box for a first person runner tutorial, developed from route sketches into a playable course with jump challenges, moving hazards, and a revised final sequence.</p>
+          <p className="mt-8 max-w-4xl text-lg leading-8 text-white/76">{tagline}</p>
         </div>
       </header>
 
@@ -46,7 +48,7 @@ export default function IndependentLevelProjectView({ onClose }: { onClose: () =
           ["sketch-3.jpg", "Third preliminary route sketch with hidden rooms and score stars"],
           ["concept-art.jpg", "Pencil concept art for a rooftop jump across the data city"],
         ].map(([file, alt]) => (
-          <div key={file} className="w-[86vw] shrink-0 snap-start md:w-[62vw] lg:w-[48rem]">
+          <div key={file} className="w-[86vw] shrink-0 snap-center md:w-[62vw] lg:w-[48rem]">
             <CaseStudyShowcaseImage src={projectImage(file)} alt={alt} title={alt} />
           </div>
         ))}

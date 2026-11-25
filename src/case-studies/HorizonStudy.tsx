@@ -4,6 +4,7 @@ import CaseStudyShell from "./CaseStudyShell";
 import { caseStudyDefinitions } from "./definitions";
 import { CaseStudyShowcaseImage, CaseStudyShowcaseRail } from "./CaseStudyMedia";
 import { usePrefersReducedMotion } from "../motion";
+import { projectSummary } from "./projectSummary";
 
 const image = (file: string) => `${import.meta.env.BASE_URL}projects/horizon/${file}`;
 
@@ -55,6 +56,7 @@ export default function HorizonProjectView({ onClose }: { onClose: () => void })
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const showcaseRef = useRef<HTMLDivElement | null>(null);
   const reducedMotion = usePrefersReducedMotion();
+  const tagline = projectSummary("horizon", "A small Unreal Engine meadow study shaped around sunset light and a distant ruined arch.");
 
   const scrollShowcase = (direction: -1 | 1) => {
     const rail = showcaseRef.current;
@@ -70,14 +72,14 @@ export default function HorizonProjectView({ onClose }: { onClose: () => void })
         <div className="relative mx-auto flex min-h-[max(22rem,calc(100cqh-4rem))] max-w-7xl items-end px-5 pb-12 pt-20 md:px-8 md:pb-16 md:pt-24">
           <div className="max-w-5xl">
             <h2 className="max-w-5xl text-[clamp(4.2rem,10vw,9.5rem)] font-semibold leading-[0.82] tracking-[-0.075em]">Horizon</h2>
-            <p className="mt-8 max-w-2xl text-lg leading-8 text-white/80 md:text-xl">A meadow environment study built around a low sun, layered mountain silhouettes, and a ruined stone arch within dense vegetation.</p>
+            <p className="mt-8 max-w-2xl text-lg leading-8 text-white/80 md:text-xl">{tagline}</p>
           </div>
         </div>
       </section>
 
       <CaseStudyShowcaseRail background="#d5b483" railRef={showcaseRef} onScroll={scrollShowcase}>
         {showcase.map((item) => (
-          <div key={item.file} className="w-[86vw] shrink-0 snap-start md:w-[62vw] lg:w-[48rem]">
+          <div key={item.file} className="w-[86vw] shrink-0 snap-center md:w-[62vw] lg:w-[48rem]">
             <CaseStudyShowcaseImage src={image(item.file)} alt={item.alt} title={item.title} />
           </div>
         ))}

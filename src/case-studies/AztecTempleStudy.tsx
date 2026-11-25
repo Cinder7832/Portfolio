@@ -3,6 +3,7 @@ import CaseStudyShell from "./CaseStudyShell";
 import { CaseStudyShowcaseImage, CaseStudyShowcaseRail } from "./CaseStudyMedia";
 import { caseStudyDefinitions } from "./definitions";
 import { usePrefersReducedMotion } from "../motion";
+import { projectSummary } from "./projectSummary";
 
 const aztecImage = (file: string) => `${import.meta.env.BASE_URL}projects/aztec-temple/${file}`;
 
@@ -19,6 +20,7 @@ export default function AztecTempleProjectView({ onClose }: { onClose: () => voi
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const showcaseRef = useRef<HTMLDivElement | null>(null);
   const reducedMotion = usePrefersReducedMotion();
+  const tagline = projectSummary("aztec-temple", "A Unity HDRP environment based on documented Mesoamerican temple research.");
 
   const scrollShowcase = (direction: -1 | 1) => {
     const rail = showcaseRef.current;
@@ -33,7 +35,7 @@ export default function AztecTempleProjectView({ onClose }: { onClose: () => voi
         <div className="absolute inset-0 bg-gradient-to-t from-[#080706]/92 via-[#080706]/26 to-[#080706]/5" aria-hidden="true" />
         <div className="relative mx-auto flex min-h-[42rem] max-w-7xl flex-col justify-end px-5 pb-16 pt-28 md:min-h-[52rem] md:px-8 md:pb-24">
           <h2 className="max-w-6xl text-[clamp(3.8rem,12vw,9.5rem)] font-semibold leading-[0.84] tracking-[-0.07em]">Aztec Temple</h2>
-          <p className="mt-8 max-w-4xl text-lg leading-8 text-[#f4e8c8]/78">A navigable Unity HDRP environment that applies Mesoamerican architecture research, terrain composition, atmosphere, sourced assets and material repair.</p>
+          <p className="mt-8 max-w-4xl text-lg leading-8 text-[#f4e8c8]/78">{tagline}</p>
         </div>
       </header>
 
@@ -45,7 +47,7 @@ export default function AztecTempleProjectView({ onClose }: { onClose: () => voi
           ["bridge-detail.png", "Bridge, rocks and vegetation used as a point of interest"],
           ["controller-test.png", "Player controller and collider test in the environment"],
         ].map(([file, alt]) => (
-          <div key={file} className="w-[86vw] shrink-0 snap-start md:w-[62vw] lg:w-[48rem]">
+          <div key={file} className="w-[86vw] shrink-0 snap-center md:w-[62vw] lg:w-[48rem]">
             <CaseStudyShowcaseImage src={aztecImage(file)} alt={alt} title={alt} />
           </div>
         ))}

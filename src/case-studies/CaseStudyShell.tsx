@@ -16,7 +16,7 @@ export default function CaseStudyShell({
   children: ReactNode;
 }) {
   const chapters = definition.chapters ?? CASE_STUDY_CHAPTERS;
-  const [activeChapter, setActiveChapter] = useState<CaseStudyChapter>("showcase");
+  const [activeChapter, setActiveChapter] = useState<CaseStudyChapter | null>(null);
   const pendingChapter = useRef<CaseStudyChapter | null>(null);
 
   useEffect(() => {
@@ -39,14 +39,14 @@ export default function CaseStudyShell({
       }
       const rootTop = root.getBoundingClientRect().top;
       const chapterLine = rootTop + 80;
-      let current = sections[0];
+      let current: CaseStudyChapter | null = null;
 
       for (const section of sections) {
-        if (section.getBoundingClientRect().top <= chapterLine) current = section;
+        if (section.getBoundingClientRect().top <= chapterLine) current = section.id as CaseStudyChapter;
         else break;
       }
 
-      setActiveChapter(current.id as CaseStudyChapter);
+      setActiveChapter(current);
     };
     const onScroll = () => {
       if (pendingChapter.current) {

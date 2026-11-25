@@ -3,6 +3,7 @@ import { usePrefersReducedMotion } from "../motion";
 import CaseStudyShell from "./CaseStudyShell";
 import { CaseStudyShowcaseImage, CaseStudyShowcaseRail } from "./CaseStudyMedia";
 import { caseStudyDefinitions } from "./definitions";
+import { projectSummary } from "./projectSummary";
 
 const miroImage = (file: string) => `${import.meta.env.BASE_URL}projects/miro/${file}`;
 
@@ -19,6 +20,7 @@ export default function MiroProjectView({ onClose }: { onClose: () => void }) {
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const showcaseRef = useRef<HTMLDivElement | null>(null);
   const reducedMotion = usePrefersReducedMotion();
+  const tagline = projectSummary("miro", "A first person vertical slice about a trash collector robot in a post industrial alien city.");
 
   const scrollShowcase = (direction: -1 | 1) => {
     const rail = showcaseRef.current;
@@ -43,13 +45,13 @@ export default function MiroProjectView({ onClose }: { onClose: () => void }) {
         <div className="absolute inset-0 bg-gradient-to-t from-[#081016]/88 via-transparent to-[#081016]/10" aria-hidden="true" />
         <div className="relative mx-auto flex min-h-[42rem] max-w-7xl flex-col justify-end px-5 pb-16 pt-28 md:min-h-[52rem] md:px-8 md:pb-24">
           <h2 className="max-w-6xl text-[clamp(4.2rem,13vw,10rem)] font-semibold leading-[0.82] tracking-[-0.075em]">MIRO</h2>
-          <p className="mt-8 max-w-4xl text-lg leading-8 text-white/78">A first person Unity HDRP vertical slice about a trash collector robot cleaning and progressing through an abandoned postindustrial alien city.</p>
+          <p className="mt-8 max-w-4xl text-lg leading-8 text-white/78">{tagline}</p>
         </div>
       </header>
 
       <CaseStudyShowcaseRail background="#0b151c" railRef={showcaseRef} onScroll={scrollShowcase}>
         {showcase.map(([file, alt]) => (
-          <div key={file} className="w-[86vw] shrink-0 snap-start md:w-[62vw] lg:w-[48rem]">
+          <div key={file} className="w-[86vw] shrink-0 snap-center md:w-[62vw] lg:w-[48rem]">
             <CaseStudyShowcaseImage src={miroImage(file)} alt={alt} title={alt} />
           </div>
         ))}
