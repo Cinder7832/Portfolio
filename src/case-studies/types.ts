@@ -12,7 +12,7 @@ export const CASE_STUDY_CHAPTERS = [
 ] as const;
 
 export type CaseStudyChapter = (typeof CASE_STUDY_CHAPTERS)[number];
-export type DeepDivePlacement = "extras";
+export type DeepDivePlacement = "experience" | "process" | "extras";
 
 export type CaseStudySectionSlot = {
   label: string;

@@ -1,12 +1,17 @@
 import { CASE_STUDY_CHAPTERS, type CaseStudyNavigationDefinition } from "./types";
 
-const chaptersWithoutChangelog = CASE_STUDY_CHAPTERS.filter((chapter) => chapter !== "changelog");
+const chaptersWithout = (...excluded: Array<(typeof CASE_STUDY_CHAPTERS)[number]>) =>
+  CASE_STUDY_CHAPTERS.filter((chapter) => !excluded.includes(chapter));
+
+const chaptersWithoutChangelog = chaptersWithout("changelog");
+const chaptersWithoutExtras = chaptersWithout("extras");
+const chaptersWithoutChangelogOrExtras = chaptersWithout("changelog", "extras");
 
 const sharedLabels = {
   showcase: { label: "Showcase" },
   overview: { label: "Overview" },
   research: { label: "Research" },
-  experience: { label: "Gameplay" },
+  experience: { label: "Project Details" },
   process: { label: "Process" },
   extras: { label: "Extras" },
   changelog: { label: "Changelog" },
@@ -19,12 +24,13 @@ export const caseStudyDefinitions = {
     title: "Cubo",
     theme: "cubo",
     hero: { label: "Cubo introduction" },
+    chapters: chaptersWithoutExtras,
     sections: sharedLabels,
     deepDives: [
-      { id: "cubo-bosses", label: "Bosses", placement: "extras" },
-      { id: "cubo-progression", label: "Progression", placement: "extras" },
-      { id: "cubo-interface", label: "Interface", placement: "extras" },
-      { id: "cubo-workflow", label: "Workflow", placement: "extras" },
+      { id: "cubo-bosses", label: "Bosses", placement: "experience" },
+      { id: "cubo-progression", label: "Progression", placement: "experience" },
+      { id: "cubo-interface", label: "Interface", placement: "experience" },
+      { id: "cubo-workflow", label: "Workflow", placement: "process" },
     ],
   },
   everdew: {
@@ -34,7 +40,7 @@ export const caseStudyDefinitions = {
     hero: { label: "Everdew introduction" },
     sections: sharedLabels,
     deepDives: [
-      { id: "everdew-management", label: "Project management", placement: "extras" },
+      { id: "everdew-management", label: "Project management", placement: "process" },
       { id: "everdew-promotion", label: "Promotion", placement: "extras" },
     ],
   },
@@ -45,8 +51,8 @@ export const caseStudyDefinitions = {
     hero: { label: "Rebound introduction" },
     sections: sharedLabels,
     deepDives: [
-      { id: "rebound-combat", label: "Combat modes", placement: "extras" },
-      { id: "rebound-enemies", label: "Enemies and bosses", placement: "extras" },
+      { id: "rebound-combat", label: "Combat modes", placement: "experience" },
+      { id: "rebound-enemies", label: "Enemies and bosses", placement: "experience" },
       { id: "rebound-assets", label: "Blockbench assets", placement: "extras" },
     ],
   },
@@ -58,8 +64,8 @@ export const caseStudyDefinitions = {
     sections: sharedLabels,
     deepDives: [
       { id: "ravensdown-assets", label: "Asset assembly", placement: "extras" },
-      { id: "ravensdown-production", label: "Production organisation", placement: "extras" },
-      { id: "ravensdown-iteration", label: "Major visual iteration", placement: "extras" },
+      { id: "ravensdown-production", label: "Production organisation", placement: "process" },
+      { id: "ravensdown-iteration", label: "Major visual iteration", placement: "process" },
     ],
   },
   "forgotten-line": {
@@ -69,8 +75,8 @@ export const caseStudyDefinitions = {
     hero: { label: "The Forgotten Line introduction" },
     sections: sharedLabels,
     deepDives: [
-      { id: "forgotten-line-props", label: "Original prop work", placement: "extras" },
-      { id: "forgotten-line-interface", label: "Interface", placement: "extras" },
+      { id: "forgotten-line-props", label: "Original prop work", placement: "process" },
+      { id: "forgotten-line-interface", label: "Interface", placement: "experience" },
       { id: "forgotten-line-door", label: "Cut door interaction", placement: "extras" },
     ],
   },
@@ -82,8 +88,8 @@ export const caseStudyDefinitions = {
     sections: sharedLabels,
     deepDives: [
       { id: "constructed-practice", label: "Professional practice", placement: "extras" },
-      { id: "constructed-glasses", label: "Gurren Lagann glasses", placement: "extras" },
-      { id: "constructed-scripts", label: "Script evidence", placement: "extras" },
+      { id: "constructed-glasses", label: "Gurren Lagann glasses", placement: "process" },
+      { id: "constructed-scripts", label: "Script evidence", placement: "process" },
     ],
   },
   "aztec-temple": {
@@ -94,9 +100,9 @@ export const caseStudyDefinitions = {
     sections: sharedLabels,
     chapters: chaptersWithoutChangelog,
     deepDives: [
-      { id: "aztec-temple-renderer", label: "Renderer decision", placement: "extras" },
+      { id: "aztec-temple-renderer", label: "Renderer decision", placement: "process" },
       { id: "aztec-temple-assets", label: "Asset sources", placement: "extras" },
-      { id: "aztec-temple-materials", label: "Material repair", placement: "extras" },
+      { id: "aztec-temple-materials", label: "Material repair", placement: "process" },
     ],
   },
   miro: {
@@ -107,8 +113,8 @@ export const caseStudyDefinitions = {
     chapters: chaptersWithoutChangelog,
     sections: sharedLabels,
     deepDives: [
-      { id: "miro-custom-assets", label: "Custom assets", placement: "extras" },
-      { id: "miro-production-workflow", label: "Production workflow", placement: "extras" },
+      { id: "miro-custom-assets", label: "Custom assets", placement: "process" },
+      { id: "miro-production-workflow", label: "Production workflow", placement: "process" },
       { id: "miro-scope-control", label: "Scope control", placement: "extras" },
     ],
   },
@@ -122,7 +128,7 @@ export const caseStudyDefinitions = {
     deepDives: [
       { id: "independent-level-project-source", label: "Asset source", placement: "extras" },
       { id: "independent-level-project-scope", label: "Scope control", placement: "extras" },
-      { id: "independent-level-project-workflow", label: "Build workflow", placement: "extras" },
+      { id: "independent-level-project-workflow", label: "Build workflow", placement: "process" },
     ],
   },
   "eroded-sands": {
@@ -130,13 +136,10 @@ export const caseStudyDefinitions = {
     title: "Eroded Sands",
     theme: "eroded-sands",
     hero: { label: "Eroded Sands introduction" },
-    sections: {
-      ...sharedLabels,
-      experience: { label: "Scene Experience" },
-    },
+    sections: sharedLabels,
     deepDives: [
       { id: "eroded-sands-assets", label: "Asset authorship", placement: "extras" },
-      { id: "eroded-sands-vfx", label: "Dust VFX", placement: "extras" },
+      { id: "eroded-sands-vfx", label: "Dust VFX", placement: "process" },
     ],
   },
   horizon: {
@@ -144,14 +147,11 @@ export const caseStudyDefinitions = {
     title: "Horizon",
     theme: "horizon",
     hero: { label: "Horizon introduction" },
-    chapters: chaptersWithoutChangelog,
-    sections: {
-      ...sharedLabels,
-      experience: { label: "Scene Experience" },
-    },
+    chapters: chaptersWithoutChangelogOrExtras,
+    sections: sharedLabels,
     deepDives: [
-      { id: "horizon-landmark", label: "Ruined landmark", placement: "extras" },
-      { id: "horizon-captures", label: "Render sequence", placement: "extras" },
+      { id: "horizon-landmark", label: "Ruined landmark", placement: "experience" },
+      { id: "horizon-captures", label: "Render sequence", placement: "process" },
     ],
   },
 } as const satisfies Record<string, CaseStudyNavigationDefinition>;

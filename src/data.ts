@@ -59,7 +59,7 @@ export const projects: Project[] = [
     title: "Cubo",
     category: "Games",
     caseStudyStatus: "published",
-    summary: "A 2D Metroidvania with combat, exploration, and boss fights.",
+    summary: "Cubo is a 2D Metroidvania that I developed around fluid movement, exploration, combat, and connected boss encounters.",
     description:
       "Cubo is a solo Unity project set in an abandoned crystal mine. I designed and built the connected world, movement, combat, enemies, bosses, interface, lighting, shaders, and progression systems, then kept iterating after the original submission.",
     stack: ["Unity 6", "C#", "Aseprite", "ShaderLab", "GitHub"],
@@ -76,7 +76,7 @@ export const projects: Project[] = [
     title: "Everdew",
     category: "Games",
     caseStudyStatus: "published",
-    summary: "A top down pixel farming game made by four students during a three week game jam.",
+    summary: "Everdew is a top down pixel farming game that four of us created during a three week game jam.",
     description:
       "Everdew is a top down farming game created for New College Swindon's A New Path game jam. I worked on the environment, game design, programming, and interface. The team replaced the first implementation with smaller systems and continued updating the game after the jam.",
     stack: ["Unity", "C#", "Aseprite", "GitHub", "Trello"],
@@ -94,7 +94,7 @@ export const projects: Project[] = [
     title: "Rebound",
     category: "Games",
     caseStudyStatus: "published",
-    summary: "A three week first person dungeon game built around a returning boomerang and an upgradeable drill.",
+    summary: "Rebound is a first person dungeon game that our team created in three weeks, with combat built around a returning boomerang and an upgradeable drill.",
     description:
       "Rebound is a team project created for a college game jam with the theme Less is More. I produced and textured a large share of the Blockbench models, contributed to the player controller, built the chest mimic, and worked on the interface, effects, and final polish.",
     stack: ["Unity 6", "C#", "Blockbench", "GitHub"],
@@ -111,7 +111,7 @@ export const projects: Project[] = [
     title: "Ravensdown",
     category: "Games",
     caseStudyStatus: "published",
-    summary: "A medieval Unreal Engine environment about a settlement left behind after war and disease.",
+    summary: "I created Ravensdown as a medieval Unreal Engine environment that shows what remained after war and disease disrupted a remote settlement.",
     description:
       "Ravensdown is a solo environment study created for the theme After the Fall. I planned the route, assembled six modular houses, created reusable Packed Level Actors, customised the terrain material, revised the forest, and developed the final HDRI lighting and atmosphere.",
     stack: ["Unreal Engine 5.8", "Landscape", "Packed Level Actors", "Quixel Megascans", "Trello"],
@@ -128,7 +128,7 @@ export const projects: Project[] = [
     title: "The Forgotten Line",
     category: "Games",
     caseStudyStatus: "published",
-    summary: "A team horror environment linking a Victorian hotel to an abandoned underground mine.",
+    summary: "The Forgotten Line is a team horror project where we connected a Victorian hotel to an abandoned mine through one atmospheric exploration route.",
     description:
       "The Forgotten Line is a three person Unity HDRP project. I set up the project and collaboration workflow, revised the hotel lobby, helped complete the elevator transition, built the interface and controller support, lit the tunnels, and constructed the final cavern section.",
     stack: ["Unity 2022.3", "HDRP", "C#", "Blender", "GitHub", "Scene Fusion"],
@@ -145,7 +145,7 @@ export const projects: Project[] = [
     title: "Eroded Sands",
     category: "3D",
     caseStudyStatus: "published",
-    summary: "A compact Unreal Engine desert diorama built around an abandoned mining site.",
+    summary: "I created this compact Unreal Engine desert diorama around the remains of an abandoned mining site, focusing on composition, lighting, and atmosphere.",
     description:
       "Eroded Sands is a short environment study completed in a few hours. I assembled Quixel Megascans assets into a destroyed mining area, shaped one clear composition, and added a tutorial assisted wind and dust effect to give the static scene movement.",
     stack: ["Unreal Engine", "Quixel Megascans", "Environment Art", "VFX"],
@@ -162,7 +162,7 @@ export const projects: Project[] = [
     title: "Horizon",
     category: "3D",
     caseStudyStatus: "published",
-    summary: "A small Unreal Engine meadow study shaped around sunset light and a distant ruined arch.",
+    summary: "I created this small Unreal Engine meadow study around warm sunset light, layered vegetation, and a distant ruined arch.",
     description:
       "Horizon is a compact meadow environment study. I developed a layered valley composition, used grasses, flowers, shrubs, trees, rocks, and a ruined stone arch to establish scale, then shaped the final view around warm sunset light and atmospheric depth.",
     stack: ["Unreal Engine", "Landscape", "Foliage", "Lighting", "Atmosphere"],
@@ -179,7 +179,7 @@ export const projects: Project[] = [
     title: "Constructed",
     category: "Games",
     caseStudyStatus: "published",
-    summary: "A third person construction site speedrun built around machinery and physics hazards.",
+    summary: "Constructed is a third person speedrun level where I turned construction machinery and physics hazards into one continuous obstacle route.",
     description:
       "Constructed is a solo Unity platformer with a continuous speedrun route. I built the site with ProBuilder, customised the third person controller, and created moving pistons, pipes, rotating boards, a Hinge Joint wrecking ball, hazard respawning, menus, and a timer.",
     stack: ["Unity", "HDRP", "C#", "ProBuilder", "Blender", "GitHub"],
@@ -196,7 +196,7 @@ export const projects: Project[] = [
     title: "Aztec Temple",
     category: "Games",
     caseStudyStatus: "published",
-    summary: "A Unity HDRP environment based on documented Mesoamerican temple research.",
+    summary: "I created this Unity HDRP environment using documented Mesoamerican temples to guide the architecture, landscape, and atmosphere.",
     description:
       "Aztec Temple is a Unity environment built with terrain tools, HDRP atmosphere, a cube based temple, sourced vegetation and materials, and a working first or third person controller. The development record covers the move from URP to HDRP, terrain composition, historical references, shader repairs, scene detail, and final reflection.",
     stack: ["Unity", "HDRP", "Terrain Tools", "Unity Version Control", "Poly Haven"],
@@ -213,7 +213,7 @@ export const projects: Project[] = [
     title: "MIRO",
     category: "Games",
     caseStudyStatus: "published",
-    summary: "A first person vertical slice about a trash collector robot in a post industrial alien city.",
+    summary: "MIRO is a first person vertical slice where I connected exploration, trash collection, selling, and upgrades inside a post industrial alien city.",
     description:
       "MIRO is a completed Unity HDRP vertical slice. I built the industrial environment and a collection loop where the player gathers waste, sells it to an NPC, clears areas, and buys upgrades. The project also includes custom Blender assets, menus, interaction feedback, production planning, and QA revisions.",
     stack: ["Unity 6", "HDRP", "C#", "Blender", "Figma", "GitHub LFS", "Trello"],
@@ -231,7 +231,7 @@ export const projects: Project[] = [
     title: "Independent Level Project",
     category: "Games",
     caseStudyStatus: "published",
-    summary: "A first person Unity runner level that teaches jumping through a white box obstacle course.",
+    summary: "I created this first person runner level in Unity to teach the player how to jump through a white box obstacle course.",
     description:
       "Independent Level Project is a completed Unity level based on a one mechanic tutorial brief. I planned a cyberpunk rooftop route, translated it into a playable ProBuilder course, and revised the layout with pistons, pipe traversal, a moving platform, and raised final platforms.",
     stack: ["Unity 6", "URP", "ProBuilder", "Starter Assets"],

@@ -738,12 +738,12 @@ const everdewReleases = [
 ];
 
 const everdewSystems = [
-  ["Farming", "Till plots, plant crops, wait through the day cycle, then harvest and sell. Drag actions later made repeated planting, harvesting, and fertilising faster."],
-  ["Economy", "The original 10,000-gold goal proved too easy in playtests. The team raised the challenge and retuned growth times, prices, stock, and restocking."],
-  ["Animals", "Fed animals produce eggs or fertiliser. Unfed animals become soul sprites that can be sold at night."],
-  ["Perks", "Upgrades use ScriptableObjects. They include drag farming, animal access, more field tiles, faster crop growth, and bonus systems."],
-  ["Time", "A day and night cycle changes NPC availability. A statue lets players skip the night, and the cost dropped from 50 gold to 1 after testing."],
-  ["Interface", "The interface covers shops, inventory, dialogue, tutorials, perks, display settings, audio, and the main menu."],
+  ["Farming", "The player prepares field plots, plants crops, waits through the day cycle, and then harvests the produce to sell. We later added drag actions so repeated planting, harvesting, and fertilising did not require a separate click on every tile."],
+  ["Economy", "Our original goal of 10,000 gold was too easy to reach during playtests. We increased the challenge by adjusting crop growth times, prices, shop stock, and the way items restock."],
+  ["Animals", "Feeding the animals allows them to produce eggs or fertiliser. If the player leaves them unfed, they eventually become soul sprites that can be sold during the night."],
+  ["Perks", "We stored the upgrades as ScriptableObjects so new perks could be added without rewriting the main purchase system. These upgrades include drag farming, animal access, additional field tiles, faster crop growth, and other bonuses."],
+  ["Time", "The day and night cycle changes when different NPCs are available. Players can use a statue to skip the night, and testing led us to reduce its cost from 50 gold to 1 so it remained a useful option."],
+  ["Interface", "We created interface screens for the shops, inventory, dialogue, tutorials, perks, display settings, audio controls, and main menu so the full loop could be managed consistently."],
 ];
 
 function EverdewProjectView({
@@ -755,12 +755,12 @@ function EverdewProjectView({
 }) {
   const rootRef = useRef<HTMLDivElement | null>(null);
   const showcaseRef = useRef<HTMLDivElement | null>(null);
-  const gameplayCaptureRef = useRef<HTMLDivElement | null>(null);
+  const experienceCaptureRef = useRef<HTMLDivElement | null>(null);
   const [openChangelogVersion, setOpenChangelogVersion] = useState<string | null>(null);
   const reducedMotion = usePrefersReducedMotion();
-  const tagline = projectSummary("everdew", "A top down pixel farming game made by four students during a three week game jam.");
+  const tagline = projectSummary("everdew", "Everdew is a top down pixel farming game that four of us created during a three week game jam.");
 
-  const story = "Everdew was made by a four person team for a three week game jam based on the theme A New Path. I worked on the base environment, game design, programming, and interface. The first version used top down 3D graphics. Problems importing Blockbench models led the team to change to pixel art. We also replaced several large scripts with smaller systems. The submitted build included a farming and economy loop, and development continued after the jam.";
+  const story = "Everdew was created by a four person team for a three week game jam based on the theme A New Path. My role covered the base environment, game design, programming, and interface work. We began with a top down 3D version, but unreliable Blockbench imports led us to change the project to pixel art. We also replaced several large scripts with smaller systems that were easier to manage. The submitted build included a complete farming and economy loop, and we continued developing it after the jam.";
 
   const scrollShowcase = (direction: -1 | 1) => {
     const showcase = showcaseRef.current;
@@ -771,8 +771,8 @@ function EverdewProjectView({
     });
   };
 
-  const scrollGameplayCaptures = (direction: -1 | 1) => {
-    const captures = gameplayCaptureRef.current;
+  const scrollExperienceCaptures = (direction: -1 | 1) => {
+    const captures = experienceCaptureRef.current;
     if (!captures) return;
     captures.scrollBy({
       left: direction * Math.min(captures.clientWidth * 0.82, 620),
@@ -826,21 +826,21 @@ function EverdewProjectView({
             {story}
           </p>
           <div className="mt-24 grid gap-10 border-t border-white/12 pt-12 md:grid-cols-2 lg:grid-cols-4">
-            <article><h4 className="text-xl font-semibold text-[#d5f36a]">Devanand Asai</h4><p className="mt-3 leading-7 text-white/62">Base environment, game design, programming, and UI design.</p></article>
-            <article><h4 className="text-xl font-semibold">Riley</h4><p className="mt-3 leading-7 text-white/62">Programming, interactions, and interface systems.</p></article>
-            <article><h4 className="text-xl font-semibold">Hiro</h4><p className="mt-3 leading-7 text-white/62">Asset design and environment production.</p></article>
-            <article><h4 className="text-xl font-semibold">Johan</h4><p className="mt-3 leading-7 text-white/62">Sprites, production support, documentation, and marketing.</p></article>
+            <article><h4 className="text-xl font-semibold text-[#d5f36a]">Devanand Asai</h4><p className="mt-3 leading-7 text-white/62">I worked on the base environment, game design, programming, and interface design.</p></article>
+            <article><h4 className="text-xl font-semibold">Riley</h4><p className="mt-3 leading-7 text-white/62">Riley worked on programming, player interactions, and the interface systems.</p></article>
+            <article><h4 className="text-xl font-semibold">Hiro</h4><p className="mt-3 leading-7 text-white/62">Hiro focused on asset design and producing the environment artwork.</p></article>
+            <article><h4 className="text-xl font-semibold">Johan</h4><p className="mt-3 leading-7 text-white/62">Johan created sprites and supported production, documentation, and marketing.</p></article>
           </div>
         </section>
 
         <section id="research" data-case-study-chapter className="scroll-mt-16 bg-[#17200f] px-5 py-32 text-white md:px-8 md:py-44">
           <div className="mx-auto max-w-7xl">
             <h3 className="max-w-6xl text-5xl font-semibold leading-[0.98] tracking-[-0.055em] md:text-8xl">Research</h3>
-            <p className="mt-12 max-w-4xl text-2xl leading-[1.45] text-white/76 md:text-4xl">The team compared the 3D and pixel art pipelines, tested the economy, and reviewed publishing options before finalising the production approach.</p>
+            <p className="mt-12 max-w-4xl text-2xl leading-[1.45] text-white/76 md:text-4xl">Before finalising our production approach, we compared the 3D and pixel art pipelines, tested the economy with players, and reviewed publishing options that could suit the game.</p>
             <div className="mt-20 grid grid-flow-dense gap-4 md:grid-cols-12">
-              <article className="rounded-[26px] bg-[#eef0d9] p-8 text-[#17200f] md:col-span-6"><h4 className="text-2xl font-semibold">Visual pipeline</h4><p className="mt-4 leading-8 text-[#17200f]/68">Blockbench models did not import reliably, so the team compared the cost of repairing the 3D workflow with moving to a shared pixel art pipeline in Aseprite.</p></article>
-              <article className="rounded-[26px] bg-[#d5f36a] p-8 text-[#11140d] md:col-span-6"><h4 className="text-2xl font-semibold">Economy testing</h4><p className="mt-4 leading-8 text-[#11140d]/68">Playtests showed that the original 10,000-gold target was too easy. Growth times, prices, stock, restocking, and the nighttime skip cost were retuned.</p></article>
-              <article className="rounded-[26px] bg-[#252c1c] p-8 md:col-span-12"><h4 className="text-2xl font-semibold">Publishing review</h4><p className="mt-4 max-w-3xl leading-8 text-white/62">Raw Fury, Team17, Curve Games, and Critical Reflex were reviewed against the game’s art direction, farming loop, timed economy, and animal-soul system.</p></article>
+              <article className="rounded-[26px] bg-[#eef0d9] p-8 text-[#17200f] md:col-span-6"><h4 className="text-2xl font-semibold">Visual pipeline</h4><p className="mt-4 leading-8 text-[#17200f]/68">Our Blockbench models did not import reliably, so we compared the time needed to repair the 3D workflow with the time needed to move into a shared pixel art pipeline in Aseprite. Pixel art gave the team a more dependable way to work remotely.</p></article>
+              <article className="rounded-[26px] bg-[#d5f36a] p-8 text-[#11140d] md:col-span-6"><h4 className="text-2xl font-semibold">Economy testing</h4><p className="mt-4 leading-8 text-[#11140d]/68">Playtesting showed us that the original 10,000 gold target was too easy to reach. We responded by adjusting crop growth times, prices, shop stock, restocking, and the cost of skipping the night.</p></article>
+              <article className="rounded-[26px] bg-[#252c1c] p-8 md:col-span-12"><h4 className="text-2xl font-semibold">Publishing review</h4><p className="mt-4 max-w-3xl leading-8 text-white/62">We reviewed Raw Fury, Team17, Curve Games, and Critical Reflex to see how well their existing catalogues matched Everdew's art direction, farming loop, timed economy, and animal soul system.</p></article>
             </div>
           </div>
         </section>
@@ -848,58 +848,58 @@ function EverdewProjectView({
         <section id="experience" data-case-study-chapter className="scroll-mt-16 bg-[#eef0d9] px-5 py-32 text-[#17200f] md:px-8 md:py-44">
           <div className="mx-auto max-w-7xl">
             <div className="max-w-5xl">
-              <h3 className="text-[clamp(3rem,7vw,7rem)] font-semibold leading-[0.95] tracking-[-0.06em]">Gameplay</h3>
-              <p className="mt-8 max-w-3xl text-lg leading-8 text-[#17200f]/68">The player manages a run-down farm over 30 in-game days. Crops earn money, and money is used for upgrades that increase farming output.</p>
+              <h3 className="text-[clamp(3rem,7vw,7rem)] font-semibold leading-[0.95] tracking-[-0.06em]">Project Details</h3>
+              <p className="mt-8 max-w-3xl text-lg leading-8 text-[#17200f]/68">The player manages a run down farm across 30 in game days. We connected farming, shops, animals, time, inventory, and perks into one economy where the work completed each day leads to upgrades and greater output later in the run.</p>
             </div>
             <div className="mt-20 grid grid-flow-dense grid-cols-1 gap-4 md:grid-cols-12">
-              <article className="relative min-h-[34rem] overflow-hidden rounded-[28px] bg-[#35451d] md:col-span-8"><img src={everdewImage("farming-ui.png")} alt="Farming tools and inventory in Everdew" className="absolute inset-0 h-full w-full object-cover" /><div className="absolute inset-0 bg-gradient-to-t from-black/82 via-black/10 to-transparent" /><div className="absolute inset-x-0 bottom-0 p-7 text-white md:p-10"><h4 className="text-3xl font-semibold">Farming</h4><p className="mt-3 max-w-xl leading-7 text-white/72">Tools and crop states show which actions are available on each field tile.</p></div></article>
-              <article className="flex min-h-[34rem] flex-col overflow-hidden rounded-[28px] bg-[#17200f] text-white md:col-span-4"><div className="overflow-hidden"><img src={everdewImage("perks-ui.png")} alt="Everdew perks interface" className="aspect-[16/10] w-full object-cover" /></div><div className="flex flex-1 flex-col justify-end p-7"><h4 className="text-3xl font-semibold">Perk system</h4><p className="mt-3 leading-7 text-white/62">Perks use ScriptableObjects so new upgrades can be added without changing the main system.</p></div></article>
+              <article className="relative min-h-[34rem] overflow-hidden rounded-[28px] bg-[#35451d] md:col-span-8"><img src={everdewImage("farming-ui.png")} alt="Farming tools and inventory in Everdew" className="absolute inset-0 h-full w-full object-cover" /><div className="absolute inset-0 bg-gradient-to-t from-black/82 via-black/10 to-transparent" /><div className="absolute inset-x-0 bottom-0 p-7 text-white md:p-10"><h4 className="text-3xl font-semibold">Farming</h4><p className="mt-3 max-w-xl leading-7 text-white/72">The selected tool and the current crop state show the player which actions are available on each field tile, helping the farming loop remain readable as the farm grows.</p></div></article>
+              <article className="flex min-h-[34rem] flex-col overflow-hidden rounded-[28px] bg-[#17200f] text-white md:col-span-4"><div className="overflow-hidden"><img src={everdewImage("perks-ui.png")} alt="Everdew perks interface" className="aspect-[16/10] w-full object-cover" /></div><div className="flex flex-1 flex-col justify-end p-7"><h4 className="text-3xl font-semibold">Perk system</h4><p className="mt-3 leading-7 text-white/62">We built the perks with ScriptableObjects so we could add new upgrades without changing the main purchase system each time.</p></div></article>
               {everdewSystems.slice(0, 3).map(([title, copy], index) => <article key={title} className={`rounded-[28px] p-7 md:col-span-4 ${index === 1 ? "bg-[#b8d5a5]" : "bg-white"}`}><h4 className="text-2xl font-semibold">{title}</h4><p className="mt-4 leading-7 text-[#17200f]/68">{copy}</p></article>)}
-              <article className="overflow-hidden rounded-[28px] bg-[#283518] md:col-span-6"><img src={everdewImage("shop-ui.png")} alt="Everdew shop interface" className="aspect-[16/10] w-full object-cover" /><div className="p-7 text-white"><h4 className="text-2xl font-semibold">Shops and inventory</h4><p className="mt-3 leading-7 text-white/62">The original shop and inventory integration was replaced with systems that use shared item data.</p></div></article>
-              <article className="overflow-hidden rounded-[28px] bg-[#283518] md:col-span-6"><img src={everdewImage("animal-pen.png")} alt="Animals and the nighttime statue in Everdew" className="aspect-[16/10] w-full object-cover" /><div className="p-7 text-white"><h4 className="text-2xl font-semibold">Animals</h4><p className="mt-3 leading-7 text-white/62">Fed animals produce items. Unfed animals become soul sprites that can be sold at night.</p></div></article>
+              <article className="overflow-hidden rounded-[28px] bg-[#283518] md:col-span-6"><img src={everdewImage("shop-ui.png")} alt="Everdew shop interface" className="aspect-[16/10] w-full object-cover" /><div className="p-7 text-white"><h4 className="text-2xl font-semibold">Shops and inventory</h4><p className="mt-3 leading-7 text-white/62">Riley and I replaced the original shop and inventory integration with systems that read from the same item data, which stopped information becoming inconsistent between screens.</p></div></article>
+              <article className="overflow-hidden rounded-[28px] bg-[#283518] md:col-span-6"><img src={everdewImage("animal-pen.png")} alt="Animals and the nighttime statue in Everdew" className="aspect-[16/10] w-full object-cover" /><div className="p-7 text-white"><h4 className="text-2xl font-semibold">Animals</h4><p className="mt-3 leading-7 text-white/62">Feeding the animals allows them to produce useful items. If the player does not feed them, they become soul sprites that can be collected and sold at night.</p></div></article>
             </div>
             <div className="mt-16 flex justify-end">
               <div className="flex w-fit gap-1 rounded-full bg-[#17200f] p-1 text-white shadow-[0_14px_34px_rgba(23,32,15,0.2)]">
-                <button type="button" className="icon-button-motion grid size-10 place-items-center rounded-full text-white/72 hover:bg-white hover:text-[#17200f]" aria-label="Show previous gameplay capture" onClick={() => scrollGameplayCaptures(-1)}><ChevronLeft size={20} /></button>
-                <button type="button" className="icon-button-motion grid size-10 place-items-center rounded-full text-white/72 hover:bg-white hover:text-[#17200f]" aria-label="Show next gameplay capture" onClick={() => scrollGameplayCaptures(1)}><ChevronRight size={20} /></button>
+                <button type="button" className="icon-button-motion grid size-10 place-items-center rounded-full text-white/72 hover:bg-white hover:text-[#17200f]" aria-label="Show previous project details capture" onClick={() => scrollExperienceCaptures(-1)}><ChevronLeft size={20} /></button>
+                <button type="button" className="icon-button-motion grid size-10 place-items-center rounded-full text-white/72 hover:bg-white hover:text-[#17200f]" aria-label="Show next project details capture" onClick={() => scrollExperienceCaptures(1)}><ChevronRight size={20} /></button>
               </div>
             </div>
-            <div ref={gameplayCaptureRef} className="mt-4 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <div ref={experienceCaptureRef} className="mt-4 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {[["npc-dialogue.png", "NPC conversations"], ["animal-soul.png", "Animal soul sprite"], ["main-menu.png", "Main menu"], ["farm-field.png", "Farm and field layout"]].map(([image, title]) => <figure key={image} className="w-[min(82vw,35rem)] shrink-0 snap-start overflow-hidden rounded-[24px] bg-[#17200f]"><div className="overflow-hidden"><img src={everdewImage(image)} alt={title} className="aspect-[16/10] w-full object-cover" /></div><figcaption className="p-5 text-lg font-semibold text-white">{title}</figcaption></figure>)}
             </div>
           </div>
         </section>
 
         <section id="process" data-case-study-chapter className="scroll-mt-16 mx-auto max-w-7xl px-5 py-32 md:px-8 md:py-44">
-          <div className="mb-16 max-w-3xl"><h3 className="text-5xl font-semibold tracking-[-0.055em] md:text-8xl">Process</h3><p className="mt-7 text-lg leading-8 text-white/60">The project changed from a 3D prototype to a pixel art game. The inventory and shop systems were then rewritten.</p></div>
+          <div className="mb-16 max-w-3xl"><h3 className="text-5xl font-semibold tracking-[-0.055em] md:text-8xl">Process</h3><p className="mt-7 text-lg leading-8 text-white/60">The project began as a 3D prototype before we changed it into a pixel art game. Once the new visual direction was working, we rewrote the inventory and shop systems so they could support the rest of the game more reliably.</p></div>
           <div className="space-y-10">
-            <article className="grid min-h-[32rem] overflow-hidden rounded-[30px] bg-[#252c1c] shadow-[0_34px_90px_rgba(0,0,0,0.45)] lg:grid-cols-2"><img src={everdewImage("prototype-3d.png")} alt="The original top down 3D Everdew prototype" className="h-full min-h-[24rem] w-full object-cover" /><div className="flex flex-col justify-end p-8 md:p-12"><h4 className="text-4xl font-semibold md:text-6xl">3D prototype</h4><p className="mt-6 max-w-xl text-lg leading-8 text-white/62">The first version used a top down 3D controller. Blockbench models did not import reliably, so the team stopped using the 3D pipeline.</p></div></article>
-            <article className="grid min-h-[32rem] overflow-hidden rounded-[30px] bg-[#6b7d31] shadow-[0_34px_90px_rgba(0,0,0,0.48)] lg:grid-cols-2"><div className="order-2 flex flex-col justify-end p-8 md:p-12 lg:order-1"><h4 className="text-4xl font-semibold md:text-6xl">Pixel-art version</h4><p className="mt-6 max-w-xl text-lg leading-8 text-white/75">The team changed to pixel art and worked remotely in Aseprite. Cainos' Pixel Art Top Down Basic pack was used as the starting environment asset set.</p></div><img src={everdewImage("early-environment.png")} alt="Early pixel environment for Everdew" className="order-1 h-full min-h-[24rem] w-full object-cover lg:order-2" /></article>
-            <article className="grid min-h-[32rem] overflow-hidden rounded-[30px] bg-[#d5f36a] text-[#11140d] shadow-[0_34px_90px_rgba(0,0,0,0.5)] lg:grid-cols-2"><img src={everdewImage("inventory-ui.png")} alt="Inventory system running in Everdew" className="h-full min-h-[24rem] w-full object-cover" /><div className="flex flex-col justify-end p-8 md:p-12"><h4 className="text-4xl font-semibold md:text-6xl">System rewrite</h4><p className="mt-6 max-w-xl text-lg leading-8 text-[#11140d]/68">Inventory and shop data did not sort or communicate correctly. Riley and I replaced the integration and divided large scripts into smaller components. Animals, perks, NPCs, and saving were added to those systems later.</p></div></article>
+            <article className="grid min-h-[32rem] overflow-hidden rounded-[30px] bg-[#252c1c] shadow-[0_34px_90px_rgba(0,0,0,0.45)] lg:grid-cols-2"><img src={everdewImage("prototype-3d.png")} alt="The original top down 3D Everdew prototype" className="h-full min-h-[24rem] w-full object-cover" /><div className="flex flex-col justify-end p-8 md:p-12"><h4 className="text-4xl font-semibold md:text-6xl">3D prototype</h4><p className="mt-6 max-w-xl text-lg leading-8 text-white/62">Our first version used a top down 3D controller. When the Blockbench models repeatedly failed to import correctly, we decided that continuing to repair the 3D pipeline would take too much time away from the game itself.</p></div></article>
+            <article className="grid min-h-[32rem] overflow-hidden rounded-[30px] bg-[#6b7d31] shadow-[0_34px_90px_rgba(0,0,0,0.48)] lg:grid-cols-2"><div className="order-2 flex flex-col justify-end p-8 md:p-12 lg:order-1"><h4 className="text-4xl font-semibold md:text-6xl">Pixel art version</h4><p className="mt-6 max-w-xl text-lg leading-8 text-white/75">We changed the project to pixel art and worked remotely in Aseprite, which gave everyone a more reliable shared workflow. Cainos' Pixel Art Top Down Basic pack provided the starting environment assets while we developed the rest of the visual direction.</p></div><img src={everdewImage("early-environment.png")} alt="Early pixel environment for Everdew" className="order-1 h-full min-h-[24rem] w-full object-cover lg:order-2" /></article>
+            <article className="grid min-h-[32rem] overflow-hidden rounded-[30px] bg-[#d5f36a] text-[#11140d] shadow-[0_34px_90px_rgba(0,0,0,0.5)] lg:grid-cols-2"><img src={everdewImage("inventory-ui.png")} alt="Inventory system running in Everdew" className="h-full min-h-[24rem] w-full object-cover" /><div className="flex flex-col justify-end p-8 md:p-12"><h4 className="text-4xl font-semibold md:text-6xl">System rewrite</h4><p className="mt-6 max-w-xl text-lg leading-8 text-[#11140d]/68">The inventory and shop data did not sort or communicate correctly in the original integration. Riley and I replaced it and divided the larger scripts into smaller components, which later gave us a better base for animals, perks, NPCs, and saving.</p></div></article>
+          </div>
+        </section>
+
+        <section id="everdew-management" className="bg-[#eef0d9] px-5 py-32 text-[#17200f] md:px-8 md:py-44">
+          <div className="mx-auto max-w-7xl">
+            <div className="grid gap-16 lg:grid-cols-[0.72fr_1.28fr] lg:items-center"><div><h3 className="text-5xl font-semibold tracking-[-0.055em] md:text-7xl">Project management</h3><p className="mt-7 text-lg leading-8 text-[#17200f]/65">We assigned production roles at the start and used Trello to keep the tasks visible across the team. GitHub and Unity Version Control gave us shared project history, while vFolders 2 and vHierarchy 2 helped us keep the Unity assets and scene objects organised.</p></div><div className="grid gap-4 sm:grid-cols-2"><img src={everdewImage("trello-board.png")} alt="Everdew Trello planning board" width="1920" height="1032" className="aspect-[80/43] w-full rounded-[22px] object-cover shadow-xl sm:col-span-2" /><img src={everdewImage("organized-assets.png")} alt="Organised Everdew Unity project folders" width="1920" height="1020" className="aspect-[32/17] w-full rounded-[22px] object-cover shadow-xl" /><img src={everdewImage("organized-hierarchy.png")} alt="Organised Everdew Unity hierarchy" width="1920" height="1020" className="aspect-[32/17] w-full rounded-[22px] object-cover shadow-xl" /><img src={everdewImage("unity-collab.png")} alt="Everdew Unity Version Control history" width="1920" height="1020" className="aspect-[32/17] w-full rounded-[22px] object-cover shadow-xl" /><img src={everdewImage("github-repo.png")} alt="Everdew GitHub repository" width="1920" height="1020" className="aspect-[32/17] w-full rounded-[22px] object-cover shadow-xl" /></div></div>
+            <div className="mt-24 grid gap-4 md:grid-cols-2 lg:grid-cols-4">{[["code-shop.png", "Shop data"], ["code-inventory.png", "Inventory flow"], ["code-npc.png", "NPC behaviour"], ["code-perks.png", "Perk system"]].map(([image, title]) => <figure key={image} className="overflow-hidden rounded-[20px] bg-[#17200f]"><div className="overflow-hidden"><img src={everdewImage(image)} alt={`${title} code from Everdew`} className="aspect-[4/3] w-full object-cover" /></div><figcaption className="p-5 font-semibold text-white">{title}</figcaption></figure>)}</div>
           </div>
         </section>
 
         <section id="extras" data-case-study-chapter className="scroll-mt-16 bg-[#202717] px-5 pt-32 text-white md:px-8 md:pt-44">
           <div className="mx-auto max-w-7xl border-b border-white/12 pb-16 md:pb-20">
             <h3 className="text-5xl font-semibold tracking-[-0.055em] md:text-8xl">Extras</h3>
-            <p className="mt-7 max-w-2xl text-lg leading-8 text-white/60">Supporting material covering production management and promotion.</p>
-          </div>
-        </section>
-
-        <section id="everdew-management" className="bg-[#eef0d9] px-5 py-32 text-[#17200f] md:px-8 md:py-44">
-          <div className="mx-auto max-w-7xl">
-            <div className="grid gap-16 lg:grid-cols-[0.72fr_1.28fr] lg:items-center"><div><h3 className="text-5xl font-semibold tracking-[-0.055em] md:text-7xl">Project management</h3><p className="mt-7 text-lg leading-8 text-[#17200f]/65">The team assigned production roles, planned tasks in Trello, and used GitHub and Unity Version Control. vFolders 2 and vHierarchy 2 were used to organise the Unity project.</p></div><div className="grid gap-4 sm:grid-cols-2"><img src={everdewImage("trello-board.png")} alt="Everdew Trello planning board" width="1920" height="1032" className="aspect-[80/43] w-full rounded-[22px] object-cover shadow-xl sm:col-span-2" /><img src={everdewImage("organized-assets.png")} alt="Organised Everdew Unity project folders" width="1920" height="1020" className="aspect-[32/17] w-full rounded-[22px] object-cover shadow-xl" /><img src={everdewImage("organized-hierarchy.png")} alt="Organised Everdew Unity hierarchy" width="1920" height="1020" className="aspect-[32/17] w-full rounded-[22px] object-cover shadow-xl" /><img src={everdewImage("unity-collab.png")} alt="Everdew Unity Version Control history" width="1920" height="1020" className="aspect-[32/17] w-full rounded-[22px] object-cover shadow-xl" /><img src={everdewImage("github-repo.png")} alt="Everdew GitHub repository" width="1920" height="1020" className="aspect-[32/17] w-full rounded-[22px] object-cover shadow-xl" /></div></div>
-            <div className="mt-24 grid gap-4 md:grid-cols-2 lg:grid-cols-4">{[["code-shop.png", "Shop data"], ["code-inventory.png", "Inventory flow"], ["code-npc.png", "NPC behaviour"], ["code-perks.png", "Perk system"]].map(([image, title]) => <figure key={image} className="overflow-hidden rounded-[20px] bg-[#17200f]"><div className="overflow-hidden"><img src={everdewImage(image)} alt={`${title} code from Everdew`} className="aspect-[4/3] w-full object-cover" /></div><figcaption className="p-5 font-semibold text-white">{title}</figcaption></figure>)}</div>
+            <p className="mt-7 max-w-2xl text-lg leading-8 text-white/60">This supporting material explains how we promoted the game and how we compared possible publishers with the direction of the project.</p>
           </div>
         </section>
 
         <section id="everdew-promotion" className="mx-auto max-w-7xl px-5 py-32 md:px-8 md:py-44">
-          <div className="grid gap-16 lg:grid-cols-[0.8fr_1.2fr] lg:items-center"><img src={everdewImage("poster.jpeg")} alt="Everdew game jam poster with QR code" width="595" height="842" className="mx-auto aspect-[595/842] w-full max-w-[32rem] rounded-[24px] object-cover shadow-[0_30px_90px_rgba(0,0,0,0.5)]" /><div><h3 className="text-5xl font-semibold tracking-[-0.055em] md:text-7xl">Promotion</h3><p className="mt-7 text-lg leading-8 text-white/62">The poster uses the game's green palette, pixel font, logo, PEGI 7 rating, and a QR code for the itch.io page.</p><div className="mt-12 grid gap-8 border-t border-white/12 pt-10 sm:grid-cols-2"><article><h4 className="text-xl font-semibold">Raw Fury</h4><p className="mt-3 leading-7 text-white/58">Reviewed because its catalogue includes independent games with defined art direction.</p></article><article><h4 className="text-xl font-semibold">Team17</h4><p className="mt-3 leading-7 text-white/58">Reviewed because its catalogue includes independent games with broad platform support.</p></article><article><h4 className="text-xl font-semibold">Curve Games</h4><p className="mt-3 leading-7 text-white/58">Reviewed because its catalogue includes games built around repeatable systems and progression.</p></article><article><h4 className="text-xl font-semibold">Critical Reflex</h4><p className="mt-3 leading-7 text-white/58">Reviewed because its catalogue includes games with unconventional mechanical systems.</p></article></div></div></div>
+          <div className="grid gap-16 lg:grid-cols-[0.8fr_1.2fr] lg:items-center"><img src={everdewImage("poster.jpeg")} alt="Everdew game jam poster with QR code" width="595" height="842" className="mx-auto aspect-[595/842] w-full max-w-[32rem] rounded-[24px] object-cover shadow-[0_30px_90px_rgba(0,0,0,0.5)]" /><div><h3 className="text-5xl font-semibold tracking-[-0.055em] md:text-7xl">Promotion</h3><p className="mt-7 text-lg leading-8 text-white/62">We designed the poster around the same green palette, pixel font, and logo used in the game. It also includes the PEGI 7 rating and a QR code that takes viewers directly to the itch.io page.</p><div className="mt-12 grid gap-8 border-t border-white/12 pt-10 sm:grid-cols-2"><article><h4 className="text-xl font-semibold">Raw Fury</h4><p className="mt-3 leading-7 text-white/58">We considered Raw Fury because it publishes independent games with clearly defined art direction.</p></article><article><h4 className="text-xl font-semibold">Team17</h4><p className="mt-3 leading-7 text-white/58">We considered Team17 because it supports independent games across a broad range of platforms.</p></article><article><h4 className="text-xl font-semibold">Curve Games</h4><p className="mt-3 leading-7 text-white/58">We considered Curve Games because its catalogue includes games built around repeatable systems and long term progression.</p></article><article><h4 className="text-xl font-semibold">Critical Reflex</h4><p className="mt-3 leading-7 text-white/58">We considered Critical Reflex because it works with games that use unusual or experimental mechanical systems.</p></article></div></div></div>
         </section>
 
         <EverdewChangelog openVersion={openChangelogVersion} onToggle={setOpenChangelogVersion} />
 
-        <section id="reflection" data-case-study-chapter className="scroll-mt-16 relative overflow-hidden bg-[#d5f36a] px-5 py-32 text-center text-[#11140d] md:px-8 md:py-44"><img src={everdewImage("farm-street.png")} alt="" className="absolute inset-0 h-full w-full object-cover opacity-20" /><div className="absolute inset-0 bg-[#d5f36a]/85" /><div className="relative mx-auto max-w-4xl"><h3 className="text-5xl font-semibold tracking-[-0.06em] md:text-8xl">Reflection</h3><p className="mx-auto mt-8 max-w-2xl text-lg leading-8 text-[#11140d]/85">The four person team completed the main game loop in about two weeks of active development. The work identified problems in the original interface structure, shared data, and script boundaries. AI assistance was used for parts of the scripting. A future project should implement more of this logic without assistance.</p></div></section>
+        <section id="reflection" data-case-study-chapter className="scroll-mt-16 relative overflow-hidden bg-[#d5f36a] px-5 py-32 text-center text-[#11140d] md:px-8 md:py-44"><img src={everdewImage("farm-street.png")} alt="" className="absolute inset-0 h-full w-full object-cover opacity-20" /><div className="absolute inset-0 bg-[#d5f36a]/85" /><div className="relative mx-auto max-w-4xl"><h3 className="text-5xl font-semibold tracking-[-0.06em] md:text-8xl">Reflection</h3><p className="mx-auto mt-8 max-w-2xl text-lg leading-8 text-[#11140d]/85">As a four person team, we completed the main game loop in about two weeks of active development. Reworking the interface, shared item data, and script boundaries showed me where the first structure was making new features harder to add. I used AI assistance for parts of the scripting, so one of my goals for a future project is to implement more of that logic independently and make sure I understand each system fully.</p></div></section>
     </CaseStudyShell>
   );
 }
@@ -981,39 +981,75 @@ const cuboChangelog = [
   { version: "0.1.0", date: "3 January 2026", title: "Test Build", body: ["- Under Development"] },
 ];
 
-const cuboSystems = [
+const cuboProcessStages = [
   {
-    title: "Input and movement",
-    copy: "The controller moved from Unity's legacy Input Manager to the New Input System when controller support and additional actions increased implementation complexity. The movement set includes variable jump height, aerial ground slam, dash, stamina based sprinting, wall climbing, gamepad support, and controller rumble.",
+    title: "Concept and scope",
+    copy: "I began with the idea of a Metroidvania set inside an abandoned crystal mine. Instead of keeping the tutorial in a separate scene, I made it the opening area of one connected map. My initial scope included a slam attack, dash movement, two bosses, several enemies, chests, and enough environmental detail to make the cave feel like one place.",
+  },
+  {
+    title: "Art direction and scope change",
+    copy: "I looked at Hollow Knight for its connected cave setting and atmosphere, Celeste for readable platforming spaces, and Rayman Legends for layered environments and lighting contrast. My first detailed character sprites took too long to animate, so I simplified the player into a cube and used the saved time to improve the movement and gameplay logic.",
+  },
+  {
+    title: "Environment assets",
+    copy: "I started the art production in Aseprite by creating rocky ground tiles, foliage, crates, minecarts, platforms, crystals, lanterns, and other mine props. These assets gave me enough material to build the first playable rooms, and I revised them as the connected map became larger.",
+  },
+  {
+    title: "Player movement prototype",
+    copy: "My first controller used Unity's legacy Input Manager. When I needed gamepad support and more actions, I moved it to the New Input System instead of extending the older setup. I gradually added variable jump height, dashing, the ground slam, sprinting, wall climbing, and the Time Dash, with the Animator coordinating how those movement states connect.",
+  },
+  {
+    title: "Lighting and atmosphere",
+    copy: "Once the core movement was working, I developed the atmosphere with Global Light 2D, a Global Volume for post processing, local lights, animated candle sprites, and firefly particles. I also created a water reflection with a custom shader and a secondary camera, then added ripple and distortion effects so the surface did not look static.",
+  },
+  {
+    title: "Interactions and level structure",
+    copy: "As the map expanded, I added pickups, chests, contextual prompts, damage numbers, respawn points, bounce mushrooms, hazards, and camera bounds. I replaced an overly complex elevator implementation with a lever controlled version that was easier to understand and maintain. I then used a generator and linked platform to create a final return objective in the opening area.",
   },
   {
     title: "Combat and player feedback",
-    copy: "Ground slam serves as the primary attack and traversal action. Enemy hits trigger a white damage flash shader. Player damage triggers screen shake and a red screen flash. Supporting feedback includes a smooth health bar, stamina, floating damage numbers, respawn fades, temporary invulnerability during Soul Charge, and tuned knockback and stun timing.",
+    copy: "I used a patrolling enemy as the first combat test and made it vulnerable only to the ground slam so the attack had a clear purpose. A white flash shader confirms enemy hits, while screen shake and a red flash show when the player takes damage. Health, stamina, floating damage numbers, and fade transitions then support the full damage and respawn flow.",
   },
   {
-    title: "World interactions",
-    copy: "Contextual triggers introduce mechanics in the level. Chests support exploration, spike traps constrain movement, gates define boss arenas, and a lever controlled elevator operates between floors before resetting when idle.",
+    title: "Grump Rock",
+    copy: "Grump Rock began as a rolling rock sprite with a simple tracking script. I developed it into a gated encounter where the arena tests the player's jump and slam timing. Below half health, the boss launches crystal shards, while a parry window rewards more precise timing. Defeating it opens the arena and gives the player the Boulder Key.",
   },
   {
-    title: "Enemy behaviours",
-    copy: "The enemy roster includes patrol enemies, wall crawling Crystal Crawlers, spear throwing guards, patrolling mushroom enemies, and two multi phase bosses. Respawn timing, health, knockback, bounce height, and arena placement received later balancing passes.",
+    title: "Shackled Bomber",
+    copy: "Shackled Bomber began as a projectile prototype, and I used debug logs to isolate problems in the dynamite targeting logic. I then added the explosion animation, Soul Essence collection, Soul Charge, a dedicated arena, and a second phase. I removed an early hanging chain system because its rotation remained inconsistent and was making the encounter less reliable.",
   },
   {
-    title: "Interface and accessibility",
-    copy: "The main and pause menus share controls for master volume, fullscreen mode, and resolution. Cursor state changes between gameplay and menu states. Tutorial prompts are contextual. The title screen uses Cubo as the letter O, with mouse tracking implemented through raycasts.",
+    title: "Playtesting and balance",
+    copy: "Testing showed me that the player could not avoid repeated dynamite attacks reliably. I replaced the ground dash with a stamina based sprint for this encounter and gave Soul Charge temporary invulnerability during its attack animation. I also adjusted boss health, projectile frequency, knockback, stun duration, and the arena layouts after further playtests.",
   },
   {
-    title: "Replay and completion",
-    copy: "An optional speedrun timer records runtime and best completion time. Later releases added total death tracking to the end screen. Completion requires both bosses, the Power Supply, and activation of the generator in the opening area.",
+    title: "Enemy and hazard expansion",
+    copy: "During the later production pass, I added the Spear Guard, the wall crawling Crystal Crawler, falling stalactites, spike traps, and more patrol enemies. I changed the Crystal Crawler from manual wall checks to automatic ground and wall detection so it could move around the tile map more reliably.",
+  },
+  {
+    title: "Progression and completion",
+    copy: "I used the Boulder Key gate to connect the two boss encounters. After defeating Shackled Bomber, the player collects the Power Supply and returns to the generator near the opening. Activating the connected platform starts the end sequence and completes the route from the tutorial to the final objective.",
+  },
+  {
+    title: "Menus and final details",
+    copy: "In the final production stage, I added the pause menu, main menu, volume, fullscreen and resolution options, a speedrun timer, tutorial triggers, and menu particles. I used the player sprite as the letter O in the title and made its eyes follow the cursor through a raycast. My final testing covered the display settings, menu input, respawns, and the completion sequence.",
+  },
+  {
+    title: "Release iteration",
+    copy: "After the initial submission, I continued updating the project instead of leaving the first build unchanged. I synchronised settings across scenes, repaired missing tiles and moving platforms, improved fullscreen and cursor behaviour, fixed gold and spawn issues, and adjusted safe point triggers. Later updates rebalanced enemies and bosses, revised the Grump Rock arena, added death tracking, refined the tutorials and menus, and corrected the timer and version displays.",
+  },
+  {
+    title: "Project organisation",
+    copy: "Throughout development, I separated scenes, sprites, animation, enemies, interface elements, and scripts in the Unity hierarchy and asset folders. GitHub recorded the project history and later releases. I also used debug logs and repeated in game tests to find problems with boss targeting, interactions, movement, and interface behaviour.",
   },
 ];
 
 const cuboFlow = [
-  ["Tutorial", "Contextual triggers introduce movement, interaction, damage, and ground slam before the route opens into the cave environment."],
-  ["Exploration", "Caves, elevators, hazards, enemies, chests, and vertical routes form the primary exploration spaces."],
-  ["First boss", "Grump Rock uses rolling attacks and shard projectiles. Successful timing awards the Boulder Key."],
-  ["Second boss", "The Boulder Key grants access to Shackled Bomber. The encounter combines dynamite avoidance, Soul Essence collection, and Soul Charge."],
-  ["Completion", "The Power Supply returns to the opening generator after the second boss encounter."],
+  ["Tutorial", "I use contextual triggers to introduce movement, interaction, damage, and the ground slam before the route opens into the wider cave environment."],
+  ["Exploration", "The main exploration spaces combine caves, elevators, hazards, enemies, chests, and vertical routes so the player regularly changes how they move through the map."],
+  ["First boss", "Grump Rock tests the player's timing through rolling attacks and shard projectiles. Defeating it rewards the Boulder Key and opens the next part of the progression route."],
+  ["Second boss", "The Boulder Key gives the player access to Shackled Bomber, where the encounter combines dynamite avoidance, Soul Essence collection, and the Soul Charge attack."],
+  ["Completion", "After the second boss, the player takes the Power Supply back to the opening generator and uses it to complete the final objective."],
 ];
 
 function CuboResearchSection() {
@@ -1021,12 +1057,12 @@ function CuboResearchSection() {
     <section id="research" data-case-study-chapter className="scroll-mt-16 bg-[#f0e9df] px-5 py-32 text-[#1c1613] md:px-8 md:py-44">
       <div className="mx-auto max-w-7xl">
         <h3 className="max-w-6xl text-5xl font-semibold leading-[0.98] tracking-[-0.055em] md:text-8xl">Research</h3>
-        <p className="mt-14 max-w-5xl text-2xl leading-[1.45] tracking-[-0.02em] text-[#1c1613] md:text-4xl">Research covered the development of 2D games and the Metroidvania genre, using Metroid, Hollow Knight, and Axiom Verge as examples.</p>
+        <p className="mt-14 max-w-5xl text-2xl leading-[1.45] tracking-[-0.02em] text-[#1c1613] md:text-4xl">I researched the development of 2D games and the Metroidvania genre, using Metroid, Hollow Knight, and Axiom Verge to understand how exploration and ability based progression work together.</p>
         <div className="mt-24 grid grid-flow-dense gap-12 border-t border-[#1c1613]/18 pt-12 md:grid-cols-2 lg:grid-cols-4">
-          <article><h4 className="text-xl font-semibold">2D games</h4><p className="mt-4 leading-7 text-[#1c1613]/66">Early games used 2D graphics and pixel art because of hardware limits. Pixel art later became a deliberate visual choice rather than only a technical limitation.</p></article>
-          <article><h4 className="text-xl font-semibold">Metroid</h4><p className="mt-4 leading-7 text-[#1c1613]/66">Metroid, released in 1986, established non-linear exploration and power-up gating. New items and abilities gave access to previously unavailable areas.</p></article>
-          <article><h4 className="text-xl font-semibold">Modern examples</h4><p className="mt-4 leading-7 text-[#1c1613]/66">Hollow Knight and Axiom Verge use acquired abilities to open routes and support revisiting earlier areas. This structure rewards exploration and shows player growth.</p></article>
-          <article><h4 className="text-xl font-semibold">Story and art</h4><p className="mt-4 leading-7 text-[#1c1613]/66">Environmental storytelling uses atmosphere, clues, and secrets instead of relying on dialogue. The research also considered pixel art, painterly 2.5D, vector art, and hand-drawn styles.</p></article>
+          <article><h4 className="text-xl font-semibold">2D games</h4><p className="mt-4 leading-7 text-[#1c1613]/66">Early games relied on 2D graphics and pixel art because of hardware limits. Looking at later games showed me how pixel art developed into an intentional visual style rather than remaining only a technical compromise.</p></article>
+          <article><h4 className="text-xl font-semibold">Metroid</h4><p className="mt-4 leading-7 text-[#1c1613]/66">Metroid, released in 1986, helped establish non linear exploration and ability based gating. I used this structure as a reference for how new items and abilities can make earlier areas worth revisiting.</p></article>
+          <article><h4 className="text-xl font-semibold">Modern examples</h4><p className="mt-4 leading-7 text-[#1c1613]/66">Hollow Knight and Axiom Verge both use acquired abilities to open routes that were previously unavailable. These examples helped me understand how exploration can show the player's growth instead of acting as a separate activity.</p></article>
+          <article><h4 className="text-xl font-semibold">Story and art</h4><p className="mt-4 leading-7 text-[#1c1613]/66">I looked at how atmosphere, environmental clues, and hidden details can communicate story without relying entirely on dialogue. I also compared pixel art, painterly 2.5D, vector art, and hand drawn styles before settling on the direction for Cubo.</p></article>
         </div>
       </div>
     </section>
@@ -1112,11 +1148,11 @@ function CuboProjectView({
           <div className="grid gap-14 lg:grid-cols-[0.72fr_1.28fr] lg:items-start">
             <div>
               <h3 className="text-5xl font-semibold tracking-[-0.05em] md:text-7xl">Overview</h3>
-              <p className="mt-7 text-lg leading-8 text-white/60">Solo 2D game coursework project. The brief required an essay, two level plans, original tiles and character art, a Unity tutorial level, and a gameplay recording. Initial submission: February 2026.</p>
+              <p className="mt-7 text-lg leading-8 text-white/60">I began Cubo as a solo 2D game coursework project. The original brief required an essay, two level plans, original tile and character art, a Unity tutorial level, and a gameplay recording, which I submitted in February 2026 before continuing to expand the game.</p>
             </div>
             <div className="grid grid-flow-dense gap-4 sm:grid-cols-2">
-              <article className="rounded-[24px] bg-[#21120e] p-7"><h4 className="text-2xl font-semibold">Tools</h4><p className="mt-4 leading-7 text-white/62">Unity, GitHub, and Aseprite.</p></article>
-              <article className="rounded-[24px] bg-[#d95f27] p-7 text-[#1b0d08] sm:col-span-2"><h4 className="text-2xl font-semibold">Delivered</h4><p className="mt-4 max-w-3xl leading-7 text-[#1b0d08]/76">The coursework evidence includes research, level planning, original environment assets, Unity implementation, and gameplay recordings.</p></article>
+              <article className="rounded-[24px] bg-[#21120e] p-7"><h4 className="text-2xl font-semibold">Tools</h4><p className="mt-4 leading-7 text-white/62">I used Unity to build the game, Aseprite to create the pixel art, and GitHub to track the project as it developed.</p></article>
+              <article className="rounded-[24px] bg-[#d95f27] p-7 text-[#1b0d08] sm:col-span-2"><h4 className="text-2xl font-semibold">Delivered</h4><p className="mt-4 max-w-3xl leading-7 text-[#1b0d08]/76">For the coursework submission, I delivered the supporting research, level plans, original environment assets, Unity implementation, and gameplay recordings that documented the working tutorial level.</p></article>
             </div>
           </div>
         </section>
@@ -1125,92 +1161,38 @@ function CuboProjectView({
 
         <section id="experience" data-case-study-chapter className="scroll-mt-16 mx-auto max-w-7xl px-5 py-32 md:px-8 md:py-44">
           <div className="mb-14 max-w-4xl">
-            <h3 className="text-4xl font-semibold tracking-[-0.045em] md:text-7xl">Gameplay</h3>
-            <p className="mt-7 max-w-2xl text-lg leading-8 text-white/62">Ground slam connects movement and combat. Supporting systems introduce the action, apply it across encounters, and provide alternatives for boss specific requirements.</p>
+            <h3 className="text-4xl font-semibold tracking-[-0.045em] md:text-7xl">Project Details</h3>
+            <p className="mt-7 max-w-2xl text-lg leading-8 text-white/62">I built the experience around a ground slam, fluid movement, combat, exploration, and progression. Bounce mushrooms and hazards change how the player moves through the cave, while harder enemies, keys, and resources give them reasons to explore beyond the main route.</p>
           </div>
           <div className="grid grid-flow-dense gap-0 overflow-hidden rounded-[24px] md:grid-cols-4 md:grid-rows-2">
             <article className="relative min-h-[34rem] overflow-hidden md:col-span-2 md:row-span-2">
               <img src={cuboImage("ground-slam-cubo.png")} alt="Cubo using the ground slam against enemies in the crystal mine" className="h-full w-full object-cover transition-transform duration-700 ease-out hover:scale-105" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/86 via-black/10 to-transparent" />
-              <div className="absolute inset-x-0 bottom-0 p-7 md:p-9"><h4 className="text-3xl font-semibold">Ground slam combat</h4><p className="mt-3 max-w-lg leading-7 text-white/70">Aerial descent attack used against regular enemies, traversal obstacles, and Grump Rock.</p></div>
+              <div className="absolute inset-x-0 bottom-0 p-7 md:p-9"><h4 className="text-3xl font-semibold">Ground slam combat</h4><p className="mt-3 max-w-lg leading-7 text-white/70">The ground slam lets the player descend quickly from the air and is used against regular enemies, traversal obstacles, and the Grump Rock boss.</p></div>
             </article>
-            <article className="min-h-[17rem] bg-[#21120e] p-7 md:col-span-2 md:p-9"><h4 className="text-3xl font-semibold">Movement</h4><p className="mt-4 max-w-xl leading-7 text-white/65">Variable jumps, dashing, wall climbing, sprinting, and controller rumble support traversal. Stamina based sprinting replaced ground dash during balancing for the second boss.</p></article>
-            <article className="min-h-[17rem] bg-[#d95f27] p-7 text-[#1b0d08] md:p-9"><h4 className="text-2xl font-semibold">Atmosphere</h4><p className="mt-4 leading-7 text-[#1b0d08]/76">Global Light 2D, spotlights, vignette, animated candles, fireflies, and reflected water define the mine's visual treatment.</p></article>
-            <article className="min-h-[17rem] bg-[#181515] p-7 md:p-9"><h4 className="text-2xl font-semibold">Player systems</h4><p className="mt-4 leading-7 text-white/62">Health, stamina, respawning, i-frames, damage numbers, tutorial triggers, settings, and optional speedrun timing support the full loop.</p></article>
-          </div>
-        </section>
-
-        <section id="process" data-case-study-chapter className="scroll-mt-16 bg-[#151110] px-5 py-32 md:px-8 md:py-44">
-          <div className="mx-auto max-w-7xl">
-            <div className="max-w-5xl"><h3 className="text-5xl font-semibold tracking-[-0.05em] md:text-8xl">Process</h3><p className="mt-7 max-w-3xl text-lg leading-8 text-white/60">Development progressed from a movement prototype to a complete gameplay loop. Implementation and playtesting informed subsequent system changes.</p></div>
-            <div className="mt-20 border-y border-white/12">
-              {cuboSystems.map((system) => (
-                <article key={system.title} className="grid gap-4 border-b border-white/12 py-9 last:border-b-0 md:grid-cols-[0.7fr_1.3fr] md:gap-16 md:py-12">
-                  <h4 className="text-2xl font-semibold md:text-3xl">{system.title}</h4>
-                  <p className="max-w-3xl text-base leading-8 text-white/62">{system.copy}</p>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="mx-auto max-w-7xl px-5 py-32 md:px-8 md:py-44">
-          <div>
-            <div className="max-w-3xl"><h3 className="text-5xl font-semibold tracking-[-0.05em] md:text-7xl">Engineering decisions</h3><p className="mt-7 text-lg leading-8 text-white/60">System changes addressed implementation limits, complexity, and playtesting findings.</p></div>
-            <div className="mt-16 grid gap-14 lg:grid-cols-2 lg:gap-x-16 lg:gap-y-20">
-              <article><h4 className="text-2xl font-semibold">Input system</h4><p className="mt-4 leading-8 text-white/62">The legacy Input Manager supported initial movement but became difficult to maintain with controller support, rumble, variable jump height, ground slam, and dashing. The New Input System standardised keyboard and gamepad actions.</p></article>
-              <article><h4 className="text-2xl font-semibold">Elevator system</h4><p className="mt-4 leading-8 text-white/62">The initial tutorial based elevator implementation introduced unnecessary complexity and customisation errors. A smaller modular script added lever calls between floors and reset logic for idle states. ChatGPT assisted with targeted implementation refinement.</p></article>
-              <article><h4 className="text-2xl font-semibold">Projectile debugging</h4><p className="mt-4 leading-8 text-white/62">Debug logs isolated targeting errors in Shackled Bomber's dynamite projectiles. Arena testing verified the changes. The same debugging process supported the damage flash shader and related feedback scripts.</p></article>
-              <article><h4 className="text-2xl font-semibold">Playtesting</h4><p className="mt-4 leading-8 text-white/62">Testing identified insufficient ground movement control against repeated dynamite attacks. Stamina based sprinting replaced ground dash. Soul Charge received temporary invulnerability to preserve attack completion during contact.</p></article>
-            </div>
-          </div>
-        </section>
-
-        <section className="cubo-story mx-auto max-w-7xl px-5 py-32 md:px-8 md:py-44">
-          <div className="max-w-3xl">
-            <h3 className="text-5xl font-semibold tracking-[-0.05em] md:text-7xl">Level design</h3>
-            <p className="mt-7 text-lg leading-8 text-white/58">The brief specified separate tutorial and first level plans. The final build integrates the tutorial route into the main scene before exploration begins.</p>
-          </div>
-          <div className="mt-16 grid gap-12 md:grid-cols-2 md:gap-16">
-            <figure className="md:col-span-2">
-              <div className="cubo-scroll-image overflow-hidden rounded-[22px] bg-black"><img src={cuboImage("Map - Cubo.png")} alt="Wide view of Cubo's connected cave map" className="aspect-video w-full object-cover" /></div>
-              <figcaption className="mt-5 max-w-2xl text-base leading-7 text-white/58">The connected layout integrates the tutorial route with vertical paths, hazards, chests, and gated encounters.</figcaption>
-            </figure>
-            <figure>
-              <div className="cubo-scroll-image overflow-hidden rounded-[22px] bg-black"><img src={cuboImage("elevator-cubo.png")} alt="Cubo beside the elevator lever in the crystal mine" className="aspect-video w-full object-cover" /></div>
-              <figcaption className="mt-5 max-w-2xl text-base leading-7 text-white/58">A modular lever system calls the elevator between floors and returns it to its starting position when it is no longer needed.</figcaption>
-            </figure>
-            <figure>
-              <div className="cubo-scroll-image overflow-hidden rounded-[22px] bg-black"><img src={cuboImage("player-animator-cubo.png")} alt="Unity Animator graph for Cubo's player movement states" className="aspect-video w-full object-cover" /></div>
-              <figcaption className="mt-5 max-w-2xl text-base leading-7 text-white/58">The New Input System supports keyboard and gamepad while the Animator coordinates idle, run, jump, landing, dash, and slam states.</figcaption>
-            </figure>
-          </div>
-        </section>
-
-        <section id="extras" data-case-study-chapter className="scroll-mt-16 mx-auto max-w-7xl px-5 pt-32 md:px-8 md:pt-44">
-          <div className="border-b border-white/12 pb-16 md:pb-20">
-            <h3 className="text-5xl font-semibold tracking-[-0.05em] md:text-8xl">Extras</h3>
-            <p className="mt-7 max-w-2xl text-lg leading-8 text-white/60">Boss encounters, progression, interface, and development workflow.</p>
+            <article className="min-h-[17rem] bg-[#21120e] p-7 md:col-span-2 md:p-9"><h4 className="text-3xl font-semibold">Movement</h4><p className="mt-4 max-w-xl leading-7 text-white/65">The movement system combines variable jumps, dashing, wall climbing, sprinting, and a time dash so the player has different ways to cross the cave and recover from difficult jumps.</p></article>
+            <article className="min-h-[17rem] bg-[#d95f27] p-7 text-[#1b0d08] md:p-9"><h4 className="text-2xl font-semibold">Atmosphere</h4><p className="mt-4 leading-7 text-[#1b0d08]/76">I used global lights, post processing through a Global Volume, animated sprites, and a custom water reflection to give the cave more depth and movement.</p></article>
+            <article className="min-h-[17rem] bg-[#181515] p-7 md:p-9"><h4 className="text-2xl font-semibold">Player systems</h4><p className="mt-4 leading-7 text-white/62">Health and stamina support the combat and movement systems, while respawning returns the player to a safe point after a failed section.</p></article>
           </div>
         </section>
 
         <section id="cubo-bosses" className="mx-auto max-w-7xl px-5 pb-32 pt-16 md:px-8 md:pb-44 md:pt-20">
-          <div className="max-w-4xl"><h3 className="text-5xl font-semibold tracking-[-0.05em] md:text-7xl">Bosses</h3><p className="mt-7 max-w-2xl text-lg leading-8 text-white/60">Each encounter tests a different combat action and controls progression.</p></div>
+          <div className="max-w-4xl"><h3 className="text-5xl font-semibold tracking-[-0.05em] md:text-7xl">Bosses</h3><p className="mt-7 max-w-2xl text-lg leading-8 text-white/60">I designed each boss encounter to test a different part of the combat system while also controlling how the player progresses through the cave.</p></div>
           <div className="mt-16 flex flex-col gap-4 lg:h-[34rem] lg:flex-row">
             <article className="group relative min-h-[28rem] flex-1 overflow-hidden rounded-[24px] transition-[flex] duration-700 ease-out hover:flex-[1.35]">
               <img src={cuboImage("Grump Rock Boss - Cubo.png")} alt="Grump Rock rolling toward Cubo" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/12 to-transparent" />
-              <div className="absolute inset-x-0 bottom-0 p-7 md:p-9"><h4 className="text-3xl font-semibold">Grump Rock</h4><p className="mt-3 max-w-xl leading-7 text-white/70">Arena gates close during the encounter. The boss tracks and rolls toward the player. Ground slam timing counters the attack. A parry ring adds bonus damage. Phase two introduces crystal shards. Victory grants the Boulder Key.</p></div>
+              <div className="absolute inset-x-0 bottom-0 p-7 md:p-9"><h4 className="text-3xl font-semibold">Grump Rock</h4><p className="mt-3 max-w-xl leading-7 text-white/70">When the encounter begins, the arena gates close and Grump Rock starts tracking and rolling toward the player. The player has to time the ground slam to counter the attack, while a smaller parry window rewards more precise timing with extra damage. Below half health, the boss adds crystal shards, and defeating it rewards the Boulder Key.</p></div>
             </article>
             <article className="group relative min-h-[28rem] flex-1 overflow-hidden rounded-[24px] transition-[flex] duration-700 ease-out hover:flex-[1.35]">
               <img src={cuboImage("Shackled Bomber Boss - Cubo.jpg")} alt="Cubo facing the suspended Shackled Bomber" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/12 to-transparent" />
-              <div className="absolute inset-x-0 bottom-0 p-7 md:p-9"><h4 className="text-3xl font-semibold">Shackled Bomber</h4><p className="mt-3 max-w-xl leading-7 text-white/70">The Boulder Key unlocks a ceiling mounted boss. The encounter combines dynamite avoidance, three Soul Essences, and Soul Charge. In phase two the boss moves to the arena floor, returning combat to ground slam timing.</p></div>
+              <div className="absolute inset-x-0 bottom-0 p-7 md:p-9"><h4 className="text-3xl font-semibold">Shackled Bomber</h4><p className="mt-3 max-w-xl leading-7 text-white/70">The Boulder Key unlocks the room containing this ceiling mounted boss. During the first phase, the player avoids dynamite, collects three Soul Essences, and uses Soul Charge to attack. In the second phase, the boss moves down to the arena floor and brings the combat back to ground slam timing.</p></div>
             </article>
           </div>
           <div className="mt-16 grid gap-10 border-t border-white/12 pt-12 md:grid-cols-2">
-            <article><h4 className="text-2xl font-semibold">Boss mechanics</h4><p className="mt-4 leading-8 text-white/62">Reference research included attacks that match specific enemy conditions, such as Howling Wraiths against Flukemarm and missiles against Kraid's open mouth. Grump Rock requires ground slam timing against a rolling attack.</p></article>
-            <article><h4 className="text-2xl font-semibold">Boss progression</h4><p className="mt-4 leading-8 text-white/62">Grump Rock introduces the core attack and awards access to Shackled Bomber. The second encounter introduces resource collection and projectile combat before returning to ground slam timing in the final phase.</p></article>
+            <article><h4 className="text-2xl font-semibold">Boss mechanics</h4><p className="mt-4 leading-8 text-white/62">I researched attacks that only work under specific enemy conditions, including Howling Wraiths against Flukemarm and missiles against Kraid's open mouth. I applied the same principle to Grump Rock by making the player time the ground slam against its rolling attack.</p></article>
+            <article><h4 className="text-2xl font-semibold">Boss progression</h4><p className="mt-4 leading-8 text-white/62">Grump Rock introduces the main combat action and rewards the key needed to reach Shackled Bomber. The second encounter adds resource collection and projectile combat before returning to ground slam timing in its final phase.</p></article>
           </div>
         </section>
 
@@ -1231,7 +1213,7 @@ function CuboProjectView({
         <section id="cubo-interface" className="bg-[#f0e9df] px-5 py-32 text-[#1c1613] md:px-8 md:py-44">
           <div className="mx-auto max-w-7xl">
             <div className="grid gap-14 lg:grid-cols-[0.72fr_1.28fr] lg:items-end">
-              <div><h3 className="text-5xl font-semibold tracking-[-0.05em] md:text-7xl">Interface</h3><p className="mt-7 text-lg leading-8 text-[#1c1613]/62">Main and pause menus provide master volume, fullscreen, and resolution controls. Settings synchronise across scenes. Cursor state changes between gameplay and menu states. Later updates protected button input after display changes.</p><p className="mt-5 text-lg leading-8 text-[#1c1613]/62">The optional speedrun timer records runtime and best completion time. Later builds added total death tracking to the end screen. The title screen replaces the letter O with Cubo and applies mouse tracking through raycasts.</p></div>
+              <div><h3 className="text-5xl font-semibold tracking-[-0.05em] md:text-7xl">Interface</h3><p className="mt-7 text-lg leading-8 text-[#1c1613]/62">I created main and pause menus with controls for the master volume, fullscreen mode, and resolution. The settings remain synchronised across scenes, while the cursor changes between locked gameplay and visible menu states. In later updates, I also protected the button input from breaking after display changes.</p><p className="mt-5 text-lg leading-8 text-[#1c1613]/62">The optional speedrun timer records the current run and the best completion time, and later builds added total death tracking to the end screen. On the title screen, I replaced the letter O with Cubo and used raycasts to make the character's eyes follow the cursor.</p></div>
               <div className="min-w-0">
                 <div className="mb-4 flex items-center justify-between gap-4">
                   <p className="text-sm font-semibold text-[#1c1613]/58">Menu and settings screens</p>
@@ -1260,10 +1242,45 @@ function CuboProjectView({
           </div>
         </section>
 
+        <section id="process" data-case-study-chapter className="scroll-mt-16 bg-[#151110] px-5 py-32 md:px-8 md:py-44">
+          <div className="mx-auto max-w-7xl">
+            <div className="max-w-5xl"><h3 className="text-5xl font-semibold tracking-[-0.05em] md:text-8xl">Process</h3><p className="mt-7 max-w-3xl text-lg leading-8 text-white/60">I began with the idea of one connected cave and developed it through art production, movement tests, level assembly, combat, bosses, and interface work. After completing the first build, I continued improving the project through later release updates.</p></div>
+            <div className="mt-20 border-y border-white/12">
+              {cuboProcessStages.map((stage) => (
+                <article key={stage.title} className="grid gap-4 border-b border-white/12 py-9 last:border-b-0 md:grid-cols-[0.7fr_1.3fr] md:gap-16 md:py-12">
+                  <h4 className="text-2xl font-semibold md:text-3xl">{stage.title}</h4>
+                  <p className="max-w-3xl text-base leading-8 text-white/62">{stage.copy}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="cubo-story mx-auto max-w-7xl px-5 py-32 md:px-8 md:py-44">
+          <div className="max-w-3xl">
+            <h3 className="text-5xl font-semibold tracking-[-0.05em] md:text-7xl">Development evidence</h3>
+            <p className="mt-7 text-lg leading-8 text-white/58">These examples show three parts of my production process and explain how I organised the connected map, coordinated the player movement states, and simplified the elevator system.</p>
+          </div>
+          <div className="mt-16 grid gap-12 md:grid-cols-2 md:gap-16">
+            <figure className="md:col-span-2">
+              <div className="cubo-scroll-image overflow-hidden rounded-[22px] bg-black"><img src={cuboImage("Map - Cubo.png")} alt="Wide view of Cubo's connected cave map" className="aspect-video w-full object-cover" /></div>
+              <figcaption className="mt-5 max-w-2xl text-base leading-7 text-white/58">I kept the tutorial, exploration routes, hazards, chests, boss gates, and final return objective inside one connected scene so progress through the cave feels continuous.</figcaption>
+            </figure>
+            <figure>
+              <div className="cubo-scroll-image overflow-hidden rounded-[22px] bg-black"><img src={cuboImage("elevator-cubo.png")} alt="Cubo beside the elevator lever in the crystal mine" className="aspect-video w-full object-cover" /></div>
+              <figcaption className="mt-5 max-w-2xl text-base leading-7 text-white/58">I revised the elevator so the player can use a lever to call the platform between floors, with the system resetting after each journey.</figcaption>
+            </figure>
+            <figure>
+              <div className="cubo-scroll-image overflow-hidden rounded-[22px] bg-black"><img src={cuboImage("player-animator-cubo.png")} alt="Unity Animator graph for Cubo's player movement states" className="aspect-video w-full object-cover" /></div>
+              <figcaption className="mt-5 max-w-2xl text-base leading-7 text-white/58">After moving to the New Input System, I used the player Animator to coordinate the idle, run, jump, landing, dash, and slam states.</figcaption>
+            </figure>
+          </div>
+        </section>
+
         <section id="cubo-workflow" className="mx-auto max-w-7xl px-5 py-32 md:px-8 md:py-44">
           <div className="grid gap-14 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
             <div className="cubo-scroll-image overflow-hidden rounded-[24px]"><img src={cuboImage("Github Version Control - Cubo.png")} alt="Cubo's private GitHub repository and organised Unity project history" width="1881" height="993" className="aspect-[32/17] w-full object-cover" /></div>
-            <div><h3 className="text-5xl font-semibold tracking-[-0.05em] md:text-7xl">Development workflow</h3><p className="mt-7 text-lg leading-8 text-white/60">The Unity hierarchy was organised by function. Assets were separated into scenes, sprites, animation, enemies, interface elements, and scripts.</p><p className="mt-5 text-lg leading-8 text-white/60">GitHub tracked development and later releases. Player and enemy behaviours used separate scripts. Debug logs isolated targeting and interaction issues before in game testing.</p></div>
+            <div><h3 className="text-5xl font-semibold tracking-[-0.05em] md:text-7xl">Development workflow</h3><p className="mt-7 text-lg leading-8 text-white/60">I organised the Unity hierarchy by function and separated the assets into scenes, sprites, animation, enemies, interface elements, and scripts. This made the project easier to navigate as the cave and its systems expanded.</p><p className="mt-5 text-lg leading-8 text-white/60">I used GitHub to track development and the later releases. Player and enemy behaviours remained in separate scripts, and I used debug logs to isolate targeting and interaction issues before testing them in the game.</p></div>
           </div>
         </section>
 
@@ -1317,7 +1334,7 @@ function CuboProjectView({
         <section id="reflection" data-case-study-chapter className="scroll-mt-16 relative overflow-hidden px-5 py-24 text-center md:px-8 md:py-32">
           <img src={cuboImage("Screenshot 2026-11-25 093118.png")} alt="Cubo exploring the Crystal Caverns" className="absolute inset-0 h-full w-full object-cover opacity-30" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(11,9,9,0.28),#0b0909_78%)]" />
-          <div className="relative mx-auto max-w-4xl"><h3 className="text-5xl font-semibold tracking-[-0.055em] md:text-8xl">Reflection</h3><p className="mx-auto mt-8 max-w-2xl text-lg leading-8 text-white/66">The assignment established requirements for research, level planning, original art, and basic movement. The project later expanded to a connected world with revised input, level layouts, and boss encounters. I reduced character art complexity to protect implementation time, replaced the input system to support controller features, and changed ground movement after second boss testing.</p><p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-white/66">Save and load support was excluded from the initial submission because of the deadline. Version 0.4.0 added four managed save slots and updated tutorial persistence. Character animation remains incomplete. Several enemies lack dedicated attack and stun states. Future work should add those states and review combat timing.</p></div>
+          <div className="relative mx-auto max-w-4xl"><h3 className="text-5xl font-semibold tracking-[-0.055em] md:text-8xl">Reflection</h3><p className="mx-auto mt-8 max-w-2xl text-lg leading-8 text-white/66">The assignment originally required research, level planning, original art, and basic movement, but I later expanded the project into a connected world with revised input, new level layouts, and boss encounters. To protect the implementation time, I reduced the complexity of the character art, replaced the input system so I could support controller features, and changed the ground movement after testing the second boss.</p><p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-white/66">I left save and load support out of the initial submission because of the deadline, then added four managed save slots and updated tutorial persistence in version 0.4.0. Character animation is still incomplete, and several enemies do not yet have their own attack and stun states. My next step would be to add those states and review the combat timing across the full game.</p></div>
         </section>
     </CaseStudyShell>
   );

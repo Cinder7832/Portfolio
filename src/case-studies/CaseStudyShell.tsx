@@ -38,7 +38,8 @@ export default function CaseStudyShell({
         return;
       }
       const rootTop = root.getBoundingClientRect().top;
-      const chapterLine = rootTop + 80;
+      const navigationHeight = root.querySelector<HTMLElement>("nav")?.offsetHeight ?? 64;
+      const chapterLine = rootTop + navigationHeight + 32;
       let current: CaseStudyChapter | null = null;
 
       for (const section of sections) {
