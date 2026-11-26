@@ -826,7 +826,10 @@ function EverdewProjectView({
     >
       <header className="relative min-h-[42rem] overflow-hidden bg-[#11140d] md:min-h-[52rem]">
         <img src={everdewImage("farm-village.png")} alt="Everdew's farm and village" className="absolute inset-0 h-full w-full scale-[1.02] object-cover object-[68%_center]" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/20 to-black/5" aria-hidden="true" />
+        <div
+          className="absolute inset-0 bg-[linear-gradient(90deg,rgba(17,20,13,0.9)_0%,rgba(17,20,13,0.55)_38%,rgba(17,20,13,0.08)_72%),linear-gradient(0deg,rgba(17,20,13,0.82)_0%,transparent_48%)]"
+          aria-hidden="true"
+        />
         <div className="relative z-10 mx-auto flex min-h-[42rem] max-w-7xl flex-col justify-end px-5 pb-16 pt-28 md:min-h-[52rem] md:px-8 md:pb-24">
           <div>
             <h2 className="max-w-6xl text-[clamp(4rem,13vw,10rem)] font-semibold leading-[0.82] tracking-[-0.07em] text-[#eef6c8]">Everdew</h2>
@@ -1183,7 +1186,7 @@ function CuboProjectView({
     >
       <header className="relative min-h-[42rem] overflow-hidden md:min-h-[52rem]">
         <img src={cuboImage("Cover - Cubo.png")} alt="Cubo cover artwork for Crystal Caverns" className="absolute inset-0 h-full w-full scale-105 object-cover opacity-85" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0b0909]/55 via-[#0b0909]/20 to-[#0b0909]/5" />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(11,9,9,0.9)_0%,rgba(11,9,9,0.55)_38%,rgba(11,9,9,0.08)_72%),linear-gradient(0deg,rgba(11,9,9,0.82)_0%,transparent_48%)]" />
         <div className="relative mx-auto flex min-h-[42rem] max-w-7xl flex-col justify-end px-5 pb-16 pt-28 md:min-h-[52rem] md:px-8 md:pb-24">
           <h2 className="max-w-6xl text-[clamp(4rem,13vw,10rem)] font-semibold leading-[0.82] tracking-[-0.07em] text-white">Cubo</h2>
           <p className="mt-8 max-w-3xl text-lg leading-8 text-white/76">{tagline}</p>

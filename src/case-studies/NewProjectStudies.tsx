@@ -289,6 +289,7 @@ function SectionHeading({ children, intro, design = "editorial", dark = true }: 
 
 function StudyPage({ id, onClose }: { id: StudyId; onClose: () => void }) {
   const config = studies[id];
+  const useStandardHeroOverlay = id === "ravensdown" || id === "forgotten-line";
   const hasExtras = config.deepDives.some((item) => item.placement === "extras");
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const showcaseRef = useRef<HTMLDivElement | null>(null);
@@ -368,7 +369,13 @@ function StudyPage({ id, onClose }: { id: StudyId; onClose: () => void }) {
     <CaseStudyShell definition={caseStudyDefinitions[id]} scrollRef={scrollRef} onClose={onClose} className="text-white" >
       <header className="relative min-h-[42rem] overflow-hidden md:min-h-[52rem]" style={{ background: config.palette.page }}>
         <img src={image(id, config.hero.file)} alt={config.hero.alt} className="absolute inset-0 h-full w-full object-cover opacity-85" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/20 to-black/5" />
+        <div
+          className={
+            useStandardHeroOverlay
+              ? "absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.9)_0%,rgba(0,0,0,0.55)_38%,rgba(0,0,0,0.08)_72%),linear-gradient(0deg,rgba(0,0,0,0.82)_0%,transparent_48%)]"
+              : "absolute inset-0 bg-gradient-to-t from-black/55 via-black/20 to-black/5"
+          }
+        />
         <div className="relative mx-auto flex min-h-[42rem] max-w-7xl flex-col justify-end px-5 pb-16 pt-28 md:min-h-[52rem] md:px-8 md:pb-24">
           <h2 className="max-w-6xl text-[clamp(4rem,13vw,10rem)] font-semibold leading-[0.82] tracking-[-0.07em]">{config.title}</h2>
           <p className="mt-8 max-w-3xl text-lg leading-8 text-white/76">{tagline}</p>
