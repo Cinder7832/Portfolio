@@ -40,6 +40,7 @@ export const caseStudyDefinitions = {
     hero: { label: "Everdew introduction" },
     sections: sharedLabels,
     deepDives: [
+      { id: "everdew-interface", label: "Interface", placement: "experience" },
       { id: "everdew-management", label: "Project management", placement: "process" },
       { id: "everdew-promotion", label: "Promotion", placement: "extras" },
     ],

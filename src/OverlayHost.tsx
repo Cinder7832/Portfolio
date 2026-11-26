@@ -723,6 +723,27 @@ function ArtworkCatalogImageTile({ artwork }: { artwork: Artwork }) {
   );
 }
 
+function ExpandableEvidenceImage({ src, alt, title }: { src: string; alt: string; title: string }) {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <>
+      <div className="relative overflow-hidden">
+        <img src={src} alt={alt} className="aspect-[4/3] w-full object-cover" />
+        <button
+          type="button"
+          className="icon-button-motion absolute bottom-4 right-4 z-10 grid size-11 place-items-center rounded-full bg-white text-ink shadow-[0_18px_44px_rgba(0,0,0,0.28)] hover:bg-[#f5f5f7] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/55"
+          aria-label={`Expand ${title}`}
+          onClick={() => setExpanded(true)}
+        >
+          <Maximize2 size={18} />
+        </button>
+      </div>
+      <ExpandedImageViewer open={expanded} src={src} title={title} onClose={() => setExpanded(false)} />
+    </>
+  );
+}
+
 const everdewReleases = [
   { version: "0.4.2", date: "5 March 2026", title: "Small Adjustments and Fixes", body: ["- Fixed animals respawning after loading a save", "- Improved top down sprite sorting", "- Restored the survival time for pigs, cows, and sheep without food to five days", "- Restored tooltips for seed buttons"] },
   { version: "0.4.1", date: "16 February 2026", title: "Time & Save Fixes", body: ["- Fixed saved time of day", "- Fixed the day counter advancing at midnight", "- Fixed day and night lighting when loading a save", "- Fixed inconsistent clock speeds", "- Fixed shop stock resetting after loading a save", "- Disabled the fade image raycast during loading", "- Removed some nighttime scene lights"] },
@@ -738,13 +759,29 @@ const everdewReleases = [
 ];
 
 const everdewSystems = [
-  ["Farming", "The player prepares field plots, plants crops, waits through the day cycle, and then harvests the produce to sell. We later added drag actions so repeated planting, harvesting, and fertilising did not require a separate click on every tile."],
-  ["Economy", "Our original goal of 10,000 gold was too easy to reach during playtests. We increased the challenge by adjusting crop growth times, prices, shop stock, and the way items restock."],
+  ["Farming", "The player prepares field plots, plants crops, waits through the day cycle, and then harvests the produce to sell. Drag planting, harvesting, and fertilising were added as purchasable perks, allowing players to complete repeated actions without clicking every tile separately."],
+  ["Economy", "Our original goal of 10,000 gold was too easy to reach during playtests. We increased the target to 1,000,000 gold, then adjusted crop growth times, prices, shop stock, and the way items restock."],
   ["Animals", "Feeding the animals allows them to produce eggs or fertiliser. If the player leaves them unfed, they eventually become soul sprites that can be sold during the night."],
   ["Perks", "We stored the upgrades as ScriptableObjects so new perks could be added without rewriting the main purchase system. These upgrades include drag farming, animal access, additional field tiles, faster crop growth, and other bonuses."],
   ["Time", "The day and night cycle changes when different NPCs are available. Players can use a statue to skip the night, and testing led us to reduce its cost from 50 gold to 1 so it remained a useful option."],
   ["Interface", "We created interface screens for the shops, inventory, dialogue, tutorials, perks, display settings, audio controls, and main menu so the full loop could be managed consistently."],
 ];
+
+const everdewInterfaceScreens = [
+  ["interface-main-menu.png", "Everdew title screen with Play, Quit, and Options controls", "Main menu"],
+  ["interface-load-game.png", "Load game screen showing four save slots and their progress details", "Save slots"],
+  ["interface-new-game-confirmation.png", "Confirmation dialog for starting a new game in an empty save slot", "New game confirmation"],
+  ["interface-delete-save-confirmation.png", "Confirmation dialog for deleting an existing save slot", "Delete confirmation"],
+  ["interface-tutorial-choice.png", "Opening screen offering a choice between the tutorial and skipping it", "Tutorial choice"],
+  ["interface-tutorial-guide.png", "Tutorial overlay explaining the village shops over a dimmed game view", "Guided tutorial"],
+  ["interface-pause-settings.png", "Pause menu with volume, fullscreen, and resolution controls", "Pause and settings"],
+  ["interface-inventory.png", "Inventory overlay showing held seeds and usable items", "Inventory"],
+  ["interface-encyclopedia.png", "Animal consumption reference for chickens, cows, sheep, and pigs", "Encyclopedia"],
+  ["interface-perks.png", "Perks screen with category tabs and connected farming upgrades", "Perks"],
+  ["interface-npc-dialogue.png", "Shop conversation with Margaine and Buy, Close, and Sell actions", "NPC dialogue"],
+  ["interface-buy-menu.png", "Buy menu listing seed prices, remaining stock, and restock times", "Buy menu"],
+  ["interface-sell-menu.png", "Sell menu showing the player's available produce and Sell All action", "Sell menu"],
+] as const;
 
 function EverdewProjectView({
   onNavigate,
@@ -755,7 +792,7 @@ function EverdewProjectView({
 }) {
   const rootRef = useRef<HTMLDivElement | null>(null);
   const showcaseRef = useRef<HTMLDivElement | null>(null);
-  const experienceCaptureRef = useRef<HTMLDivElement | null>(null);
+  const interfaceRef = useRef<HTMLDivElement | null>(null);
   const [openChangelogVersion, setOpenChangelogVersion] = useState<string | null>(null);
   const reducedMotion = usePrefersReducedMotion();
   const tagline = projectSummary("everdew", "Everdew is a top down pixel farming game that four of us created during a three week game jam.");
@@ -771,11 +808,11 @@ function EverdewProjectView({
     });
   };
 
-  const scrollExperienceCaptures = (direction: -1 | 1) => {
-    const captures = experienceCaptureRef.current;
-    if (!captures) return;
-    captures.scrollBy({
-      left: direction * Math.min(captures.clientWidth * 0.82, 620),
+  const scrollInterface = (direction: -1 | 1) => {
+    const interfaceRail = interfaceRef.current;
+    if (!interfaceRail) return;
+    interfaceRail.scrollBy({
+      left: direction * Math.min(interfaceRail.clientWidth * 0.86, 760),
       behavior: reducedMotion ? "auto" : "smooth",
     });
   };
@@ -825,6 +862,19 @@ function EverdewProjectView({
           <p className="mt-7 max-w-3xl text-lg leading-8 text-white/68">
             {story}
           </p>
+          <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              ["Brief", "Create an uplifting game around the theme A New Path"],
+              ["Constraints", "Pixel art or low poly, PEGI 7, playable on web or PC"],
+              ["My role", "Environment, game design, programming, and interface design"],
+              ["Delivery", "A playable prototype and promotional poster"],
+            ].map(([title, copy], index) => (
+              <article key={title} className={`rounded-[24px] p-6 ${index === 0 ? "bg-[#d5f36a] text-[#11140d]" : "bg-[#252c1c] text-white"}`}>
+                <h4 className="font-semibold">{title}</h4>
+                <p className={`mt-3 leading-7 ${index === 0 ? "text-[#11140d]/72" : "text-white/62"}`}>{copy}</p>
+              </article>
+            ))}
+          </div>
           <div className="mt-24 grid gap-10 border-t border-white/12 pt-12 md:grid-cols-2 lg:grid-cols-4">
             <article><h4 className="text-xl font-semibold text-[#d5f36a]">Devanand Asai</h4><p className="mt-3 leading-7 text-white/62">I worked on the base environment, game design, programming, and interface design.</p></article>
             <article><h4 className="text-xl font-semibold">Riley</h4><p className="mt-3 leading-7 text-white/62">Riley worked on programming, player interactions, and the interface systems.</p></article>
@@ -836,10 +886,10 @@ function EverdewProjectView({
         <section id="research" data-case-study-chapter className="scroll-mt-16 bg-[#17200f] px-5 py-32 text-white md:px-8 md:py-44">
           <div className="mx-auto max-w-7xl">
             <h3 className="max-w-6xl text-5xl font-semibold leading-[0.98] tracking-[-0.055em] md:text-8xl">Research</h3>
-            <p className="mt-12 max-w-4xl text-2xl leading-[1.45] text-white/76 md:text-4xl">Before finalising our production approach, we compared the 3D and pixel art pipelines, tested the economy with players, and reviewed publishing options that could suit the game.</p>
+            <p className="mt-12 max-w-4xl text-2xl leading-[1.45] text-white/76 md:text-4xl">Before finalising our production approach, we reviewed references for the gameplay and character designs, then considered publishing options that could suit the game.</p>
             <div className="mt-20 grid grid-flow-dense gap-4 md:grid-cols-12">
-              <article className="rounded-[26px] bg-[#eef0d9] p-8 text-[#17200f] md:col-span-6"><h4 className="text-2xl font-semibold">Visual pipeline</h4><p className="mt-4 leading-8 text-[#17200f]/68">Our Blockbench models did not import reliably, so we compared the time needed to repair the 3D workflow with the time needed to move into a shared pixel art pipeline in Aseprite. Pixel art gave the team a more dependable way to work remotely.</p></article>
-              <article className="rounded-[26px] bg-[#d5f36a] p-8 text-[#11140d] md:col-span-6"><h4 className="text-2xl font-semibold">Economy testing</h4><p className="mt-4 leading-8 text-[#11140d]/68">Playtesting showed us that the original 10,000 gold target was too easy to reach. We responded by adjusting crop growth times, prices, shop stock, restocking, and the cost of skipping the night.</p></article>
+              <article className="rounded-[26px] bg-[#eef0d9] p-8 text-[#17200f] md:col-span-6"><h4 className="text-2xl font-semibold">Stardew Valley</h4><p className="mt-4 leading-8 text-[#17200f]/68">We used Stardew Valley as a reference for the general farming experience. Its daily structure helped us consider how planting, harvesting, selling, upgrades, and time could form a repeatable gameplay loop.</p></article>
+              <article className="rounded-[26px] bg-[#d5f36a] p-8 text-[#11140d] md:col-span-6"><h4 className="text-2xl font-semibold">Tribe Nine</h4><p className="mt-4 leading-8 text-[#11140d]/68">We used Tribe Nine as a reference for the character designs. Its distinctive character shapes and clothing informed our early visual direction before the team adapted the designs to Everdew's pixel art presentation.</p></article>
               <article className="rounded-[26px] bg-[#252c1c] p-8 md:col-span-12"><h4 className="text-2xl font-semibold">Publishing review</h4><p className="mt-4 max-w-3xl leading-8 text-white/62">We reviewed Raw Fury, Team17, Curve Games, and Critical Reflex to see how well their existing catalogues matched Everdew's art direction, farming loop, timed economy, and animal soul system.</p></article>
             </div>
           </div>
@@ -858,14 +908,37 @@ function EverdewProjectView({
               <article className="overflow-hidden rounded-[28px] bg-[#283518] md:col-span-6"><img src={everdewImage("shop-ui.png")} alt="Everdew shop interface" className="aspect-[16/10] w-full object-cover" /><div className="p-7 text-white"><h4 className="text-2xl font-semibold">Shops and inventory</h4><p className="mt-3 leading-7 text-white/62">Riley and I replaced the original shop and inventory integration with systems that read from the same item data, which stopped information becoming inconsistent between screens.</p></div></article>
               <article className="overflow-hidden rounded-[28px] bg-[#283518] md:col-span-6"><img src={everdewImage("animal-pen.png")} alt="Animals and the nighttime statue in Everdew" className="aspect-[16/10] w-full object-cover" /><div className="p-7 text-white"><h4 className="text-2xl font-semibold">Animals</h4><p className="mt-3 leading-7 text-white/62">Feeding the animals allows them to produce useful items. If the player does not feed them, they become soul sprites that can be collected and sold at night.</p></div></article>
             </div>
-            <div className="mt-16 flex justify-end">
-              <div className="flex w-fit gap-1 rounded-full bg-[#17200f] p-1 text-white shadow-[0_14px_34px_rgba(23,32,15,0.2)]">
-                <button type="button" className="icon-button-motion grid size-10 place-items-center rounded-full text-white/72 hover:bg-white hover:text-[#17200f]" aria-label="Show previous project details capture" onClick={() => scrollExperienceCaptures(-1)}><ChevronLeft size={20} /></button>
-                <button type="button" className="icon-button-motion grid size-10 place-items-center rounded-full text-white/72 hover:bg-white hover:text-[#17200f]" aria-label="Show next project details capture" onClick={() => scrollExperienceCaptures(1)}><ChevronRight size={20} /></button>
+          </div>
+        </section>
+
+        <section id="everdew-interface" className="bg-[#d5f36a] px-5 py-32 text-[#11140d] md:px-8 md:py-44">
+          <div className="mx-auto max-w-7xl">
+            <div className="grid gap-12 lg:grid-cols-[0.82fr_1.18fr] lg:items-end">
+              <div>
+                <h3 className="text-5xl font-semibold tracking-[-0.055em] md:text-8xl">Interface</h3>
+                <p className="mt-7 max-w-2xl text-lg leading-8 text-[#11140d]/72">I worked on the interface design while Riley contributed to the interaction and interface systems. We kept the controls, headings, and feedback consistent with the pixel art presentation so players could move between farming, shops, inventory, perks, and settings without learning a different visual language for each screen.</p>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-3">
+                <article className="rounded-[22px] bg-[#eef0d9] p-6"><h4 className="text-xl font-semibold">Entry and saving</h4><p className="mt-3 leading-7 text-[#11140d]/66">The opening flow covers the main menu, four save slots, and separate confirmation states for starting or deleting a game.</p></article>
+                <article className="rounded-[22px] bg-[#eef0d9] p-6"><h4 className="text-xl font-semibold">Learning and settings</h4><p className="mt-3 leading-7 text-[#11140d]/66">Players can use a guided tutorial, check animal feeding rules, pause the game, and change volume, fullscreen mode, or resolution.</p></article>
+                <article className="rounded-[22px] bg-[#eef0d9] p-6"><h4 className="text-xl font-semibold">Economy controls</h4><p className="mt-3 leading-7 text-[#11140d]/66">Inventory, dialogue, buying, selling, and perks show prices, stock, restock timing, currencies, and available upgrades close to the relevant action.</p></article>
               </div>
             </div>
-            <div ref={experienceCaptureRef} className="mt-4 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              {[["npc-dialogue.png", "NPC conversations"], ["animal-soul.png", "Animal soul sprite"], ["main-menu.png", "Main menu"], ["farm-field.png", "Farm and field layout"]].map(([image, title]) => <figure key={image} className="w-[min(82vw,35rem)] shrink-0 snap-start overflow-hidden rounded-[24px] bg-[#17200f]"><div className="overflow-hidden"><img src={everdewImage(image)} alt={title} className="aspect-[16/10] w-full object-cover" /></div><figcaption className="p-5 text-lg font-semibold text-white">{title}</figcaption></figure>)}
+
+            <div className="mt-16 flex items-end justify-between gap-6">
+              <p className="max-w-2xl text-sm leading-6 text-[#11140d]/58">The later interface pass added save management and options to the main menu, then continued with display controls, shop information, and fixes recorded in the post submission releases.</p>
+              <div className="flex shrink-0 gap-1 rounded-full bg-[#11140d] p-1 text-white shadow-[0_14px_34px_rgba(17,20,13,0.22)]">
+                <button type="button" className="icon-button-motion grid size-10 place-items-center rounded-full text-white/72 hover:bg-white hover:text-[#11140d] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#11140d]/25" aria-label="Show previous interface screen" onClick={() => scrollInterface(-1)}><ChevronLeft size={20} /></button>
+                <button type="button" className="icon-button-motion grid size-10 place-items-center rounded-full text-white/72 hover:bg-white hover:text-[#11140d] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#11140d]/25" aria-label="Show next interface screen" onClick={() => scrollInterface(1)}><ChevronRight size={20} /></button>
+              </div>
+            </div>
+            <div ref={interfaceRef} className="mt-5 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {everdewInterfaceScreens.map(([image, alt, title]) => (
+                <figure key={image} className="w-[min(88vw,58rem)] shrink-0 snap-start overflow-hidden rounded-[26px] bg-[#11140d] text-white">
+                  <img src={everdewImage(image)} alt={alt} width="1920" height="1200" className="aspect-[8/5] w-full object-cover" />
+                  <figcaption className="px-6 py-5 text-lg font-semibold">{title}</figcaption>
+                </figure>
+              ))}
             </div>
           </div>
         </section>
@@ -873,7 +946,7 @@ function EverdewProjectView({
         <section id="process" data-case-study-chapter className="scroll-mt-16 mx-auto max-w-7xl px-5 py-32 md:px-8 md:py-44">
           <div className="mb-16 max-w-3xl"><h3 className="text-5xl font-semibold tracking-[-0.055em] md:text-8xl">Process</h3><p className="mt-7 text-lg leading-8 text-white/60">The project began as a 3D prototype before we changed it into a pixel art game. Once the new visual direction was working, we rewrote the inventory and shop systems so they could support the rest of the game more reliably.</p></div>
           <div className="space-y-10">
-            <article className="grid min-h-[32rem] overflow-hidden rounded-[30px] bg-[#252c1c] shadow-[0_34px_90px_rgba(0,0,0,0.45)] lg:grid-cols-2"><img src={everdewImage("prototype-3d.png")} alt="The original top down 3D Everdew prototype" className="h-full min-h-[24rem] w-full object-cover" /><div className="flex flex-col justify-end p-8 md:p-12"><h4 className="text-4xl font-semibold md:text-6xl">3D prototype</h4><p className="mt-6 max-w-xl text-lg leading-8 text-white/62">Our first version used a top down 3D controller. When the Blockbench models repeatedly failed to import correctly, we decided that continuing to repair the 3D pipeline would take too much time away from the game itself.</p></div></article>
+            <article className="grid min-h-[32rem] overflow-hidden rounded-[30px] bg-[#252c1c] shadow-[0_34px_90px_rgba(0,0,0,0.45)] lg:grid-cols-2"><img src={everdewImage("prototype-3d-unity.png")} alt="The original top down 3D Everdew prototype in the Unity editor" width="320" height="328" className="h-full min-h-[24rem] w-full bg-[#2f3034] object-contain" /><div className="flex flex-col justify-end p-8 md:p-12"><h4 className="text-4xl font-semibold md:text-6xl">3D prototype</h4><p className="mt-6 max-w-xl text-lg leading-8 text-white/62">Our first version used a top down 3D controller. When the Blockbench models repeatedly failed to import correctly, we decided that continuing to repair the 3D pipeline would take too much time away from the game itself.</p></div></article>
             <article className="grid min-h-[32rem] overflow-hidden rounded-[30px] bg-[#6b7d31] shadow-[0_34px_90px_rgba(0,0,0,0.48)] lg:grid-cols-2"><div className="order-2 flex flex-col justify-end p-8 md:p-12 lg:order-1"><h4 className="text-4xl font-semibold md:text-6xl">Pixel art version</h4><p className="mt-6 max-w-xl text-lg leading-8 text-white/75">We changed the project to pixel art and worked remotely in Aseprite, which gave everyone a more reliable shared workflow. Cainos' Pixel Art Top Down Basic pack provided the starting environment assets while we developed the rest of the visual direction.</p></div><img src={everdewImage("early-environment.png")} alt="Early pixel environment for Everdew" className="order-1 h-full min-h-[24rem] w-full object-cover lg:order-2" /></article>
             <article className="grid min-h-[32rem] overflow-hidden rounded-[30px] bg-[#d5f36a] text-[#11140d] shadow-[0_34px_90px_rgba(0,0,0,0.5)] lg:grid-cols-2"><img src={everdewImage("inventory-ui.png")} alt="Inventory system running in Everdew" className="h-full min-h-[24rem] w-full object-cover" /><div className="flex flex-col justify-end p-8 md:p-12"><h4 className="text-4xl font-semibold md:text-6xl">System rewrite</h4><p className="mt-6 max-w-xl text-lg leading-8 text-[#11140d]/68">The inventory and shop data did not sort or communicate correctly in the original integration. Riley and I replaced it and divided the larger scripts into smaller components, which later gave us a better base for animals, perks, NPCs, and saving.</p></div></article>
           </div>
@@ -882,12 +955,12 @@ function EverdewProjectView({
         <section id="everdew-management" className="bg-[#eef0d9] px-5 py-32 text-[#17200f] md:px-8 md:py-44">
           <div className="mx-auto max-w-7xl">
             <div className="grid gap-16 lg:grid-cols-[0.72fr_1.28fr] lg:items-center"><div><h3 className="text-5xl font-semibold tracking-[-0.055em] md:text-7xl">Project management</h3><p className="mt-7 text-lg leading-8 text-[#17200f]/65">We assigned production roles at the start and used Trello to keep the tasks visible across the team. GitHub and Unity Version Control gave us shared project history, while vFolders 2 and vHierarchy 2 helped us keep the Unity assets and scene objects organised.</p></div><div className="grid gap-4 sm:grid-cols-2"><img src={everdewImage("trello-board.png")} alt="Everdew Trello planning board" width="1920" height="1032" className="aspect-[80/43] w-full rounded-[22px] object-cover shadow-xl sm:col-span-2" /><img src={everdewImage("organized-assets.png")} alt="Organised Everdew Unity project folders" width="1920" height="1020" className="aspect-[32/17] w-full rounded-[22px] object-cover shadow-xl" /><img src={everdewImage("organized-hierarchy.png")} alt="Organised Everdew Unity hierarchy" width="1920" height="1020" className="aspect-[32/17] w-full rounded-[22px] object-cover shadow-xl" /><img src={everdewImage("unity-collab.png")} alt="Everdew Unity Version Control history" width="1920" height="1020" className="aspect-[32/17] w-full rounded-[22px] object-cover shadow-xl" /><img src={everdewImage("github-repo.png")} alt="Everdew GitHub repository" width="1920" height="1020" className="aspect-[32/17] w-full rounded-[22px] object-cover shadow-xl" /></div></div>
-            <div className="mt-24 grid gap-4 md:grid-cols-2 lg:grid-cols-4">{[["code-shop.png", "Shop data"], ["code-inventory.png", "Inventory flow"], ["code-npc.png", "NPC behaviour"], ["code-perks.png", "Perk system"]].map(([image, title]) => <figure key={image} className="overflow-hidden rounded-[20px] bg-[#17200f]"><div className="overflow-hidden"><img src={everdewImage(image)} alt={`${title} code from Everdew`} className="aspect-[4/3] w-full object-cover" /></div><figcaption className="p-5 font-semibold text-white">{title}</figcaption></figure>)}</div>
+            <div className="mt-24 grid gap-4 md:grid-cols-2 lg:grid-cols-4">{[["code-shop.png", "Shop data"], ["code-inventory.png", "Inventory flow"], ["code-npc.png", "NPC behaviour"], ["code-perks.png", "Perk system"]].map(([image, title]) => <figure key={image} className="overflow-hidden rounded-[20px] bg-[#17200f]"><ExpandableEvidenceImage src={everdewImage(image)} alt={`${title} code from Everdew`} title={title} /><figcaption className="p-5 font-semibold text-white">{title}</figcaption></figure>)}</div>
           </div>
         </section>
 
-        <section id="extras" data-case-study-chapter className="scroll-mt-16 bg-[#202717] px-5 pt-32 text-white md:px-8 md:pt-44">
-          <div className="mx-auto max-w-7xl border-b border-white/12 pb-16 md:pb-20">
+        <section id="extras" data-case-study-chapter className="scroll-mt-16 bg-[#11140d] px-5 pt-32 text-white md:px-8 md:pt-44">
+          <div className="mx-auto max-w-7xl pb-16 md:pb-20">
             <h3 className="text-5xl font-semibold tracking-[-0.055em] md:text-8xl">Extras</h3>
             <p className="mt-7 max-w-2xl text-lg leading-8 text-white/60">This supporting material explains how we promoted the game and how we compared possible publishers with the direction of the project.</p>
           </div>
@@ -996,7 +1069,7 @@ const cuboProcessStages = [
   },
   {
     title: "Player movement prototype",
-    copy: "My first controller used Unity's legacy Input Manager. When I needed gamepad support and more actions, I moved it to the New Input System instead of extending the older setup. I gradually added variable jump height, dashing, the ground slam, sprinting, wall climbing, and the Time Dash, with the Animator coordinating how those movement states connect.",
+    copy: "My first controller used Unity's legacy Input Manager. When I needed gamepad support and more actions, I moved it to the New Input System instead of extending the older setup. I gradually added variable jump height, dashing, the ground slam, sprinting, and wall climbing. I then added the Time Dash so the player could dash farther forwards than they can with the standard dash, with the Animator coordinating how those movement states connect.",
   },
   {
     title: "Lighting and atmosphere",
@@ -1170,7 +1243,7 @@ function CuboProjectView({
               <div className="absolute inset-0 bg-gradient-to-t from-black/86 via-black/10 to-transparent" />
               <div className="absolute inset-x-0 bottom-0 p-7 md:p-9"><h4 className="text-3xl font-semibold">Ground slam combat</h4><p className="mt-3 max-w-lg leading-7 text-white/70">The ground slam lets the player descend quickly from the air and is used against regular enemies, traversal obstacles, and the Grump Rock boss.</p></div>
             </article>
-            <article className="min-h-[17rem] bg-[#21120e] p-7 md:col-span-2 md:p-9"><h4 className="text-3xl font-semibold">Movement</h4><p className="mt-4 max-w-xl leading-7 text-white/65">The movement system combines variable jumps, dashing, wall climbing, sprinting, and a time dash so the player has different ways to cross the cave and recover from difficult jumps.</p></article>
+            <article className="min-h-[17rem] bg-[#21120e] p-7 md:col-span-2 md:p-9"><h4 className="text-3xl font-semibold">Movement</h4><p className="mt-4 max-w-xl leading-7 text-white/65">The movement system combines variable jumps, wall climbing, sprinting, and two types of dash. The standard dash supports shorter movements, while the Time Dash lets the player dash farther forwards when they need to cross a larger gap.</p></article>
             <article className="min-h-[17rem] bg-[#d95f27] p-7 text-[#1b0d08] md:p-9"><h4 className="text-2xl font-semibold">Atmosphere</h4><p className="mt-4 leading-7 text-[#1b0d08]/76">I used global lights, post processing through a Global Volume, animated sprites, and a custom water reflection to give the cave more depth and movement.</p></article>
             <article className="min-h-[17rem] bg-[#181515] p-7 md:p-9"><h4 className="text-2xl font-semibold">Player systems</h4><p className="mt-4 leading-7 text-white/62">Health and stamina support the combat and movement systems, while respawning returns the player to a safe point after a failed section.</p></article>
           </div>
@@ -1334,7 +1407,7 @@ function CuboProjectView({
         <section id="reflection" data-case-study-chapter className="scroll-mt-16 relative overflow-hidden px-5 py-24 text-center md:px-8 md:py-32">
           <img src={cuboImage("Screenshot 2026-11-25 093118.png")} alt="Cubo exploring the Crystal Caverns" className="absolute inset-0 h-full w-full object-cover opacity-30" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(11,9,9,0.28),#0b0909_78%)]" />
-          <div className="relative mx-auto max-w-4xl"><h3 className="text-5xl font-semibold tracking-[-0.055em] md:text-8xl">Reflection</h3><p className="mx-auto mt-8 max-w-2xl text-lg leading-8 text-white/66">The assignment originally required research, level planning, original art, and basic movement, but I later expanded the project into a connected world with revised input, new level layouts, and boss encounters. To protect the implementation time, I reduced the complexity of the character art, replaced the input system so I could support controller features, and changed the ground movement after testing the second boss.</p><p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-white/66">I left save and load support out of the initial submission because of the deadline, then added four managed save slots and updated tutorial persistence in version 0.4.0. Character animation is still incomplete, and several enemies do not yet have their own attack and stun states. My next step would be to add those states and review the combat timing across the full game.</p></div>
+          <div className="relative mx-auto max-w-4xl"><h3 className="text-5xl font-semibold tracking-[-0.055em] md:text-8xl">Reflection</h3><p className="mx-auto mt-8 max-w-2xl text-lg leading-8 text-white/66">The assignment originally required research, level planning, original art, and basic movement, but I later expanded the project into a connected world with revised input, new level layouts, and boss encounters. To protect the implementation time, I reduced the complexity of the character art, replaced the input system so I could support controller features, and changed the ground movement after testing the second boss.</p><p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-white/66">I left save and load support out of the initial submission because of the deadline, then added four managed save slots and updated tutorial persistence. The enemy attacks are working, but most enemies still use only an idle animation instead of having separate movement and attack animations. My next step would be to create those animations and review the combat timing across the full game.</p></div>
         </section>
     </CaseStudyShell>
   );
