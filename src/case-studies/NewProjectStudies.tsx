@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { caseStudyDefinitions } from "./definitions";
 import CaseStudyShell from "./CaseStudyShell";
 import { CaseStudyShowcaseImage, CaseStudyShowcaseRail } from "./CaseStudyMedia";
@@ -28,6 +29,7 @@ type StudyConfig = {
     soft: string;
   };
   summary: string;
+  overviewIntro?: string;
   meta: Array<[string, string]>;
   showcase: Media[];
   overview: Array<{ title: string; body: string }>;
@@ -54,6 +56,7 @@ const studies: Record<StudyId, StudyConfig> = {
     hero: { file: "image1.png", title: "Ravensdown valley", alt: "Dark medieval settlement in a forested mountain valley" },
     palette: { page: "#0b0d0d", panel: "#151918", accent: "#d8a258", soft: "#c9d0c8" },
     summary: "I created Ravensdown as a medieval environment for the theme After the Fall. I focused on showing what remained after war and disease disrupted a remote settlement, using the route and atmosphere to explain the story through the environment.",
+    overviewIntro: "Ravensdown is a solo Unreal Engine environment project created for the theme After the Fall. I developed an explorable medieval settlement in a mountain valley, using terrain, sourced modular architecture, landscape materials, foliage, lighting, and local fog to define one readable route. Research into abandoned settlements informed the uneven village layout and signs of a community that had disappeared. The final route uses controlled sightlines, a waterwheel, cemetery, and distant mountains to guide the player through the story without dialogue.",
     meta: [["Role", "Environment design and technical assembly"], ["Engine", "Unreal Engine 5.8"], ["Scope", "Solo college project"], ["Outcome", "Explorable medieval environment"]],
     showcase: [
       { file: "image1.png", title: "Valley route", alt: "Ravensdown route through a dark mountain valley" },
@@ -66,54 +69,68 @@ const studies: Record<StudyId, StudyConfig> = {
     overview: [
       { title: "Brief", body: "For this project, I needed to create one focused outcome based on the theme After the Fall. I supported the final environment with research and planning, then documented how it developed through testing, iteration, and reflection." },
       { title: "Interpretation", body: "I chose to show the period after the collapse instead of the disaster itself. Empty paths, neglected buildings, overgrowth, and a small number of isolated lights suggest that ordinary life stopped some time ago." },
-      { title: "Contribution", body: "I was responsible for building the terrain, planning the route, and assembling six houses from modular parts. I also created reusable Packed Level Actors, customised the landscape material, and developed the final lighting and atmosphere." },
+      { title: "Solo project scope", body: "I completed the full environment independently. I designed the terrain and route, assembled six houses from sourced modular parts, created reusable Packed Level Actors, customised the landscape material, and produced the final lighting and atmosphere." },
       { title: "Intended experience", body: "I designed the route around slow exploration and environmental storytelling. The cold moonlight and dark vegetation create uncertainty, while the limited warm lights help the player recognise important areas and follow the route." },
+      { title: "Audience", body: "The intended audience is players aged approximately 12 and above who enjoy fantasy environments and exploration. The setting deals with war, disease, and social collapse without using visible bodies, gore, or graphic violence." },
+      { title: "Success criteria", body: "I judged the outcome by whether it communicated the theme, made the village appear abandoned, kept the route understandable, and combined architecture, landscape, and vegetation into one location. The lighting also needed to create tension without hiding the environmental detail." },
+      { title: "Environmental narrative", body: "The fictional settlement was isolated during a civil war after a weaponised plague spread through the area. The final scene shows the period after the inhabitants fled or died. A small number of unexplained lights leave open the possibility that someone remains." },
     ],
-    researchIntro: "I researched medieval settlement structures, materials, and environmental storytelling before building the scene. I also looked at relevant games and the Unreal Engine systems I would need to turn those ideas into a working environment.",
+    researchIntro: "I divided the research into historical context, visual references, and technical tests. Each area needed to lead to a visible decision in the environment rather than remain separate from production.",
     research: [
       { title: "Historical context", body: "I looked into the Black Death and abandoned settlements to understand what might remain after a community disappeared. This supported a location where buildings, paths, tools, and boundaries are still visible while vegetation slowly begins to return." },
-      { title: "Settlement structure", body: "Research into historic settlements helped me avoid arranging the village as a clean grid. I used uneven spacing, a bending route, and a mixture of timber and stone surfaces to make the layout feel more natural." },
+      { title: "Settlement structure", body: "Research into medieval settlements and Historic England's record of West Cotton helped me avoid arranging the village as a clean grid. I used uneven spacing, a bending route, and a mixture of timber and stone surfaces so the location appears to have developed gradually." },
+      { title: "Architecture and materials", body: "I studied stone foundations, timber framing, worn plaster, rough supports, and damaged roof surfaces. Because I used sourced building parts, my decisions focused on selecting compatible pieces and controlling their scale, rotation, placement, and repetition." },
+      { title: "Environmental storytelling", body: "The scene needed to communicate that people once lived here, normal life ended, and nature began to reclaim the settlement. Empty buildings, neglected roads, dense vegetation, dark windows, and isolated lights carry that information without dialogue." },
       { title: "Game references", body: "I used A Plague Tale: Requiem as a reference for restricted sightlines and warm local lights. Elden Ring helped me think about landmarks and visual layering, while Kingdom Come: Deliverance helped with the scale and spacing of ordinary medieval buildings." },
       { title: "Technical research", body: "I compared Mesh Terrain with Unreal Engine's established Landscape system before choosing the approach for the scene. I then reviewed HDRI lighting, Lumen, foliage placement, Volumetric Fog, and Local Fog Volumes so I understood how each system could support the atmosphere." },
+      { title: "Colour and surface direction", body: "The palette combines cold blue grey light, desaturated vegetation, muddy brown ground, dark stone, and limited warm orange light. Rough, stained, and uneven surfaces reduce the clean appearance of newly placed assets, while the warm areas identify focal points." },
     ],
     experienceIntro: "I structured Ravensdown as a readable exploration route rather than a combat level. Because there are no combat systems carrying the experience, the environment needs to explain the story and guide the player through its composition.",
     experience: [
       { title: "Route", body: "I made the path bend through the settlement so the player cannot see the whole location at once. Buildings, slopes, and vegetation limit the longer views and allow each part of the village to appear in stages.", media: { file: "image66.png", title: "Route framing", alt: "Village route framed by trees and mountains" } },
       { title: "Landmarks", body: "I kept the mountain range visible in the background so the player always has a larger landmark to orient themselves around. Repeated house shapes and small areas of warm light then help indicate the direction of travel within the settlement.", media: { file: "image76.png", title: "Mountain landmark", alt: "Ravensdown with mountains visible behind the forest" } },
+      { title: "Waterwheel area", body: "A waterwheel building and dark water plane create a distinct point along the route. The reflections break up the ground surface and the surrounding vegetation frames the building without closing the path.", media: { file: "image70.png", title: "Waterwheel area", alt: "Abandoned waterwheel building beside a dark water plane" } },
       { title: "Ending", body: "The route ends at a cemetery lit by candles, giving the player a clear destination after moving through the village. I left the source of the lights unexplained so the ending keeps some of the uncertainty established earlier in the environment.", media: { file: "image5.png", title: "Cemetery", alt: "Cemetery area lit by candles" } },
     ],
-    processIntro: "I started with the terrain and simple white box shapes, then developed the scene through modular buildings, a rebuilt forest, and a more controlled final atmosphere.",
+    processIntro: "I started with the terrain and simple white box shapes, then tested each major system before committing to it. The final workflow prioritised a stable route, reusable buildings, controlled atmosphere, and detail where the player could see it.",
     process: [
       { title: "Terrain and whiteboxing", body: "My first pass established the valley, mountains, settlement area, and the main route between them. Testing the layout from ground level showed that several structures were too close together or poorly positioned, so I adjusted their spacing before adding detail.", media: { file: "image71.png", title: "Early terrain", alt: "Early Unreal Engine terrain before the village was built" } },
       { title: "Modular houses", body: "I assembled six house variations from stone walls, timber supports, roofs, and smaller details. Turning them into Packed Level Actors made each building easier to reuse, reposition, and manage as the settlement layout changed.", media: { file: "image60.png", title: "House variations", alt: "Several modular medieval house variations in Unreal Engine" } },
+      { title: "Terrain system decision", body: "I first tested Unreal Engine's experimental Mesh Terrain system because it supported more complex forms. It was harder to control and caused more lag in this project, so I returned to the established Landscape system to protect the schedule and keep later editing responsive.", media: { file: "image63.png", title: "Mesh Terrain test", alt: "Experimental Unreal Engine Mesh Terrain test with a playable character" } },
       { title: "Landscape material", body: "I used an existing landscape master material as the technical base rather than rebuilding the full system. I replaced its textures and adjusted how mud, grass, and rough ground blended together so it matched the visual direction of Ravensdown.", media: { file: "image64.png", title: "Landscape material", alt: "Unreal Engine material settings for the landscape" } },
       { title: "Atmosphere", body: "The default sky and heavy global fog did not give me enough control over the scene. I moved to an HDRI sky, reduced the overall fog, and used selected Local Fog Volumes to build the final overcast atmosphere without hiding the route.", media: { file: "image69.png", title: "HDRI lighting", alt: "Ravensdown environment using the final HDRI sky" } },
+      { title: "Local effects", body: "I placed Local Fog Volumes in selected low areas and between visual layers instead of increasing fog across the whole level. Water planes added dark reflections around the waterwheel and gave the route another surface treatment without changing the broader terrain system.", media: { file: "image31.png", title: "Local fog pass", alt: "Local fog separating the forest route from the mountain background" } },
+      { title: "Optimisation and capture", body: "I removed trees, grass, and small assets outside the direct viewing areas, reduced detail in distant spaces, and avoided filling every gap with foliage. I checked the final cameras from the playable route so the buildings, route, and mountain silhouettes remained readable.", media: { file: "image4.png", title: "Final layout review", alt: "Elevated view used to review the final village layout and vegetation density" } },
     ],
-    extrasIntro: "I used sourced modular architecture and natural assets throughout the project. This section explains where those assets came from and how I selected, organised, and adapted them to fit the environment.",
+    extrasIntro: "These supporting studies document asset authorship, production organisation, and the larger visual changes made during development.",
     deepDives: [
-      { id: "ravensdown-assets", placement: "extras", title: "Asset assembly", body: "The Medieval Village pack provided the compatible architectural pieces, while Quixel Megascans provided terrain, rocks, and vegetation. My contribution was deciding what to use and then controlling the scale, placement, repetition, layout, and integration so the sourced parts worked together as one environment.", media: [
+      { id: "ravensdown-assets", placement: "extras", title: "Asset assembly", body: "The Medieval Village pack from Fab provided the architectural pieces, while Quixel Megascans provided terrain, rocks, and vegetation. I selected compatible parts, assembled six house variations, and controlled their scale, placement, rotation, repetition, and connection to the landscape. I used Unreal Sensei's landscape master material as a technical base, then replaced its original textures and adjusted the blends for the muddy route, grass, and rough ground.", media: [
         { file: "image26.png", title: "Modular source", alt: "Modular medieval building pieces in Unreal Engine" },
         { file: "image58.png", title: "House assembly", alt: "First modular house under construction" },
         { file: "image62.png", title: "Packed Level Actor", alt: "Completed medieval house prepared as a reusable asset" },
       ] },
-      { id: "ravensdown-production", placement: "process", title: "Production organisation", body: "I used a Trello board to track the research, blockout, environment work, lighting, optimisation, and documentation. Inside Unreal Engine, I separated maps, materials, village content, foliage, and effects into clear folders so I could find and update assets as the project grew.", media: [
+      { id: "ravensdown-production", placement: "extras", title: "Production organisation", body: "I used Trello to track research, whiteboxing, environment work, lighting, optimisation, and documentation. Inside Unreal Engine, I separated maps, materials, village content, foliage, and effects into clear folders. I also created a GitHub repository as an online backup. For a future Unreal project of this size, I would configure Git LFS before adding large assets so the backup history remains easier to manage.", media: [
         { file: "image55.png", title: "Trello board", alt: "Trello production board for Ravensdown" },
         { file: "image75.png", title: "Content folders", alt: "Organised Unreal Engine content folders" },
         { file: "image57.png", title: "Repository", alt: "GitHub repository used as an online backup" },
       ] },
-      { id: "ravensdown-iteration", placement: "process", title: "Major visual iteration", body: "The first European tree set felt too green for the mountain setting and made the environment look less controlled. I changed to darker taiga trees, which improved the silhouettes and colour palette, then rebuilt the forest framing around the new set.", media: [
-        { file: "image34.png", title: "European trees", alt: "Earlier greener tree set in the environment" },
-        { file: "image65.png", title: "Taiga trees", alt: "Darker taiga trees used in the revised environment" },
-        { file: "image77.png", title: "Atmosphere iteration", alt: "Revised sky and atmosphere across the route" },
+      { id: "ravensdown-iteration", placement: "extras", title: "Atmosphere iteration", body: "The early environment used the default sky, heavier global fog, and no clear destination. I replaced that setup with an HDRI sky, kept the broader fog subtle, and used Local Fog Volumes where the composition needed depth. I then added the candle lit cemetery so the route ends at a visible destination rather than unfinished terrain.", media: [
+        { file: "image77.png", title: "Sky atmosphere", alt: "Cloudy sky atmosphere test in the Ravensdown Unreal Engine scene" },
+        { file: "image65.png", title: "Landscape lighting", alt: "Landscape lighting test showing the route and surrounding environment" },
+      ] },
+      { id: "ravensdown-tree-changes", placement: "extras", title: "Tree changes", body: "The first European tree set felt too bright and green for the mountain setting. I changed to darker taiga trees, which created narrower silhouettes and a better match for the grey HDRI sky, muddy landscape, and limited warm lights. Because the trees affected visibility and performance across the level, I rebuilt their placement around the playable route and removed instances that blocked important views.", media: [
+        { file: "image34.png", title: "European trees", alt: "Earlier Ravensdown village layout surrounded by brighter European trees" },
+        { file: "image35.png", title: "Taiga trees", alt: "Revised Ravensdown route framed by darker taiga trees" },
       ] },
     ],
     changelog: [
-      { version: "1.0.0", date: "2026-10-15", title: "First release", body: ["- Fully playable version of Ravensdown"] },
+      { version: "1.0.0", date: "2026-10-15", title: "First release", body: ["Fully playable version of Ravensdown"] },
     ],
     reflection: [
       "This project helped me improve my understanding of terrain, modular construction, Packed Level Actors, landscape materials, foliage, HDRI lighting, and atmospheric effects. It also gave me more practice in bringing those systems together instead of treating them as separate tasks.",
       "I think the strongest part of the final environment is the atmosphere created by the overcast sky, taiga trees, mountain backdrop, and limited warm lighting. The six modular houses add enough variation to make the settlement feel considered without introducing unrelated architectural styles.",
-      "Some of the shadows still hide more surface detail than I would like. With another pass, I would add environmental sound and subtle movement through wind, rolling fog, and a moving waterwheel so the environment feels less static.",
+      "Peer feedback confirmed that the forest, abandoned buildings, and overcast sky communicated the theme. It also identified dark screenshots and unclear route guidance as weaknesses. I responded by reviewing the final camera positions and using buildings, terrain, vegetation, and warm light to make the direction of travel easier to read.",
+      "Some shadows still hide more surface detail than I would like. I did not have enough time to add motion and sound to a consistent standard. With another pass, I would add environmental audio, selected wind movement, rolling fog, and a moving waterwheel controlled through Blueprints.",
     ],
     reflectionMedia: { file: "image3.png", title: "Final settlement", alt: "Final Ravensdown settlement beneath the mountain sky" },
   },
@@ -124,14 +141,14 @@ const studies: Record<StudyId, StudyConfig> = {
     hero: { file: "image40.png", title: "The Forgotten Line tunnel", alt: "Dark abandoned mine tunnel lit by a flashlight" },
     palette: { page: "#090806", panel: "#18110d", accent: "#df683c", soft: "#d9c9bd" },
     summary: "The Forgotten Line is a team horror project set across a Victorian hotel and an abandoned mine. We built a linear route where the player uses a flashlight, environmental details, and audio cues to piece together what happened.",
+    overviewIntro: "The Forgotten Line is a team horror project set across a Victorian hotel and an abandoned mine. The player begins as a technician arriving to repair an elevator, then follows the route underground after the lift falls through the foundations. We designed the experience around exploration, controlled visibility, environmental details, and triggered audio rather than repeated jump scares. My contribution covered the Unity HDRP setup, collaboration workflow, environment work, interface, controller changes, lighting, and the second cavern section.",
     meta: [["Role", "Environment, interface, controls, and technical setup"], ["Engine", "Unity 2022.3.9f1 HDRP"], ["Team", "Devanand Asai, Riley Gough, Hiro Starritt"], ["Date", "November 2025"]],
     showcase: [
-      { file: "image38.png", title: "Victorian hotel", alt: "Red Victorian hotel room in The Forgotten Line" },
-      { file: "image39.png", title: "Cave route", alt: "Rock tunnel lit from deeper inside the cave" },
-      { file: "image40.png", title: "Flashlight exploration", alt: "Dark tunnel illuminated by the player's flashlight" },
-      { file: "image60.png", title: "Mine chamber", alt: "Large mine chamber with rails and scattered props" },
-      { file: "image66.png", title: "Red tunnel", alt: "Mine passage lit with a red light" },
-      { file: "image70.png", title: "Water cavern", alt: "Cavern environment with water and a wooden structure" },
+      { file: "image40.png", title: "Lamp lit tunnel", alt: "Dark mine tunnel lit by a single warm lamp" },
+      { file: "image41.png", title: "Hotel interior", alt: "Victorian hotel room with warm lamps and a table" },
+      { file: "showcase-red-mine.jpg", title: "Red mine passage", alt: "Mine passage lit by a red work light" },
+      { file: "showcase-low-tunnel.jpg", title: "Low tunnel", alt: "Low stone tunnel leading toward a warm light" },
+      { file: "image38.png", title: "Hotel corridor", alt: "Victorian hotel corridor with red walls and warm lamp light" },
     ],
     overview: [
       { title: "Premise", body: "The player takes the role of a technician who arrives at a Victorian hotel to repair an elevator. When the elevator falls through the foundations into a forgotten mine, the goal changes from completing the repair to finding a way back out." },
@@ -148,16 +165,15 @@ const studies: Record<StudyId, StudyConfig> = {
     ],
     experienceIntro: "The player can walk, sprint, and crouch through the linear horror route. We used a flashlight and controlled sightlines to support navigation, while audio triggers suggest that events are happening beyond what the player can see.",
     experience: [
-      { title: "Movement", body: "I adapted the controller to support keyboard, mouse, and gamepad input. Crouching allows the player to reach hidden paths, while a virtual cursor makes the menus usable with a controller as well as a mouse.", media: { file: "image58.png", title: "Interaction prompt", alt: "Interaction prompt inside the hotel" } },
-      { title: "Atmosphere", body: "We removed natural directional light from the scenes so the player relies more heavily on the flashlight and local lighting. Vignette, brightness, contrast, fog, and carefully placed lights then help create the enclosed presentation.", media: { file: "image61.png", title: "Fog and light", alt: "Foggy mine chamber with a bright overhead light" } },
-      { title: "Audio route", body: "Footsteps, radios, ambient sound, music, clocks, and triggered voices gradually build tension along the route. At the ending, we slow the player and disable the flashlight so the final moment is carried by sound before the credits appear.", media: { file: "image53.png", title: "Radio", alt: "Interactive radio in the hotel scene" } },
+      { title: "Movement", body: "I adapted the controller to support keyboard, mouse, and gamepad input. Crouching allows the player to reach hidden paths, while a virtual cursor makes the menus usable with a controller as well as a mouse." },
+      { title: "Atmosphere", body: "We removed natural directional light from the scenes so the player relies more heavily on the flashlight and local lighting. Vignette, brightness, contrast, fog, and carefully placed lights then help create the enclosed presentation." },
+      { title: "Audio route", body: "Footsteps, radios, ambient sound, music, clocks, and triggered voices gradually build tension along the route. At the ending, we slow the player and disable the flashlight so the final moment is carried by sound before the credits appear." },
     ],
     processIntro: "We began with collaborative planning, then developed the hotel, elevator transition, and tunnel environment in stages. The interface, controls, lighting, and final atmosphere were added as the full route became playable.",
     process: [
       { title: "Project setup", body: "I created the Unity HDRP project and integrated Scene Fusion so we could work in the same scene more easily. We also used GitHub for version control so the team had a shared history and backup of the project.", media: { file: "image55.png", title: "Organised project", alt: "Organised Unity project folders for The Forgotten Line" } },
       { title: "Hotel revision", body: "The first hotel lobby was too large for the number of suitable assets we had available. I reduced it to a smaller and denser room, and we enabled shadow casting on the lights to correct the flat indoor lighting.", media: { file: "image42.png", title: "Hotel development", alt: "Victorian hotel scene during Unity development" } },
       { title: "Tunnel construction", body: "Hiro mapped the first tunnel section, and I developed it further through lighting, minecarts, and rails. I also finalised the crouching system and built the second section as a large cavern with HDRP water and a clearly illuminated escape route.", media: { file: "image57.png", title: "Cave layout", alt: "Cave geometry during Unity development" } },
-      { title: "Interface and controls", body: "I created the main menu, shared pause menu, quality presets, resolution control, fullscreen setting, and volume slider. I also refactored the movement system to use Unity's Input System so the final build could support controllers properly.", media: { file: "image52.png", title: "Graphics settings", alt: "Graphics settings menu with resolution and quality controls" } },
     ],
     extrasIntro: "This final part documents a corrected door interaction that I completed, but which we were not able to integrate before the deadline.",
     deepDives: [
@@ -166,7 +182,7 @@ const studies: Record<StudyId, StudyConfig> = {
         { file: "image28.png", title: "Crate render", alt: "Rendered wooden crate created for the project" },
         { file: "image33.png", title: "Table render", alt: "Rendered wooden table created for the project" },
       ] },
-      { id: "forgotten-line-interface", placement: "experience", title: "Interface", body: "I kept the main menu, graphics settings, and pause menu in a monochrome horror style so they matched the rest of the project. The controls use strong contrast for readability, and I tested the interaction prompts inside the hotel scene before applying them to the wider route.", media: [
+      { id: "forgotten-line-interface", placement: "experience", title: "Interface", body: "I created the main menu, shared pause menu, graphics settings, quality presets, resolution control, fullscreen setting, and volume slider in a monochrome horror style that matched the rest of the project. The controls use strong contrast for readability, and I tested interaction prompts inside the hotel scene before applying them across the route. I also refactored movement to use Unity's Input System so the final build supported controllers and a virtual cursor for menu navigation.", media: [
         { file: "image51.png", title: "Main menu", alt: "The Forgotten Line main menu" },
         { file: "image52.png", title: "Options", alt: "The Forgotten Line graphics settings" },
         { file: "image54.png", title: "Pause menu", alt: "The Forgotten Line pause menu" },
@@ -273,8 +289,10 @@ function SectionHeading({ children, intro, design = "editorial", dark = true }: 
 
 function StudyPage({ id, onClose }: { id: StudyId; onClose: () => void }) {
   const config = studies[id];
+  const hasExtras = config.deepDives.some((item) => item.placement === "extras");
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const showcaseRef = useRef<HTMLDivElement | null>(null);
+  const deepDiveRailsRef = useRef<Record<string, HTMLDivElement | null>>({});
   const [openChangelog, setOpenChangelog] = useState<string | null>(null);
   const reducedMotion = usePrefersReducedMotion();
   const editorial = config.design === "editorial";
@@ -288,14 +306,21 @@ function StudyPage({ id, onClose }: { id: StudyId; onClose: () => void }) {
     rail.scrollBy({ left: direction * Math.min(rail.clientWidth * 0.82, 680), behavior: reducedMotion ? "auto" : "smooth" });
   };
 
+  const scrollDeepDiveRail = (id: string, direction: -1 | 1) => {
+    const rail = deepDiveRailsRef.current[id];
+    if (!rail) return;
+    rail.scrollBy({ left: direction * rail.clientWidth, behavior: reducedMotion ? "auto" : "smooth" });
+  };
+
   const renderDeepDives = (placement: StudyConfig["deepDives"][number]["placement"]) => {
     const items = config.deepDives.filter((item) => item.placement === placement);
     if (!items.length) return null;
 
     return (
       <div className="mt-20 grid gap-6">
-        {items.map((item) => (
-          <article
+        {items.map((item) => {
+          const isInterfaceCarousel = item.id === "forgotten-line-interface";
+          return <article
             key={item.id}
             id={item.id}
             className="overflow-hidden rounded-[28px] p-7 md:p-10"
@@ -305,16 +330,36 @@ function StudyPage({ id, onClose }: { id: StudyId; onClose: () => void }) {
               <h4 className={`${industrial ? "text-3xl uppercase text-[#ef6c43] md:text-5xl" : "text-4xl md:text-6xl"} font-semibold tracking-[-0.04em]`}>{item.title}</h4>
               <p className="mt-6 text-lg leading-8 text-white/64">{item.body}</p>
             </div>
-            <div className={`mt-10 grid grid-flow-dense gap-3 ${item.media.length === 1 ? "max-w-4xl" : "md:grid-cols-3"}`}>
-              {item.media.map((media, mediaIndex) => (
-                <figure key={media.file} className={`${mediaIndex === 0 && item.media.length > 1 ? "md:col-span-2" : ""} overflow-hidden rounded-[20px] bg-black/35`}>
-                  <img src={image(id, media.file)} alt={media.alt} className="aspect-[4/3] w-full object-cover" />
-                  <figcaption className={`p-4 text-sm font-medium ${industrial ? "uppercase tracking-[0.08em] text-[#ef6c43]" : "text-white/62"}`}>{media.title}</figcaption>
-                </figure>
-              ))}
-            </div>
+            {isInterfaceCarousel ? (
+              <div className="mt-10 min-w-0">
+                <div className="mb-4 flex items-center justify-between gap-4">
+                  <p className="text-sm font-semibold text-white/54">Menu and settings screens</p>
+                  <div className="flex shrink-0 gap-1 rounded-full bg-white p-1 text-[#171717] shadow-[0_14px_32px_rgba(0,0,0,0.28)]">
+                    <button type="button" className="icon-button-motion grid size-10 place-items-center rounded-full transition-colors hover:bg-[#171717] hover:text-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/35" aria-label="Show previous interface screen" onClick={() => scrollDeepDiveRail(item.id, -1)}><ChevronLeft size={20} /></button>
+                    <button type="button" className="icon-button-motion grid size-10 place-items-center rounded-full transition-colors hover:bg-[#171717] hover:text-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/35" aria-label="Show next interface screen" onClick={() => scrollDeepDiveRail(item.id, 1)}><ChevronRight size={20} /></button>
+                  </div>
+                </div>
+                <div ref={(node) => { deepDiveRailsRef.current[item.id] = node; }} className="flex snap-x snap-mandatory overflow-x-auto rounded-[22px] bg-black/35 shadow-[0_28px_70px_rgba(0,0,0,0.28)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                  {item.media.map((media) => (
+                    <figure key={media.file} className="relative w-full shrink-0 snap-start overflow-hidden bg-black">
+                      <img src={image(id, media.file)} alt={media.alt} className="aspect-video w-full object-cover" />
+                      <figcaption className="absolute bottom-4 left-4 rounded-full bg-black/80 px-4 py-2 text-sm font-semibold text-white shadow-[0_12px_30px_rgba(0,0,0,0.34)]">{media.title}</figcaption>
+                    </figure>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className={`mt-10 grid grid-flow-dense items-start gap-3 ${item.media.length === 1 ? "max-w-4xl" : item.media.length === 2 ? "md:grid-cols-2" : "md:grid-cols-3"}`}>
+                {item.media.map((media, mediaIndex) => (
+                  <figure key={media.file} className={`${mediaIndex === 0 && item.media.length > 2 ? item.id === "ravensdown-production" || item.id === "ravensdown-assets" || item.id === "forgotten-line-props" ? "md:col-span-2 md:row-span-2" : "md:col-span-2" : ""} ${item.id === "forgotten-line-props" && mediaIndex === 2 ? "md:col-start-3" : ""} overflow-hidden rounded-[20px] bg-black/35`}>
+                    <img src={image(id, media.file)} alt={media.alt} className="aspect-[4/3] w-full object-cover" />
+                    <figcaption className={`p-4 text-sm font-medium ${industrial ? "uppercase tracking-[0.08em] text-[#ef6c43]" : "text-white/62"}`}>{media.title}</figcaption>
+                  </figure>
+                ))}
+              </div>
+            )}
           </article>
-        ))}
+        })}
       </div>
     );
   };
@@ -342,10 +387,16 @@ function StudyPage({ id, onClose }: { id: StudyId; onClose: () => void }) {
         <div className="mx-auto max-w-7xl px-5 md:px-8">
           <SectionHeading design={config.design}>Overview</SectionHeading>
           <div className={`mt-16 grid grid-flow-dense ${editorial ? "gap-y-0 border-t border-white/18 md:grid-cols-[0.72fr_1.28fr]" : cinematic ? "gap-3 md:grid-cols-12" : "overflow-hidden rounded-[30px] bg-[#ef6c43] gap-px md:grid-cols-2"}`}>
-            <article className={editorial ? "border-b border-white/18 py-10 md:row-span-4 md:pr-16" : cinematic ? "rounded-[28px] bg-black/30 p-8 text-white md:col-span-9 md:p-12" : "bg-[#ef6c43] p-8 text-[#0d1012] md:col-span-2 md:p-12"}>
-              <p className={`max-w-4xl font-semibold leading-[1.12] tracking-[-0.04em] ${editorial ? "text-3xl md:text-4xl" : "text-3xl md:text-5xl"}`}>{tagline}</p>
-            </article>
-            {config.overview.map((item, index) => <article key={item.title} className={editorial ? "border-b border-white/18 py-9 md:pl-16" : cinematic ? `${index === 0 || index === 3 ? "md:col-span-7" : "md:col-span-5"} min-h-64 rounded-[24px] bg-black/35 p-7 md:p-9` : "min-h-64 bg-[#151a1d] p-7 md:p-9"}><h4 className={`font-semibold ${industrial ? "text-3xl uppercase tracking-[-0.04em] text-[#ef6c43]" : "text-2xl"}`}>{item.title}</h4><p className="mt-5 text-lg leading-8 text-white/64">{item.body}</p></article>)}
+            {config.overviewIntro ? (
+              <article className={editorial ? "border-b border-white/18 py-10 md:col-span-2" : "rounded-[28px] bg-black/30 p-8 text-white md:col-span-12 md:p-12"}>
+                <p className="max-w-none text-lg leading-8 text-white/68">{config.overviewIntro}</p>
+              </article>
+            ) : (
+              <article className={editorial ? `border-b border-white/18 py-10 ${id === "ravensdown" ? "md:col-span-2" : "md:row-span-4 md:pr-16"}` : cinematic ? "rounded-[28px] bg-black/30 p-8 text-white md:col-span-9 md:p-12" : "bg-[#ef6c43] p-8 text-[#0d1012] md:col-span-2 md:p-12"}>
+                <p className={`max-w-4xl font-semibold leading-[1.12] tracking-[-0.04em] ${editorial ? "text-3xl md:text-4xl" : "text-3xl md:text-5xl"}`}>{tagline}</p>
+              </article>
+            )}
+            {config.overview.map((item, index) => <article key={item.title} className={editorial ? `border-b border-white/18 py-9 md:pl-16 ${id === "ravensdown" ? "md:col-span-2" : ""}` : cinematic ? `${index === 0 || index === 3 ? "md:col-span-7" : "md:col-span-5"} min-h-64 rounded-[24px] bg-black/35 p-7 md:p-9` : "min-h-64 bg-[#151a1d] p-7 md:p-9"}><h4 className={`font-semibold ${industrial ? "text-3xl uppercase tracking-[-0.04em] text-[#ef6c43]" : "text-2xl"}`}>{item.title}</h4><p className="mt-5 text-lg leading-8 text-white/64">{item.body}</p></article>)}
           </div>
           <dl className={`mt-12 grid sm:grid-cols-2 lg:grid-cols-4 ${id === "ravensdown" ? "gap-3" : editorial ? "border-y border-white/18" : cinematic ? "gap-3" : "overflow-hidden rounded-[24px] gap-px bg-white/15"}`}>
             {config.meta.map(([term, value]) => <div key={term} className={id === "ravensdown" ? "rounded-[22px] p-6" : editorial ? "py-6 lg:border-r lg:border-white/18 lg:px-6 lg:first:pl-0 lg:last:border-r-0" : cinematic ? "rounded-[20px] bg-black/30 p-6" : "bg-[#0d1012] p-6"}><dt className={`text-sm font-semibold ${industrial ? "text-[#ef6c43]" : "text-white/45"}`}>{term}</dt><dd className="mt-3 text-lg font-semibold text-white/86">{value}</dd></div>)}
@@ -357,16 +408,16 @@ function StudyPage({ id, onClose }: { id: StudyId; onClose: () => void }) {
         <div className="mx-auto max-w-7xl px-5 md:px-8">
           <SectionHeading design={config.design} intro={config.researchIntro}>Research</SectionHeading>
           <div className={`mt-16 grid ${editorial ? "gap-x-16 gap-y-12 border-t border-white/18 pt-12 md:grid-cols-2" : cinematic ? "gap-0 border-y border-white/14" : "grid-flow-dense gap-3 md:grid-cols-12"}`}>
-            {config.research.map((item, index) => <article key={item.title} className={editorial ? `${index === 0 ? "md:col-span-2 md:grid md:grid-cols-2 md:gap-16" : ""}` : cinematic ? "grid gap-5 border-b border-white/14 py-9 last:border-b-0 md:grid-cols-[0.65fr_1.35fr] md:py-12" : `${index === 0 || index === 3 ? "md:col-span-7" : "md:col-span-5"} rounded-[22px] bg-[#151a1d] p-7 md:p-9`}><h4 className={`${industrial ? "text-2xl uppercase text-[#ef6c43]" : cinematic ? "text-3xl text-[#df683c]" : "text-3xl"} font-semibold tracking-[-0.03em]`}>{item.title}</h4><p className={`${editorial && index === 0 ? "md:mt-0" : "mt-5"} text-lg leading-8 text-white/62`}>{item.body}</p></article>)}
+            {config.research.map((item, index) => <article key={item.title} className={editorial ? `${index === 0 ? "md:col-span-2" : ""}` : cinematic ? "grid gap-5 border-b border-white/14 py-9 last:border-b-0 md:grid-cols-[0.65fr_1.35fr] md:py-12" : `${index === 0 || index === 3 ? "md:col-span-7" : "md:col-span-5"} rounded-[22px] bg-[#151a1d] p-7 md:p-9`}><h4 className={`${industrial ? "text-2xl uppercase text-[#ef6c43]" : cinematic ? "text-3xl text-[#df683c]" : "text-3xl"} font-semibold tracking-[-0.03em]`}>{item.title}</h4><p className="mt-5 text-lg leading-8 text-white/62">{item.body}</p></article>)}
           </div>
         </div>
       </section>
 
       <section id="experience" data-case-study-chapter className="scroll-mt-16 py-32 md:py-44" style={{ background: config.palette.soft, color: config.palette.page }}>
         <div className="mx-auto max-w-7xl px-5 md:px-8">
-          <SectionHeading design={config.design} intro={config.experienceIntro} dark={false}>Project Details</SectionHeading>
+          <SectionHeading design={config.design} intro={config.experienceIntro} dark={false}>{caseStudyDefinitions[id].sections.experience.label}</SectionHeading>
           <div className={`mt-16 grid grid-flow-dense ${editorial ? "gap-x-12 gap-y-20 md:grid-cols-2" : cinematic ? "gap-4 md:grid-cols-12" : "overflow-hidden rounded-[30px] gap-px bg-[#0d1012] md:grid-cols-2"}`}>
-            {config.experience.map((item, index) => <article key={item.title} className={editorial ? `${index % 2 ? "md:mt-24" : ""}` : cinematic ? `${index === 0 || index === 3 ? "md:col-span-7" : "md:col-span-5"} overflow-hidden rounded-[28px] bg-[#0d0908] text-white` : "overflow-hidden bg-[#f4f0e8]"}>{item.media && <img src={image(id, item.media.file)} alt={item.media.alt} className={`${editorial ? "aspect-[4/3] rounded-[26px]" : cinematic ? "aspect-[16/10] grayscale-[0.35]" : "aspect-[16/9] border-b-8 border-[#ef6c43]"} w-full object-cover`} />}<div className={editorial ? id === "ravensdown" ? "py-7" : "border-t border-black/25 py-7" : cinematic ? "p-7 md:p-9" : "p-7 md:p-9"}><h4 className={`${industrial ? "text-3xl uppercase tracking-[-0.05em]" : "text-3xl tracking-[-0.03em]"} font-semibold`}>{item.title}</h4><p className={`mt-5 text-lg leading-8 ${cinematic ? "text-white/62" : "opacity-65"}`}>{item.body}</p></div></article>)}
+            {config.experience.map((item, index) => <article key={item.title} className={editorial ? `${index % 2 ? "md:mt-24" : ""}` : cinematic ? `${id === "forgotten-line" && item.title === "Audio route" ? "md:col-span-12" : index === 0 || index === 3 ? "md:col-span-7" : "md:col-span-5"} overflow-hidden rounded-[28px] bg-[#0d0908] text-white` : "overflow-hidden bg-[#f4f0e8]"}>{item.media && <img src={image(id, item.media.file)} alt={item.media.alt} className={`${editorial ? "aspect-[4/3] rounded-[26px]" : cinematic ? "aspect-[16/10] grayscale-[0.35]" : "aspect-[16/9] border-b-8 border-[#ef6c43]"} w-full object-cover`} />}<div className={editorial ? id === "ravensdown" ? "py-7" : "border-t border-black/25 py-7" : cinematic ? "p-7 md:p-9" : "p-7 md:p-9"}><h4 className={`${industrial ? "text-3xl uppercase tracking-[-0.05em]" : "text-3xl tracking-[-0.03em]"} font-semibold`}>{item.title}</h4><p className={`mt-5 text-lg leading-8 ${cinematic ? "text-white/62" : "opacity-65"}`}>{item.body}</p></div></article>)}
           </div>
           {renderDeepDives("experience")}
         </div>
@@ -382,14 +433,14 @@ function StudyPage({ id, onClose }: { id: StudyId; onClose: () => void }) {
         </div>
       </section>
 
-      <section id="extras" data-case-study-chapter className="scroll-mt-16 py-32 md:py-44" style={{ background: config.palette.panel }}>
+      {hasExtras && <section id="extras" data-case-study-chapter className="scroll-mt-16 py-32 md:py-44" style={{ background: config.palette.panel }}>
         <div className="mx-auto max-w-7xl px-5 md:px-8">
           <SectionHeading design={config.design} intro={config.extrasIntro}>Extras</SectionHeading>
           <div className={editorial ? id === "ravensdown" ? "mt-16 border-t border-white/18" : "mt-24 space-y-32" : cinematic ? "mt-20 space-y-16" : "mt-16 grid gap-4 lg:grid-cols-2"}>
             {config.deepDives.filter((item) => item.placement === "extras").map((extra, extraIndex) => <article key={extra.id} id={extra.id} className={editorial ? id === "ravensdown" ? "border-b border-white/18 py-16" : "border-t border-white/18 pt-10" : cinematic ? "rounded-[28px] bg-black/22 p-7 md:p-10" : `${extraIndex === 0 ? "lg:col-span-2" : ""} rounded-[24px] bg-white/[0.035] p-6 md:p-8`}><div className={editorial ? "max-w-4xl md:grid md:grid-cols-[0.7fr_1.3fr] md:gap-16" : "max-w-3xl"}><h4 className={`${industrial ? "text-3xl uppercase text-[#ef6c43] md:text-5xl" : "text-4xl md:text-6xl"} font-semibold tracking-[-0.04em]`}>{extra.title}</h4><p className={`${editorial ? "md:mt-0" : "mt-6"} text-lg leading-8 text-white/62`}>{extra.body}</p></div><div className={`mt-10 grid grid-flow-dense ${editorial ? "gap-8" : cinematic ? "gap-2" : "gap-3"} ${extra.media.length === 1 ? "max-w-4xl" : "md:grid-cols-3"}`}>{extra.media.map((media, mediaIndex) => <figure key={media.file} className={editorial ? `${mediaIndex === 0 && extra.media.length > 1 ? "md:col-span-2" : ""} ${id === "ravensdown" ? "" : "border-t border-white/18 pt-3"}` : cinematic ? "overflow-hidden rounded-[22px] bg-black/45" : "overflow-hidden rounded-[20px] bg-[#0d1012]"}><img src={image(id, media.file)} alt={media.alt} className={`${editorial && mediaIndex === 0 ? "aspect-video" : industrial ? "aspect-video" : "aspect-[4/3]"} w-full rounded-[22px] object-cover`} /><figcaption className={`p-4 text-sm font-medium ${industrial ? "uppercase tracking-[0.08em] text-[#ef6c43]" : "text-white/62"}`}>{media.title}</figcaption></figure>)}</div></article>)}
           </div>
         </div>
-      </section>
+      </section>}
 
       <div style={{ background: config.palette.page }}>
         <ChangelogAccordion entries={config.changelog} openVersion={openChangelog} onToggle={setOpenChangelog} idPrefix={id} gameTitle={config.title} description="Recorded development stages from the supplied project documentation." variant={config.design} />

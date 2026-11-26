@@ -62,11 +62,12 @@ export const caseStudyDefinitions = {
     title: "Ravensdown",
     theme: "ravensdown",
     hero: { label: "Ravensdown introduction" },
-    sections: sharedLabels,
+    sections: { ...sharedLabels, experience: { label: "Environment Experience" } },
     deepDives: [
       { id: "ravensdown-assets", label: "Asset assembly", placement: "extras" },
-      { id: "ravensdown-production", label: "Production organisation", placement: "process" },
-      { id: "ravensdown-iteration", label: "Major visual iteration", placement: "process" },
+      { id: "ravensdown-production", label: "Production organisation", placement: "extras" },
+      { id: "ravensdown-iteration", label: "Atmosphere iteration", placement: "extras" },
+      { id: "ravensdown-tree-changes", label: "Tree changes", placement: "extras" },
     ],
   },
   "forgotten-line": {

@@ -864,14 +864,14 @@ function EverdewProjectView({
           </p>
           <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {[
-              ["Brief", "Create an uplifting game around the theme A New Path"],
+              ["Tools", "Unity and Aseprite"],
               ["Constraints", "Pixel art or low poly, PEGI 7, playable on web or PC"],
               ["My role", "Environment, game design, programming, and interface design"],
               ["Delivery", "A playable prototype and promotional poster"],
-            ].map(([title, copy], index) => (
-              <article key={title} className={`rounded-[24px] p-6 ${index === 0 ? "bg-[#d5f36a] text-[#11140d]" : "bg-[#252c1c] text-white"}`}>
+            ].map(([title, copy]) => (
+              <article key={title} className="rounded-[24px] bg-[#252c1c] p-6 text-white">
                 <h4 className="font-semibold">{title}</h4>
-                <p className={`mt-3 leading-7 ${index === 0 ? "text-[#11140d]/72" : "text-white/62"}`}>{copy}</p>
+                <p className="mt-3 leading-7 text-white/62">{copy}</p>
               </article>
             ))}
           </div>

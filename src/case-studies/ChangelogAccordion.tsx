@@ -37,7 +37,7 @@ export default function ChangelogAccordion({
           href={BREEZE_CLIENT_URL}
           target="_blank"
           rel="noreferrer"
-          className="mt-7 inline-flex min-h-12 items-center justify-center rounded-full bg-white px-6 py-3 text-sm font-semibold text-black transition-[box-shadow,transform] duration-300 hover:shadow-[0_12px_30px_rgba(255,255,255,0.18)] active:scale-95 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/35"
+          className="mt-7 inline-flex min-h-12 items-center justify-center rounded-full bg-white px-6 py-3 text-sm font-semibold text-black transition-transform duration-300 active:scale-95 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/35"
         >
           Download Breeze Client to play {gameTitle}
         </a>
